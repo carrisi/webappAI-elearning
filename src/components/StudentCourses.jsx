@@ -29,18 +29,20 @@ const courses = [
 export default function StudentCourses() {
   return (
     <section className="course-section">
-      <h2 className="section-title">Recenti</h2>
-      <div className="card-carousel">
-        {courses.map(course => (
-          <Card className="course-card" key={course.id}>
-            <Card.Img variant="top" src={course.image} />
-            <Card.Body>
-              <Card.Title>{course.title}</Card.Title>
-              <Card.Text>{course.description}</Card.Text>
-              <Button variant="primary">Vai al corso</Button>
-            </Card.Body>
-          </Card>
-        ))}
+      <h2 className="section-title">I tuoi corsi</h2>
+      <div className="carousel-wrapper">
+        <div className="card-carousel">
+          {courses.map(course => (
+            <Card className="course-card" key={course.id}>
+              <Card.Img variant="top" src={course.image} />
+              <Card.Body>
+                <Card.Title>{course.title}</Card.Title>
+                <Card.Text>{course.description}</Card.Text>
+                <Button variant="primary">Vai al corso</Button>
+              </Card.Body>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
