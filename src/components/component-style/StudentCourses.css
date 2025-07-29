@@ -1,7 +1,7 @@
 /* src/components/component-style/StudentCourses.css */
 
 .course-section {
-  padding: 4rem 0;
+  padding: 0 0 0 0;
   color: white;
   text-align: center;
   background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.05));
@@ -30,14 +30,56 @@
 }
 
 .course-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
   min-width: 18rem;
+  max-width: 20rem;
+  height: 360px;
   flex: 0 0 auto;
   border-radius: 1rem;
   overflow: hidden;
 
   background: rgba(255, 255, 255, 0.15);
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
+
+.course-card img {
+  height: 120px;
+  width: calc(100% - 2rem);
+  margin: 1rem auto 0;
+  display: block;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  padding: 1rem;
+}
+
+.card-body .card-text {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  margin-bottom: 1rem;
+}
+
+.card-body .card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
