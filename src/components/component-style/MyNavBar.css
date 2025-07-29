@@ -1,0 +1,134 @@
+/* il container principale della barra */
+ .navbar {
+  position: fixed;
+  top: 2%;
+  left: 0;
+  right: 0;
+
+  margin-left: 1%;
+  margin-right: 1%;
+  z-index: 1000; /* sopra gli altri contenuti */
+
+  align-items: center;
+  display: flex;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+ .navbar .container {
+  width: 100%;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* il logo/titolo a sinistra */
+ .navbar-brand {
+  padding-left: 2.5%;
+}
+
+/* il pulsante “hamburger” su mobile */
+/*  .navbar-toggler { } */
+
+/* il contenitore collassabile dei link */
+ .navbar-collapse {
+  display: flex;
+  align-items: center;
+}
+
+/* il wrapper dei Nav.Link (flex container) */
+ /* .navbar-nav { } */
+
+/* ciascun link “Home Studente”, “Home Docente” */
+ /* .nav-link { } */
+
+/* stato hover dei link */
+ /* .nav-link:hover { } */
+
+/* il menu a tendina contenitore delle voci */
+ .dropdown-menu {
+  margin-top: 20% !important;
+  border-radius: 0 0 16px 16px !important;
+
+  /*
+    Annulla tutti gli eventi mouse su tutto il blocco (compreso il padding-top),
+    Annulla anche gli eventi mouse sulle voci che vengono riattivate in .dropdown-menu .dropdown-item
+   */
+  pointer-events: none !important;
+
+  /* Effetto Glassmorphism */
+  background: rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ciascuna voce del dropdown */
+ .dropdown-item {
+  background: transparent;
+  pointer-events: auto !important;
+}
+
+/* stato hover delle voci dropdown */
+ .dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+ .d-flex {
+  align-items: center;
+  padding-right: 2.5%;
+}
+
+/* campo di ricerca */
+#navbar-nav .form-control {
+  width: 200px;
+  height: 35px;
+
+  padding-left: 2.5%;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* il pulsante cerca */
+ .btn-cerca {
+  color: black;
+  border: 2px solid #6C63FF;
+  background: transparent;
+  width: 70px;
+  height: 36px;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  margin-left: 0.5rem;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hover */
+ .btn-cerca:hover {
+  background-color: #6C63FF;
+  color: #fff;
+}
