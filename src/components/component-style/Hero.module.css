@@ -1,7 +1,9 @@
 .hero {
   position: relative;
-  padding: 10em 1rem;
+  padding: 6em 1rem 2em;
+  min-height: 30vh;      /* Altezza visiva apprezzabile */
   color: #fff;
+  overflow: hidden;      /* Previene sforamenti */
 }
 
 .inner {
@@ -22,15 +24,15 @@
 
 .laureaIcon1 {
   position: absolute;
-  top: -60px;
-  left: 420px;
-  width: 200px;  height: 200px;
+  top: 10%;
+  left: 65%;
+  width: 180px;
 }
 .laureaIcon2 {
   position: absolute;
-  top: -60px;
-  left: -100px;
-  width: 200px;  height: 200px;
+  top: 10%;
+  left: 10%;
+  width: 180px;
 }
 
 .text {
