@@ -1,0 +1,22 @@
+.h-100 {
+  /* il tuo glassmorphism */
+  background: rgba(255, 255, 255, 0.15);
+  border-left:  1px solid rgba(255, 255, 255, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom:1px solid rgba(255, 255, 255, 0.3);
+  /* opzionale: bordo superiore leggero per chiudere il riquadro */
+  border-top:   1px solid rgba(255, 255, 255, 0.1);
+
+  /* sfocatura dello sfondo */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* ombra delicata */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* angoli arrotondati come nel resto dell’app */
+  border-radius: 16px;
+
+  /* per mantenere il contenuto leggibile */
+  color: #fff;
+}

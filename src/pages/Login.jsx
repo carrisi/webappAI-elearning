@@ -6,7 +6,7 @@ import { auth, db } from '../firebase.js';
 
 import './Style/Login.css';
 import RoleSwitch from '../components/RoleSwitch.jsx';
-import LogoImg from './assets/logo_placeholder.png';
+import LogoImg from '../assets/logo_placeholder.png';
 
 
 const roles = [

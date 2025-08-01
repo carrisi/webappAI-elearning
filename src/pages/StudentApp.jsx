@@ -4,6 +4,7 @@ import MyNavbar from '../components/MyNavBar';
 import './Style/StenteApp.css';
 import Hero from '../components/Hero';
 import StudentCourses from '../components/StudentCourses';
+import { Outlet } from 'react-router-dom';
 
 
 export default function StudentApp() {
@@ -14,7 +15,7 @@ export default function StudentApp() {
       </div>
       <main>
         <Hero />
-        <StudentCourses />
+        <Outlet />
       </main>
     </>
   );

@@ -6,16 +6,26 @@ import Login       from './pages/Login';
 import StudentApp  from './pages/StudentApp';
 import TeacherApp  from './pages/TeacherApp';
 
+// importa i componenti che vogliamo usare come figli di StudentApp
+import StudentCourses from './components/StudentCourses';
+import MyCourses from './pages/myCourses';
+
 export default function App() {
   return (
     <Routes>
-      {/* route di login */}
+      {/* 1) Pagina di Login */}
       <Route path="/login" element={<Login />} />
 
-      {/* route protetta per lo studente */}
-      <Route path="/studente/*" element={<StudentApp />} />
+      {/* 2) Dashboard Studente */}
+      <Route path="/studente" element={<StudentApp />}>
+        {/* /student -> StudentCourses */}
+        <Route index element={<StudentCourses />} />
 
-      {/* route protetta per il docente */}
+        {/* /studente/corsi -> MyCoursesPage */}
+        <Route path="corsi" element={<MyCourses />} />
+      </Route>
+
+      {/* 3) Dashboard Docente */}
       <Route path="/docente/*" element={<TeacherApp />} />
 
       {/* qualsiasi altro URL reindirizza al login */}

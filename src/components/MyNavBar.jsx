@@ -16,20 +16,15 @@ export default function MyNavbar() {
     <Navbar expand="lg" className="mb-4 glass-nav">
       <Container fluid className="px-0">
         {/* Brand che torna alla root */}
-        <Navbar.Brand as={Link} to="/">
-          AI-Learning
-        </Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">AI-Learning</Navbar.Brand>
 
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="nav-bar">
             {/* I “due bottoni” */}
-            <Nav.Link as={Link} to="/studente">
-              Home Studente
-            </Nav.Link>
-            <Nav.Link as={Link} to="/docente">
-              Home Docente
-            </Nav.Link>
+            <Nav.Link as={Link} to="/studente">Home</Nav.Link>
+            <Nav.Link as={Link} to="/studente/corsi">I miei corsi</Nav.Link>
+            <Nav.Link as={Link} to="/studente/eventi">Eventi</Nav.Link>
 
             {/* Il dropdown con tre voci */}
             <NavDropdown title="Profilo" id="basic-nav-dropdown">
