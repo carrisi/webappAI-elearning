@@ -9,6 +9,7 @@ import TeacherApp  from './pages/TeacherApp';
 // importa i componenti che vogliamo usare come figli di StudentApp
 import StudentCourses from './components/StudentCourses';
 import MyCourses from './pages/myCourses';
+import CourseDetail from './pages/CourseDetail';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
 
         {/* /studente/corsi -> MyCoursesPage */}
         <Route path="corsi" element={<MyCourses />} />
+        <Route path="corsi/:id" element={<CourseDetail />} />
       </Route>
 
       {/* 3) Dashboard Docente */}

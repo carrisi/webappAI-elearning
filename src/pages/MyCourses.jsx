@@ -1,22 +1,27 @@
-// src/pages/MyCourses.jsx
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import mockCourses from '../data/mockCourses';
-import './Style/MyCourses.css'
+import './Style/MyCourses.css';
 
 function CourseCard({ corso }) {
   return (
-    <Card className="h-100">
-      <Card.Body>
-        <Card.Title>{corso.titolo}</Card.Title>
-        <Card.Text>{corso.descrizione}</Card.Text>
-      </Card.Body>
-      <Card.Footer>
-        <small className="text-muted">
-          {corso.stato === 'attivo' ? 'In corso' : 'Completato'}
-        </small>
-      </Card.Footer>
-    </Card>
+    <Link
+      to={`/studente/corsi/${corso.id}`}
+      className="text-decoration-none"
+    >
+      <Card className="h-100 glass-card clickable-card">
+        <Card.Body>
+          <Card.Title>{corso.titolo}</Card.Title>
+          <Card.Text>{corso.descrizione}</Card.Text>
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-light">
+            {corso.stato === 'attivo' ? 'In corso' : 'Completato'}
+          </small>
+        </Card.Footer>
+      </Card>
+    </Link>
   );
 }
 
