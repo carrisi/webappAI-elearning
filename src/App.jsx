@@ -1,37 +1,58 @@
+// src/App.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// importa la pagina di login e i wrapper student/docente
-import Login       from './pages/Login';
-import StudentApp  from './pages/StudentApp';
-import TeacherApp  from './pages/TeacherApp';
-
-// importa i componenti che vogliamo usare come figli di StudentApp
-import StudentCourses from './components/StudentCourses';
-import MyCourses from './pages/myCourses';
-import CourseDetail from './pages/CourseDetail';
+import ScrollToTop     from './components/ScrollToTop';
+import Login           from './pages/Login';
+import StudentApp      from './pages/StudentApp';
+import TeacherApp      from './pages/TeacherApp';
+import Hero            from './components/Hero';
+import StudentCourses  from './components/StudentCourses';
+import MyCourses       from './pages/MyCourses';
+import CourseDetail    from './pages/CourseDetail';
 
 export default function App() {
   return (
-    <Routes>
-      {/* 1) Pagina di Login */}
-      <Route path="/login" element={<Login />} />
+    <>
+      <ScrollToTop />
 
-      {/* 2) Dashboard Studente */}
-      <Route path="/studente" element={<StudentApp />}>
-        {/* /student -> StudentCourses */}
-        <Route index element={<StudentCourses />} />
+      <Routes>
+        {/* Login */}
+        <Route path="/login" element={<Login />} />
 
-        {/* /studente/corsi -> MyCoursesPage */}
-        <Route path="corsi" element={<MyCourses />} />
-        <Route path="corsi/:id" element={<CourseDetail />} />
-      </Route>
+        {/* Layout Studente (NavBar + Outlet) */}
+        <Route path="/studente" element={<StudentApp />}>
+          {/* Dashboard: Hero + StudentCourses */}
+          <Route
+            index
+            element={
+              <>
+                <Hero />
+                <StudentCourses />
+              </>
+            }
+          />
+          {/* I miei corsi: Hero + lista corsi */}
+          <Route
+            path="corsi"
+            element={
+              <>
+                <Hero />
+                <MyCourses />
+              </>
+            }
+          />
+        </Route>
 
-      {/* 3) Dashboard Docente */}
-      <Route path="/docente/*" element={<TeacherApp />} />
+        {/* Dettaglio corso: pagina standalone con solo NavBar + CourseDetail */}
+        <Route path="/studente/corsi/:id" element={<CourseDetail />} />
 
-      {/* qualsiasi altro URL reindirizza al login */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        {/* Layout Docente */}
+        <Route path="/docente/*" element={<TeacherApp />} />
+
+        {/* Redirect per tutte le altre */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </>
   );
 }

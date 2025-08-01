@@ -26,7 +26,7 @@ export default function Hero() {
         />
         <p className={styles.text}>Scopri e gestisci tutti i tuoi corsi attivi,<br />controlla i progressi e riprendi subito lo studio dove l’hai lasciato.</p>
         
-        <button className={styles.button}>I miei corsi</button>
+        <button className={styles.button}>Scopri nuovi corsi</button>
       </div>
     </section>
   );
