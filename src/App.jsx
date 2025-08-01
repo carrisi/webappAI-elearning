@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // importa la pagina di login e i wrapper student/docente
-import Login       from './Login.jsx';
+import Login       from './pages/Login';
 import StudentApp  from './pages/StudentApp';
 import TeacherApp  from './pages/TeacherApp';
 

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { auth, db } from '../firebase.js';
 
-import './Login.css';
-import RoleSwitch from './components/RoleSwitch.jsx';
+import './Style/Login.css';
+import RoleSwitch from '../components/RoleSwitch.jsx';
 import LogoImg from './assets/logo_placeholder.png';
 
 
