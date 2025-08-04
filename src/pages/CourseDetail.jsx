@@ -40,7 +40,7 @@ export default function CourseDetail() {
 
                     <hr />
 
-                    <h5>Obbiettivi del corso</h5>
+                    <h5>Obiettivi del corso</h5>
                     <p>{corso.descrizione}</p>
                   </div>
 
@@ -61,9 +61,14 @@ export default function CourseDetail() {
                                 action
                                 as={Link}
                                 to={`/studente/corsi/${corso.id}/sezioni/${sec.id}/lezioni/${lez.id}`}
-                                className="glass-card clickable-card mb-2"
+                                className="glass-card clickable-card mb-2 d-flex justify-content-between align-items-center"
                               >
-                                {lez.title}
+                                <div>
+                                  <span>{lez.title}</span>{' '}
+                                  <small className="text-muted ms-3">
+                                    [{lez.fileTypes.join(', ')}]
+                                  </small>
+                                </div>
                               </ListGroup.Item>
                             ))}
                           </ListGroup>
