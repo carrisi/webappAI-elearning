@@ -1,0 +1,131 @@
+/* src/pages/Style/LessonVideoPdfPage.css */
+
+/* 1. Wrapper full-screen sotto la navbar */
+.lesson-videopdf-page {
+  width: 100vw;
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* 2. Titolo e descrizione */
+.lesson-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.lesson-description {
+  font-size: 1.125rem;
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.4;
+}
+
+/* 3. Toggle Video / PDF */
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+.view-toggle button {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: background 0.2s;
+}
+.view-toggle button.active {
+  background: rgba(255,255,255,0.35);
+  font-weight: 600;
+}
+
+/* 4. Split view 2:1 (media | chat) */
+.lesson-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 0 5rem;
+  margin-bottom: 2rem;
+}
+.media-pane {
+  width: 100%;
+  height: 100%;
+}
+/* Riutilizziamo lo stile del video player */
+.video-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* PDF container con stessa proporzione 16:9 e scroll interno */
+.pdf-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pdf-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 5. Chat glassmorphism (come già in LessonVideoPage) */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.15);
+  border-left:   1px solid rgba(255,255,255,0.3);
+  border-right:  1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  box-shadow:    0 8px 32px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 6. Riassunto */
+.lesson-summary {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+}
+.lesson-summary h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+.lesson-summary p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}

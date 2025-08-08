@@ -1,26 +1,30 @@
-// src/pages/LessonVideoPage.jsx
+// src/pages/LessonVideoPdfPage.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import mockCourses   from '../data/mockCourses';
-import VideoPlayer   from '../components/VideoPlayer';
-import ChatBox       from '../components/ChatBox';
-import './Style/LessonVideoPage.css';
+import { useParams }       from 'react-router-dom';
+import mockCourses         from '../data/mockCourses';
+import VideoPlayer         from '../components/VideoPlayer';
+import PDFViewer           from '../components/PDFViewer';
+import ChatBox             from '../components/ChatBox';
+import './Style/LessonVideoPdfPage.css';
 
-export default function LessonVideoPage({ title, videoUrl }) {
+export default function LessonVideoPdfPage() {
   const { id, secId, lezId } = useParams();
-  const course  = mockCourses.find(c => c.id === +id);
-  const section = course?.sections.find(s => s.id === +secId);
-  const lesson  = section?.lessons.find(l => l.id === +lezId);
+  const course   = mockCourses.find(c => c.id === +id);
+  const section  = course?.sections.find(s => s.id === +secId);
+  const lesson   = section?.lessons.find(l => l.id === +lezId);
+  const title       = lesson?.title || '';
   const description = lesson?.description || '';
+  const videoUrl    = lesson?.videoUrl || lesson?.url || '';
+  const pdfUrl      = lesson?.fileUrl  || lesson?.contentUrl || '';
 
-  // ref e stato per altezza video
-  const videoRef = useRef(null);
+  // ref e stato per altezza media-pane
+  const mediaRef = useRef(null);
   const [mediaHeight, setMediaHeight] = useState(0);
 
   useEffect(() => {
     function updateHeight() {
-      if (videoRef.current) {
-        setMediaHeight(videoRef.current.offsetHeight);
+      if (mediaRef.current) {
+        setMediaHeight(mediaRef.current.offsetHeight);
       }
     }
     updateHeight();
@@ -28,14 +32,39 @@ export default function LessonVideoPage({ title, videoUrl }) {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
+  const [view, setView] = useState('video');
+
   return (
-    <div className="lesson-video-page">
+    <div className="lesson-videopdf-page">
       <h1 className="lesson-title">{title}</h1>
       {description && <p className="lesson-description">{description}</p>}
 
+      <div className="view-toggle">
+        <button
+          className={view === 'video' ? 'active' : ''}
+          onClick={() => setView('video')}
+        >
+          Video
+        </button>
+        <button
+          className={view === 'pdf' ? 'active' : ''}
+          onClick={() => setView('pdf')}
+        >
+          PDF
+        </button>
+      </div>
+
       <div className="lesson-content">
-        <div className="video-container" ref={videoRef}>
-          <VideoPlayer src={videoUrl} />
+        <div className="media-pane" ref={mediaRef}>
+          {view === 'video' ? (
+            <div className="video-container">
+              <VideoPlayer src={videoUrl} />
+            </div>
+          ) : (
+            <div className="pdf-container">
+              <PDFViewer src={pdfUrl} />
+            </div>
+          )}
         </div>
         <div
           className="chat-container"
@@ -46,9 +75,9 @@ export default function LessonVideoPage({ title, videoUrl }) {
       </div>
 
       <div className="lesson-summary">
-        <h2>Riassunto della lezione</h2>
+        <h2>Riassunto della lezione {view === 'video' ? 'Video' : 'PDF'}</h2>
         <p>
-          Qui verrà visualizzato un riassunto della lezione creato utilizzando AI, per ora aggiungo un placeholder per riempire lo spazio.
+          Qui verrà visualizzato un riassunto {view === 'video' ? 'del video' : 'del PDF'} creato utilizzando AI, per ora aggiungo un placeholder per riempire lo spazio.
           <br /><br />
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam perferendis provident sequi dolor, explicabo odio sunt reprehenderit eos, repudiandae iure repellendus modi, expedita qui fuga cumque. Consequuntur, rerum ut? Quasi, tempora corrupti voluptatibus facere expedita rem, quae recusandae nihil perspiciatis blanditiis excepturi. Culpa voluptatibus explicabo fuga dolor sint maxime, soluta voluptatem nobis quam est illo repellendus consequatur eaque pariatur ex, suscipit ab quos at cum? Aspernatur facere eligendi quo quisquam! Placeat provident aut magnam eius non soluta voluptatem quisquam ipsum, aliquam obcaecati. Exercitationem nostrum laboriosam facilis accusantium et porro fugiat illo perferendis magni expedita eaque corrupti, iusto, illum doloremque dolores?
           <br /><br />
