@@ -1,9 +1,10 @@
 // src/pages/LessonPage.jsx
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import mockCourses   from '../data/mockCourses';
+import mockCourses from '../data/mockCourses';
 import LessonVideoPage from './LessonVideoPage';
 import LessonVideoPdfPage from './LessonVideoPdfPage';
+import LessonPdfPage from './LessonPdfPage';
 
 export default function LessonPage() {
   // prendi i parametri dalla URL
@@ -19,12 +20,30 @@ export default function LessonPage() {
   const lesson = section.lessons.find(l => l.id === +lezId);
   if (!lesson) return <div>Lezione non trovata</div>;
 
-  // se ho sia video che PDF
-  const hasVideo = lesson.fileTypes.includes('video');
-  const hasPdf   = lesson.fileTypes.includes('pdf');
+  // normalizza metadati
+  const typeLc = (lesson.type || '').toLowerCase();
+  const fileTypes = Array.isArray(lesson.fileTypes)
+    ? lesson.fileTypes.map(t => String(t).toLowerCase())
+    : [];
+
+  // presenza risorse (tollerante a mock diversi)
+  const hasVideo =
+    fileTypes.includes('video') ||
+    typeLc === 'video' ||
+    Boolean(lesson.videoUrl || lesson.url);
+
+  const hasPdf =
+    fileTypes.includes('pdf') ||
+    typeLc === 'pdf' ||
+    typeLc === 'reading' ||
+    Boolean(lesson.pdfUrl || lesson.fileUrl || lesson.contentUrl);
+
+  // URL risorse (fallback robusti)
+  const videoUrl = lesson.videoUrl || lesson.url || '';
+  const pdfUrl = lesson.pdfUrl || lesson.fileUrl || lesson.contentUrl || '';
+
+  // video + pdf
   if (hasVideo && hasPdf) {
-    const videoUrl = lesson.url || lesson.videoUrl || '';
-    const pdfUrl   = lesson.fileUrl || lesson.contentUrl || '';
     return (
       <LessonVideoPdfPage
         title={lesson.title}
@@ -34,18 +53,16 @@ export default function LessonPage() {
     );
   }
 
-  if (!hasVideo) {
-    return <div>Tipo di lezione non supportato</div>;
+  // solo pdf
+  if (!hasVideo && hasPdf) {
+    return <LessonPdfPage title={lesson.title} pdfUrl={pdfUrl} />;
   }
 
-  // qui ci aspettiamo di avere una proprietà `url` o `videoUrl` su lesson
-  // altrimenti rimane vuoto e visualizzerà solo il player a schermo nero
-  const videoUrl = lesson.url || lesson.videoUrl || '';
+  // solo video
+  if (hasVideo && !hasPdf) {
+    return <LessonVideoPage title={lesson.title} videoUrl={videoUrl} />;
+  }
 
-  return (
-    <LessonVideoPage
-      title={lesson.title}
-      videoUrl={videoUrl}
-    />
-  );
+  // non supportato
+  return <div>Tipo di lezione non supportato</div>;
 }

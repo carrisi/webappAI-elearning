@@ -1,0 +1,129 @@
+/* src/pages/Style/LessonPdfPage.css */
+
+/* Wrapper sotto navbar, identico agli altri */
+.lesson-pdf-page {
+  width: 100vw;
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Titolo e descrizione (stessi stili) */
+.lesson-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.lesson-description {
+  font-size: 1.125rem;
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.4;
+}
+
+/* Etichetta e toggle stile PDF */
+.file-type-label {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0.5rem;
+}
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+.view-toggle.single button {
+  cursor: default;
+}
+.view-toggle button {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+  transition: background 0.2s;
+}
+.view-toggle button.active {
+  background: rgba(255,255,255,0.35);
+  font-weight: 600;
+}
+
+/* Split 2:1 (PDF | Chat) */
+.lesson-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 0 5rem;
+  margin-bottom: 2rem;
+}
+.media-pane {
+  width: 100%;
+  height: 100%;
+}
+
+/* PDF 16:9 + scroll interno */
+.pdf-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pdf-container iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Chat con glass e altezza fissata via inline-style */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  border-left:   1px solid rgba(255,255,255,0.3);
+  border-right:  1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  box-shadow:    0 8px 32px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  overflow: hidden; /* il contenuto interno (messages) deve scrollare */
+}
+
+/* Riassunto identico */
+.lesson-summary {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+}
+.lesson-summary h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+.lesson-summary p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
