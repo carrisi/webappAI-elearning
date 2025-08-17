@@ -1,0 +1,246 @@
+/* ===== HERO ===== */
+.explore-hero{
+  min-height: 78vh;           /* “quasi tutta la pagina” */
+  display: flex; align-items: center;
+  padding: 1rem 0 4.5rem;     /* spazio sotto per l’overlay del banner */
+  overflow: visible;          /* permette la sovrapposizione del banner */
+}
+
+.hero-title{
+  font-size: clamp(2.2rem, 4vw + 1rem, 5rem);
+  font-weight: 800; color:#fff;
+  line-height: 1.05;
+  text-shadow: 0 8px 32px rgba(0,0,0,.35);
+  margin: 0 0 .35rem;
+}
+
+.hero-sub{
+  color: rgba(255,255,255,.92);
+  font-size: 1.05rem;
+  margin: 0 0 1rem;
+  max-width: 48ch;
+}
+
+.hero-cta{ display:flex; gap:.75rem; flex-wrap:wrap; }
+
+.hero-right{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position: relative;
+  z-index: 1;     /* sotto al banner */
+}
+
+.hero-illustration{
+  width: 125%;
+  max-width: 640px;
+  height: auto; object-fit: contain;
+  filter: drop-shadow(0 24px 48px rgba(0,0,0,.25));
+  animation: floatY 6s ease-in-out infinite;
+  margin-top: 0;                       /* default */
+}
+
+@keyframes floatY{
+  0%,100%{ transform: translateY(0); }
+  50%    { transform: translateY(-6px); }
+}
+
+/* Responsive */
+@media (max-width: 992px){
+  .explore-hero{ min-height: 64vh; padding-bottom: 3rem; }
+  .hero-left{ text-align:center; }
+  .hero-sub{ margin-left:auto; margin-right:auto; }
+  .hero-cta{ justify-content:center; }
+}
+@media (max-width: 576px){
+  .explore-hero{ min-height: 58vh; padding-bottom: 2rem; }
+  .hero-title{ font-size: clamp(1.9rem, 7vw + .5rem, 3rem); }
+}
+
+/* ===== HOW TO SEARCH BANNER ===== */
+.howto-banner{
+  position: relative;
+  z-index: 10;                 /* sopra immagine/gradienti dell’hero */
+  margin: -6.5rem auto 1rem; /* overlap “dolce” con l’immagine a destra */
+  max-width: 1100px;
+}
+.howto-inner{
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  background: rgba(255,255,255,.16);
+  box-shadow: 0 10px 28px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter: blur(10px);
+  color:#fff;
+  outline: 1px solid rgba(255,255,255,.18);
+  
+}
+.howto-inner h3{ margin: 0 0 .35rem; font-weight: 800; letter-spacing:.2px; }
+.howto-steps{ margin: 0; padding-left: 1.2rem; opacity:.95; }
+.howto-steps li{ margin:.15rem 0; }
+
+/* ======= OVERLAP / SIZE TUNING (desktop) ======= */
+@media (min-width: 1200px){
+  .explore-hero{ padding-bottom: 5.25rem; }   /* più aria per il banner */
+  .hero-illustration{
+    max-width: 840px;                      /* immagine più grande */
+    margin-top: 36px;                      /* la spingo un po’ in basso */
+  }
+  .howto-banner{ margin-top: -8rem; }    /* banner più in alto */
+}
+@media (min-width: 1400px){
+  .explore-hero{ padding-bottom: 5.75rem; }
+  .hero-illustration{
+    max-width: 980px;                      /* ancora più grande su schermi ampi */
+    margin-top: 48px;
+  }
+  .howto-banner{ margin-top: -9.5rem; }   /* overlap più marcato */
+}
+
+/* ===== STATS ===== */
+.stats-section{ margin: .75rem auto 1.25rem; max-width: 1100px; }
+.stats-grid{
+  display:grid; gap:.75rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+.stat-card{
+  border-radius: 18px; padding: .9rem 1rem;
+  background: rgba(255,255,255,.14);
+  box-shadow: 0 10px 28px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.22);
+  backdrop-filter: blur(10px);
+  color:#fff;
+}
+.stat-card.kpi{ display:flex; flex-direction:column; align-items:flex-start; justify-content:center; }
+.stat-kpi{ font-size: 2.4rem; font-weight: 900; line-height: 1; margin-bottom:.2rem; }
+.stat-label{ opacity:.9; }
+.stat-title{ font-weight:800; margin-bottom:.35rem; }
+.stat-chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
+
+/* chip stile glass */
+.chip{
+  border:0; padding:.38rem .65rem; border-radius:999px; cursor:pointer;
+  background: rgba(255,255,255,.18); color:#fff; font-weight:600; font-size:.85rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: transform .08s ease, background .2s ease;
+}
+.chip:hover{ transform: translateY(-1px); background: rgba(255,255,255,.28); }
+.chip-badge{
+  display:inline-block; margin-left:.4rem; padding:.05rem .45rem; border-radius:999px;
+  background: rgba(0,0,0,.25); font-weight:700; font-size:.75rem; color:#fff;
+}
+
+/* colori livello coerenti con le pill */
+.chip-lv-beginner{ background: rgba(99,102,241,.75); }
+.chip-lv-intermediate{ background: rgba(14,165,233,.75); }
+.chip-lv-advanced{ background: rgba(162,28,175,.75); }
+
+.stat-span{ grid-column: 1 / -1; }
+
+/* responsive stats */
+@media (max-width: 992px){
+  .stats-grid{ grid-template-columns: 1fr; }
+  .stat-card.kpi{ align-items:center; text-align:center; }
+}
+
+/* Filtri */
+.filter-label{ color:#fff; font-size: 1rem; margin-bottom: 0; }
+
+.filters-bar {
+  padding-top: 8rem;
+  padding-bottom: 0rem;
+}
+
+/* Reset button */
+.filters-bar .btn-reset{
+  height: calc(1.5em + .75rem + 2px);
+  padding: .375rem .75rem;
+  line-height: 1.5;
+  display: inline-flex; align-items: center;
+}
+
+/* Card: assicura il posizionamento relativo per i pill */
+.course-card { position: relative; }
+
+/* Body: spazio sufficiente sotto i pill per evitare sovrapposizioni col titolo */
+.course-card .course-card-body { padding-top: 2.9rem; }
+
+/* Layout coerente con CourseDetail */
+.explore-page{
+  width:100vw; box-sizing:border-box; padding:6em 10rem 2em; margin:0;
+}
+.explore-title{
+  font-size:6rem; text-shadow:0 8px 32px rgba(0,0,0,.4); font-weight:bold;
+  margin:2rem 0 1.5rem; color:#fff; text-align:center;
+}
+.explore-lead{
+  max-width: 900px; margin: 0 auto 1rem;
+  font-size: 1.125rem; color: white;
+}
+
+/* --- Pills (no sovrapposizione) --- */
+.pill{
+  position:absolute; top:.75rem; z-index:1;
+  display:inline-flex; align-items:center;
+  padding:.25rem .6rem; border-radius:999px;
+  font-size:.75rem; font-weight:700; color:#fff; letter-spacing:.2px;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+}
+.pill-level{ left:.75rem; }
+.pill-enrollment{ right:.75rem; }
+
+/* Colori distinti */
+.pill-enrolled{ background:#22c55e; }
+.pill-not-enrolled{ background:#64748b; }
+.pill-level.beginner{ background:#6366f1; }
+.pill-level.intermediate{ background:#0ea5e9; }
+.pill-level.advanced{ background:#a21caf; }
+.pill-level.default{ background:#6b7280; }
+
+/* Sotto i pills */
+.courseTitle { padding-top: 2rem; }
+
+/* MODAL GLASS */
+.glass-modal {
+  background: rgba(255,255,255,.26) !important;
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 18px 48px rgba(0,0,0,.30);
+}
+.glass-backdrop {
+  background: rgba(10, 12, 22, 0.72) !important;      /* +scuro */
+  backdrop-filter: blur(22px) saturate(110%);         /* +tanto blur */
+  -webkit-backdrop-filter: blur(22px) saturate(110%);
+}
+
+/* Fallback: se il browser gestisce male il backdrop,
+   sfoca e attenua anche la pagina dietro al modal */
+.modal-open .explore-page {
+  filter: blur(2px) brightness(0.85);
+  transition: filter .2s ease;
+}
+
+/* Meta modale */
+.modal-meta{ list-style:none; padding:0; margin:0 0 1rem; }
+.modal-meta li{ margin-bottom:.25rem; }
+
+/* Righe dedicate: 1) Dettagli (CFU/Semestre), 2) Hashtag */
+.course-meta, .course-tags{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+}
+
+/* Responsive page paddings */
+@media (max-width: 1200px){
+  .explore-page{ padding:5em 6rem 2em; }
+  .explore-title{ font-size:4.5rem; }
+}
+@media (max-width: 992px){
+  .explore-page{ padding:5em 3rem 2em; }
+  .explore-title{ font-size:3.5rem; }
+}
+@media (max-width: 576px){
+  .explore-page{ padding:5em 1.25rem 1.5em; }
+  .explore-title{ font-size:2.6rem; }
+  .course-card .course-card-body{ padding-top: 3.1rem; }
+}

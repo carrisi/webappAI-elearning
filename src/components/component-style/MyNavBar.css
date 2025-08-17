@@ -132,3 +132,37 @@
   background-color: #6C63FF;
   color: #fff;
 }
+
+/* === Pulsante glass riutilizzabile, stesso stile di .btn-cerca === */
+.btn-glass {
+  color: black;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* dimensioni “responsive” (no larghezza fissa) */
+  height: 36px;
+  padding: 0.25rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.btn-glass:hover {
+  background-color: #6C63FF;
+  color: #fff;
+}
+
+/* variante solo-bordo, se ti serve */
+.btn-glass-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-glass-outline:hover {
+  background-color: #6C63FF;
+  color: #fff;
+}

@@ -30,6 +30,10 @@
   transform: translateY(-4px);
 }
 
+#title {
+  padding: 0;
+}
+
 #myCourses {
   font-size: 3rem;
   text-shadow: 0px 8px 32px rgba(0, 0, 0, 0.4);
@@ -37,4 +41,15 @@
   margin: 2rem 0 1.5rem;
   color: white;
   text-align: center;
-  }
+}
+
+.badge-enrolled {
+  position: absolute;
+  top: .75rem;
+  right: .75rem;
+  background: #6c757d;
+  color: #fff;
+  padding: .25rem .5rem;
+  border-radius: .5rem;
+  font-size: .75rem;
+}

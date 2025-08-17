@@ -1,6 +1,7 @@
 // src/components/Hero.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import laureaImg1 from '../assets/images/laurea1.png';
 import laureaImg2 from '../assets/images/laurea2.png';
 import styles from './component-style/Hero.module.css';
@@ -26,7 +27,9 @@ export default function Hero() {
         />
         <p className={styles.text}>Scopri e gestisci tutti i tuoi corsi attivi,<br />controlla i progressi e riprendi subito lo studio dove l’hai lasciato.</p>
         
-        <button className={styles.button}>Scopri nuovi corsi</button>
+        <Link to="/studente/scopri" className={styles.button}>
+          Scopri nuovi corsi
+        </Link>
       </div>
     </section>
   );

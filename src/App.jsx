@@ -10,6 +10,7 @@ import StudentCourses from './components/StudentCourses';
 import MyCourses      from './pages/MyCourses';
 import CourseDetail   from './pages/CourseDetail';
 import LessonPage     from './pages/LessonPage';
+import ExploreCourses from './pages/ExploreCourses';
 
 export default function App() {
   return (
@@ -43,6 +44,9 @@ export default function App() {
               </>
             }
           />
+          
+          {/* Scopri nuovi corsi */}
+          <Route path="scopri" element={<ExploreCourses />} />
 
           {/* Dettaglio corso: NavBar + CourseDetail */}
           <Route
