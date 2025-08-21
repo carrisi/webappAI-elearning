@@ -1,0 +1,102 @@
+/* src/pages/Style/StudentProfileEdit.css */
+.student-profile-edit-page {
+  --glass-bg: rgba(255,255,255,0.15);
+  --glass-b1: rgba(255,255,255,0.30);
+  --glass-b2: rgba(255,255,255,0.10);
+  --shadow: 0 8px 32px rgba(0,0,0,0.12);
+  color: #fff;
+  padding-top: 10rem;
+  padding-bottom: 5rem;
+}
+
+/* Header */
+.edit-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 8px 32px rgxba(0,0,0,0.4);
+}
+.edit-sub {
+  margin: .25rem 0 0;
+  color: rgba(255,255,255,0.9);
+}
+
+/* Alert glass */
+.glass-alert {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #000;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Card edit */
+.edit-card {
+  border: 1px solid var(--glass-b1);
+}
+
+/* Avatar */
+.avatar-wrap {
+  display: grid; place-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-b1);
+  border-radius: 12px;
+  padding: .75rem;
+}
+.avatar-img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid rgba(255,255,255,0.6);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+/* Pulsanti avatar */
+.btn-upload {
+  display: inline-block;
+  background: rgba(255,255,255,0.9);
+  color: #6C63FF;
+  font-weight: 700;
+  padding: .6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: center;
+}
+.btn-reset-file {
+  border-radius: 999px;
+}
+
+/* Sezioni */
+.section-title {
+  color: #111;
+  font-weight: 800;
+  margin-bottom: .75rem;
+}
+
+/* CTA bottom */
+.edit-actions {
+  display: flex;
+  gap: .75rem;
+  justify-content: flex-end;
+  margin: 1.25rem 0 2rem;
+}
+
+/* Bootstrap override leggeri per leggibilità su glass */
+.student-profile-edit-page .form-label { color: #111; font-weight: 600; }
+.student-profile-edit-page .form-control,
+.student-profile-edit-page .form-select {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.student-profile-edit-page .form-control:focus,
+.student-profile-edit-page .form-select:focus {
+  box-shadow: 0 0 0 .2rem rgba(108,99,255,0.15);
+  border-color: #6C63FF;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .edit-actions { justify-content: center; }
+}

@@ -5,12 +5,14 @@ import ScrollToTop    from './components/ScrollToTop';
 import Login          from './pages/Login';
 import StudentApp     from './pages/StudentApp';
 import TeacherApp     from './pages/TeacherApp';
-import Hero           from './components/Hero';
 import StudentCourses from './components/StudentCourses';
 import MyCourses      from './pages/MyCourses';
 import CourseDetail   from './pages/CourseDetail';
 import LessonPage     from './pages/LessonPage';
 import ExploreCourses from './pages/ExploreCourses';
+import StudentProfile from './pages/StudentProfile';
+import StudentProfileEdit from './pages/StudentProfileEdit';
+import StudentFAQ from './pages/StudentFAQ';
 
 export default function App() {
   return (
@@ -22,39 +24,29 @@ export default function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Layout Studente (NavBar + Outlet) */}
-        <Route path="/studente" element={<StudentApp />}>  
-          {/* Dashboard: Hero + lista corsi */}
-          <Route
-            index
-            element={
-              <>
-                <Hero />
-                <StudentCourses />
-              </>
-            }
-          />
+        <Route path="/studente" element={<StudentApp />}>
+          {/* Landing Page */}
+          <Route index element={<StudentCourses />} />
 
-          {/* I miei corsi: Hero + MyCourses */}
-          <Route
-            path="corsi"
-            element={
-              <>
-                <Hero />
-                <MyCourses />
-              </>
-            }
-          />
-          
+          {/* I miei corsi */}
+          <Route path="corsi" element={<MyCourses />} />
+
           {/* Scopri nuovi corsi */}
           <Route path="scopri" element={<ExploreCourses />} />
 
-          {/* Dettaglio corso: NavBar + CourseDetail */}
-          <Route
-            path="corsi/:id"
-            element={<CourseDetail />}
-          />
+          {/* Profilo studente */}
+          <Route path="profilo" element={<StudentProfile />} />
 
-          {/* Lezione Video: LessonPage */}
+          {/* Modifica Profilo studente */}
+          <Route path="impostazioni" element={<StudentProfileEdit />} />
+
+          {/* FAQ */}
+          <Route path="faq" element={<StudentFAQ />} />
+
+          {/* Dettaglio corso */}
+          <Route path="corsi/:id" element={<CourseDetail />} />
+
+          {/* Lezione Video */}
           <Route
             path="corsi/:id/sezioni/:secId/lezioni/:lezId"
             element={<LessonPage />}

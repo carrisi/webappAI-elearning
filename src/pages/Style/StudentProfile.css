@@ -1,0 +1,160 @@
+/* ====== WRAPPER ====== */
+.student-profile-page {
+  --glass-bg: rgba(255,255,255,0.15);
+  --glass-b1: rgba(255,255,255,0.30);
+  --glass-b2: rgba(255,255,255,0.10);
+  --shadow: 0 8px 32px rgba(0,0,0,0.12);
+  color: #fff;
+
+  padding: 5rem;
+}
+
+/* ====== HERO ====== */
+.profile-hero {
+  padding: 3rem 0 2rem;
+}
+
+.profile-name {
+  font-size: clamp(2.2rem, 4.5vw, 3.25rem);
+  line-height: 1.1;
+  margin: 0 0 .25rem 0;
+  color: #ffffff;
+  letter-spacing: .3px;
+}
+.profile-name .surname { color: #ffffff; }
+.role-muted {
+  margin: 0 0 .75rem 0;
+  color: #000000;
+  font-weight: 600;
+}
+.bio {
+  color: #333;
+  background: var(--glass-bg);
+  border-left: 1px solid var(--glass-b1);
+  border-right: 1px solid var(--glass-b1);
+  border-top: 1px solid var(--glass-b2);
+  border-bottom: 1px solid var(--glass-b1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+/* ====== COLONNA SINISTRA ====== */
+.side-block { padding-right: 1rem; }
+.side-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin: 0 0 .5rem 0;
+    text-shadow: 0px 8px 32px rgba(0, 0, 0, 0.4);
+}
+.info-list {
+  list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem;
+}
+.info-list li {
+  display: grid; grid-template-columns: 40px 1fr; gap: .5rem; align-items: start;
+}
+.info-ico {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-b1);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  color: #111;
+}
+.info-label { font-size: .8rem; color: #ffffff; margin-bottom: 2px; }
+.info-text  { font-weight: 600; color: #222; word-break: break-word; margin: -0.1rem}
+
+/* ====== RITRATTO ====== */
+.portrait-card {
+  background: #eaeaea; border-radius: 18px; padding: 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+}
+.portrait-inner {
+  background: #f7f7f7; border-radius: 12px; overflow: hidden; border: 1px solid #e1e1e1;
+}
+.portrait-img { width: 100%; height: auto; display: block; object-fit: cover; }
+
+/* ====== DETTAGLI DESTRA ====== */
+.details-block { padding-left: 1rem; }
+.cta-row {
+  display: flex; gap: .6rem; flex-wrap: wrap;
+  margin: .75rem 0 1rem;
+}
+/* bottoni landing già definiti in MyCourses.css:
+   .landing-btn.primary  (bianco / testo #6C63FF)
+   .landing-btn.outline  (trasparente, bordo bianco)
+*/
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, minmax(90px, 1fr));
+  gap: .5rem; margin-top: .25rem;
+}
+.stat {
+  background: var(--glass-bg);
+  border-left: 1px solid var(--glass-b1);
+  border-right: 1px solid var(--glass-b1);
+  border-top: 1px solid var(--glass-b2);
+  border-bottom: 1px solid var(--glass-b1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  border-radius: 12px;
+  padding: .75rem .8rem;
+  text-align: center;
+}
+.stat-num { font-size: 1.4rem; color: #111; font-weight: 800; line-height: 1; }
+.stat-label { color: #444; font-size: .8rem; margin-top: .1rem; }
+
+/* ====== SEZIONE CORSI ====== */
+.profile-courses { padding: 1rem 0 3rem; }
+
+/* === TAB stile CourseDetail (glass-nav) === */
+/* Replicato/adattato da CourseDetail.css per coerenza visiva */
+.student-profile-page .glass-nav {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
+}
+.student-profile-page .glass-nav .nav-tabs { border-bottom: none; }
+.student-profile-page .glass-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+.student-profile-page .glass-nav .nav-link.active {
+  color: #000 !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 6px;
+}
+.student-profile-page .glass-nav .nav-link.active::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: #000;
+  margin-top: 4px;
+}
+.student-profile-page .profile-tabs { margin-bottom: 0; }
+
+/* Mini-card corsi */
+.course-mini .card-footer {
+  background: transparent;
+  border-top: 1px solid rgba(255,255,255,0.25);
+}
+.course-mini .mini-arrow { color: #fff; font-size: 1.25rem; line-height: 1; }
+
+.empty-msg {
+  text-align: center; color: #333;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-b1);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: .85rem 1rem; border-radius: 10px;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 991px) {
+  .details-block { padding-left: 0; }
+  .side-block { padding-right: 0; }
+}

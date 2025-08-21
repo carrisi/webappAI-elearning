@@ -28,12 +28,15 @@ export default function MyNavbar() {
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="nav-bar">
-            <Nav.Link as={Link} to="/studente/corsi">I miei corsi</Nav.Link>
-            <Nav.Link as={Link} to="/studente/eventi">Eventi</Nav.Link>
             <Nav.Link as={Link} to="/studente/scopri">Scopri</Nav.Link>
-            <NavDropdown title="Profilo" id="basic-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/studente/profilo">Impostazioni</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/supporto">Supporto</NavDropdown.Item>
+            <Nav.Link as={Link} to="/studente/corsi">I miei corsi</Nav.Link>
+
+            {/* Link diretto al profilo */}
+            <Nav.Link as={Link} to="/studente/profilo">Profilo</Nav.Link>
+
+            <NavDropdown title="Altro" id="basic-nav-dropdown">
+              {/* voce esplicita per il profilo */}
+              <NavDropdown.Item as={Link} to="faq">FAQ</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item as={Link} to="/logout">Logout</NavDropdown.Item>
             </NavDropdown>

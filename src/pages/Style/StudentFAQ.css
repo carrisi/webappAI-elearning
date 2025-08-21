@@ -1,0 +1,118 @@
+/* ✅ Riserva sempre lo spazio della scrollbar sullo SCROLL CONTAINER (html) */
+html, body {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Fallback per browser senza scrollbar-gutter */
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; } /* riserva sempre lo spazio */
+}
+
+/* =================== FAQ PAGE =================== */
+.student-faq-page {
+  --glass-bg: rgba(255,255,255,0.14);
+  --glass-b1: rgba(255,255,255,0.28);
+  --glass-b2: rgba(255,255,255,0.10);
+  --shadow: 0 8px 32px rgba(0,0,0,0.12);
+
+  position: relative;
+  min-height: 100dvh;
+  padding: 1.25rem 0 2.5rem;
+  color: #fff;
+  overflow-x: clip;
+}
+
+.student-faq-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255,255,255,.25), transparent 60%),
+    linear-gradient(135deg, #6C63FF 0%, #F271D3 40%, #FF8A65 100%);
+}
+
+/* Blocchi glass generici (coerenti con landing) */
+.glass-hero,
+.glass-block {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-b1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* HERO */
+.faq-hero {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.faq-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin: 0 0 .4rem;
+  text-shadow: 0 8px 32px rgba(0,0,0,.35);
+}
+.faq-sub { color: rgba(255,255,255,.92); margin: 0 0 1rem; }
+.faq-cta { display:flex; gap:.75rem; flex-wrap:wrap; justify-content:center; }
+
+/* ACCORDION stile landing */
+.faq-accordion {
+  display: grid;
+  gap: .6rem;
+  margin-bottom: 1.25rem;
+}
+.faq-item {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 12px;
+  overflow: clip; /* bordi puliti */
+  transition: background .2s ease, border-color .2s ease;
+}
+.faq-item[open] {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.35);
+}
+
+/* riga compatta come nella landing */
+.faq-summary {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: .9rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-q { font-weight: 800; }
+.chev {
+  transition: transform .2s ease, opacity .2s ease;
+  opacity: .85;
+  font-size: 1.2rem;
+}
+.faq-item[open] .chev { transform: rotate(90deg); }
+
+/* risposta */
+.faq-answer {
+  padding: 0 1rem 1rem;
+  color: rgba(255,255,255,.95);
+  line-height: 1.6;
+}
+
+/* blocco aiuto finale */
+.faq-help {
+  text-align: center;
+  padding: 1.25rem 1rem;
+}
+.faq-help-title { font-weight: 900; margin: 0 0 .25rem; color:#fff; }
+.faq-help-text a { color:#fff; text-decoration: underline; }
+
+/* hover come landing */
+.faq-item:hover { border-color: rgba(255,255,255,.4); }
+
+/* responsive */
+@media (max-width: 576px){
+  .faq-hero { padding: 1.5rem 1rem; }
+}

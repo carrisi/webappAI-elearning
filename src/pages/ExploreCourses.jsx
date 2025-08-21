@@ -267,9 +267,15 @@ export default function ExploreCourses() {
                 Scopri il catalogo completo, filtra per livello, semestre e CFU e invia una richiesta di accesso.
               </p>
 
-              <div className="hero-cta">
-                <a href="#explore-filters" className="btn-glass">Inizia la ricerca</a>
+              <div className="hero-cta d-flex gap-2">
+                <a href="#explore-filters" className="landing-btn primary">
+                  Inizia la ricerca
+                </a>
+                <a href="/studente/corsi" className="landing-btn outline">
+                  Scopri i miei corsi
+                </a>
               </div>
+
             </Col>
 
             <Col md={6} className="hero-right">
