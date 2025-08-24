@@ -1,0 +1,109 @@
+/* src/teacher/Style/TeacherCourseDetail.css */
+
+/* wrapper full-width */
+.course-detail-page {
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 6em 10rem 2em;
+  margin: 0;
+}
+
+/* titolo centrato */
+.course-detail-page .cd-title {
+  font-size: 6rem;
+  text-shadow: 0px 8px 32px rgba(0, 0, 0, 0.4);
+  font-weight: bold;
+  margin: 2rem 0 1.5rem;
+  color: white;
+  text-align: center;
+}
+
+/* glass per tutto il nav dei tab */
+.course-detail-page .glass-nav {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
+}
+.course-detail-page .glass-nav .nav-tabs { border-bottom: none; }
+.course-detail-page .glass-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8); font-weight: 500;
+}
+.course-detail-page .glass-nav .nav-link.active {
+  color: #000 !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 6px;
+}
+.course-detail-page .glass-nav .nav-link.active::after {
+  content: ''; display: block; height: 2px; background: #000; margin-top: 4px;
+}
+
+/* spaziatura tabs */
+.course-detail-page .cd-tabs { margin-bottom: 2rem; }
+
+/* contenitore introduttivo */
+.course-detail-page .glass-intro-container {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #000;
+  text-align: center;
+}
+.course-detail-page .glass-intro-container .intro-year,
+.course-detail-page .glass-intro-container .intro-degree,
+.course-detail-page .glass-intro-container .intro-notes { font-size: 0.9rem; margin-bottom: 0.5rem; }
+.course-detail-page .glass-intro-container .intro-professor { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+.course-detail-page .glass-intro-container hr { border-color: rgba(0,0,0,0.1); margin: 1rem 0; }
+.course-detail-page .glass-intro-container .intro-office-title { margin-top: 1rem; margin-bottom: 0.3rem; font-weight: 500; }
+.course-detail-page .glass-intro-container .intro-office { font-size: 0.9rem; }
+.course-detail-page .glass-intro-container h5 { margin-top: 1rem; margin-bottom: 0.5rem; }
+.course-detail-page .glass-intro-container p { margin: 0; }
+
+/* accordion */
+.course-detail-page .cd-accordion .accordion-button {
+  background: rgba(255, 255, 255, 0.15); border: none; color: #000;
+}
+.course-detail-page .cd-accordion .accordion-button:not(.collapsed) {
+  background: rgba(255, 255, 255, 0.3);
+}
+.course-detail-page .cd-accordion .accordion-body {
+  background: rgba(255, 255, 255, 0.1);
+}
+.course-detail-page .cd-accordion .accordion-button:focus,
+.course-detail-page .cd-accordion .accordion-button:active,
+.course-detail-page .cd-accordion .accordion-button:not(.collapsed) {
+  box-shadow: none !important; border-color: transparent !important; outline: none !important;
+}
+
+/* lezioni glass */
+.course-detail-page .glass-card {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important; color: inherit;
+}
+
+/* cursore e hover */
+.course-detail-page .clickable-card { cursor: pointer; transition: transform 0.1s ease-in-out; }
+.course-detail-page .clickable-card:hover { transform: translateY(-2px); }
+
+/* non trovato */
+.cd-not-found { padding: 2rem; text-align: center; }
+
+/* Bottoni glass riutilizzo */
+.btn-glass {
+  color: black; background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1); border-radius: 16px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.btn-glass-outline {
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.btn-glass:hover, .btn-glass-outline:hover { background-color: #6C63FF; color: #fff; }
