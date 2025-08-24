@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import mockCourses from '../data/mockCourses';
-import '../pages/Style/MyCourses.css';
+import './Style/MyCourses.css';
 
 function CourseCard({ corso }) {
   return (
