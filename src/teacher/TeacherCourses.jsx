@@ -65,7 +65,6 @@ export default function TeacherCourses() {
         </p>
         <div className="hero-actions d-flex justify-content-center flex-wrap gap-2">
           <Link to="/docente/corsi/nuovo" className="landing-btn primary">+ Crea nuovo corso</Link>
-          <button className="landing-btn outline" onClick={() => setParams({})}>Reset filtri</button>
         </div>
       </section>
 

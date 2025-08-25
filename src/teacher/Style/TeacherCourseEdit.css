@@ -1,0 +1,90 @@
+/* copia 1:1 di TeacherLessonEdit.css — classi identiche */
+.teacher-lesson-edit { color: #000; }
+
+/* Glass esterno */
+.teacher-lesson-edit .lesson-card {
+  margin-top: 6rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Body con gap */
+.teacher-lesson-edit .lesson-card__body { padding: 14px; }
+.teacher-lesson-edit .lesson-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Inner */
+.teacher-lesson-edit .lesson-card__inner {
+  border-radius: 12px;
+  padding: 1.25rem;
+  color: #000;
+}
+
+/* Header trasparente */
+.teacher-lesson-edit .lesson-card__inner.header-inner {
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+.teacher-lesson-edit .hero-title {
+  font-size: clamp(2.2rem, 4vw + 1rem, 5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  text-shadow: 0 8px 32px rgba(0,0,0,.35);
+  margin: 0 0 .35rem;
+}
+.teacher-lesson-edit .hero-subtitle {
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: rgba(255,255,255,.9);
+  margin: 1rem 0 1.25rem;
+}
+
+/* Form bianco */
+.teacher-lesson-edit .lesson-card__inner.form-inner {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+}
+
+/* Label */
+.teacher-lesson-edit label { font-weight: 600; color: #000; }
+
+/* Checkbox */
+.teacher-lesson-edit .form-check-label { font-weight: 500; }
+
+/* Badge */
+.teacher-lesson-edit .badge { font-size: .9rem; }
+
+/* CTA */
+.teacher-lesson-edit .form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: 1rem;
+}
+.teacher-lesson-edit .btn-fixed {
+  min-width: 140px;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: .6rem 1rem;
+}
+.teacher-lesson-edit .btn-cancel {
+  background: transparent;
+  color: #000;
+  border: 1.5px solid rgba(0,0,0,.28);
+}
+.teacher-lesson-edit .btn-cancel:hover { background: #6C63FF; color: #fff; border-color: #6C63FF; }
+.teacher-lesson-edit .btn-confirm {
+  background: #6C63FF;
+  color: #fff;
+  border: 1.5px solid #6C63FF;
+}
+.teacher-lesson-edit .btn-confirm:hover { filter: brightness(1.05); }

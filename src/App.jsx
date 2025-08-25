@@ -24,6 +24,8 @@ import TeacherSectionNew    from './teacher/TeacherSectionNew';
 import TeacherLessonEdit    from './teacher/TeacherLessonEdit';
 import TeacherLessonNew     from './teacher/TeacherLessonNew';
 import TeacherLessonPreview from './teacher/TeacherLessonPreview';
+import TeacherCourseNew     from './teacher/TeacherCourseNew';
+import TeacherCourseEdit    from './teacher/TeacherCourseEdit';
 
 export default function App() {
   return (
@@ -48,7 +50,6 @@ export default function App() {
 
         {/* ===== LATO DOCENTE ===== */}
         <Route path="/docente" element={<TeacherApp />}>
-          {/* TeacherApp rende la landing su /docente */}
           <Route path="corsi" element={<TeacherCourses />} />
           <Route path="corsi/:courseId" element={<TeacherCourseDetail />} />
 
@@ -57,6 +58,8 @@ export default function App() {
           <Route path="corsi/:courseId/sezioni/:secId/lezioni/:lezId" element={<TeacherLessonPreview />} />
           <Route path="corsi/:courseId/sezioni/nuova" element={<TeacherSectionNew />} />
           <Route path="corsi/:courseId/sezioni/:secId/lezioni/:lezId/modifica" element={<TeacherLessonEdit />} />
+          <Route path="corsi/nuovo" element={<TeacherCourseNew />} />
+          <Route path="corsi/:courseId/modifica" element={<TeacherCourseEdit />} />
         </Route>
 
         {/* Fallback */}

@@ -1,0 +1,125 @@
+/* Pagina creazione corso — layout base */
+.cnew-page {
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 6em 10rem 2em;
+  margin: 0;
+}
+
+/* Card glass esterna (coerente con le altre pagine docente) */
+.cnew-card {
+  margin-top: 1rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Stack verticale dei blocchi */
+.cnew-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+/* Contenitori interni */
+.cnew-inner {
+  border-radius: 12px;
+  padding: 1.25rem;
+  color: #000;
+}
+
+/* Header “hero”: trasparente come in TeacherLessonEdit */
+.cnew-header {
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+.cnew-hero-title {
+  font-size: clamp(2.2rem, 4vw + 1rem, 5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  text-shadow: 0 8px 32px rgba(0,0,0,.35);
+  margin: 0 0 .35rem;
+}
+.cnew-hero-subtitle {
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: rgba(255,255,255,.9);
+  margin: 1rem 0 1.25rem;
+}
+
+/* Pannelli form bianchi */
+.cnew-form {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+}
+
+/* Titoli dei blocchi */
+.cnew-block-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: .25rem 0 1rem;
+  color: #000;
+}
+
+/* Griglia */
+.cnew-grid {
+  display: grid;
+  gap: 12px 16px;
+}
+.cnew-grid--1col { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.cnew-col-2 { grid-column: span 2; }
+
+/* CTA finali */
+.cnew-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .25rem;
+  padding: .25rem .25rem 0;
+}
+.cnew-btn {
+  min-width: 140px;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: .6rem 1rem;
+}
+.cnew-btn--outline {
+  background: transparent;
+  color: #000;
+  border: 1.5px solid rgba(0,0,0,.28);
+}
+.cnew-btn--outline:hover { background: #6C63FF; color: #fff; border-color: #6C63FF; }
+.cnew-btn--primary {
+  background: #6C63FF;
+  color: #fff;
+  border: 1.5px solid #6C63FF;
+}
+.cnew-btn--primary:hover { filter: brightness(1.05); }
+
+/* ========================== */
+/* ====== RESPONSIVE =========*/
+/* ========================== */
+
+@media (min-width: 768px) {
+  .cnew-grid--2col-md { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1200px) {
+  .cnew-page { padding: 6em 4rem 2em; }
+}
+
+@media (max-width: 992px) {
+  .cnew-page { padding: 6em 2rem 2em; }
+}
+
+@media (max-width: 576px) {
+  .cnew-page { padding: 4.5em 1rem 1.5em; }
+  /* su mobile, gli span a 2 colonne diventano a 1 per evitare overflow */
+  .cnew-col-2 { grid-column: span 1; }
+}
