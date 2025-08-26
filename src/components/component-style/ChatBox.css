@@ -1,66 +1,75 @@
 /* src/components/ChatBox.css */
 
-.chat-box {
-  display: flex;
-  flex-direction: column;
-  height: 100%;              /* occupa tutta l’altezza del padre (.chat-container) */
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.chat-box{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  border:1px solid #ddd;
+  border-radius:8px;
+  background:rgba(255,255,255,0.9);
+  color:#111;
+  max-width:100%;      /* non supera mai il contenitore */
+  overflow:hidden;     /* blocca overflow orizzontale */
 }
 
-.chat-header {
-  padding: 12px;
-  text-align: center;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: white;
-  /* bordo per separare dalla zona messaggi */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+.chat-header{
+  padding:12px;
+  text-align:center;
+  font-size:1.125rem;
+  font-weight:600;
+  color:#111;
+  border-bottom:1px solid rgba(0,0,0,0.15);
+  background:rgba(255,255,255,0.95);
 }
 
-.messages {
-  flex: 1;                   /* occupa lo spazio rimanente */
-  padding: 12px;
-  overflow-y: auto;          /* abilita lo scroll interno */
-  background: transparent;   /* lascia vedere il vetro sottostante */
+.messages{
+  flex:1;
+  padding:12px;
+  overflow-y:auto;
+  overflow-x:hidden;        /* niente scroll orizzontale */
+  background:transparent;
+  color:#111;
+
+  /* wrap “duro”: anche stringhe senza spazi vanno a capo */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
-.message {
-  max-width: 70%;
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  border-radius: 16px;
-  line-height: 1.4;
+.message{
+  max-width:70%;
+  margin-bottom:10px;
+  padding:8px 12px;
+  border-radius:16px;
+  line-height:1.4;
+  color:#111;
+  word-break: break-word;
+  overflow-wrap:anywhere;
+  white-space: pre-wrap;
+}
+.message.user{ margin-left:auto; background:#d0f0fd; }
+.message.bot { margin-right:auto; background:#eee; }
+
+.input-form{
+  display:flex;
+  border-top:1px solid rgba(0,0,0,0.15);
+  background:rgba(255,255,255,0.95);
 }
 
-.message.user {
-  margin-left: auto;
-  background: #d0f0fd;
+.chat-input{
+  flex:1;
+  border:none;
+  padding:12px;
+  font-size:1rem;
+  background:transparent;
+  color:#111;
+  resize:none;             /* l’input non cresce */
 }
 
-.message.bot {
-  margin-right: auto;
-  background: #eee;
-}
-
-.input-form {
-  display: flex;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.chat-input {
-  flex: 1;
-  border: none;
-  padding: 12px;
-  font-size: 1rem;
-  background: transparent;
-  color: white;
-}
-
-.send-button {
-  border: none;
-  background: transparent;
-  color: white;
-  padding: 0 16px;
-  cursor: pointer;
+.send-button{
+  border:none;
+  background:transparent;
+  color:#111;
+  padding:0 16px;
+  cursor:pointer;
 }

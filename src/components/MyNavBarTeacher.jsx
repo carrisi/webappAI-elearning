@@ -28,9 +28,10 @@ export default function MyNavBarTeacher() {
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="nav-bar">
-            <Nav.Link as={Link} to="/docente">Dashboard</Nav.Link>
+            <Nav.Link as={Link} to="/docente/dashboard">Dashboard</Nav.Link>
             <Nav.Link as={Link} to="/docente/corsi">Corsi</Nav.Link>
             <Nav.Link as={Link} to="/docente/valutazioni">Valutazioni</Nav.Link>
+            <Nav.Link as={Link} to="/docente/profilo">Profilo</Nav.Link>
 
             <NavDropdown title="Altro" id="basic-nav-dropdown">
               <NavDropdown.Item as={Link} to="/docente/faq">FAQ Docente</NavDropdown.Item>

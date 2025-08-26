@@ -6,26 +6,31 @@ import ScrollToTop    from './components/ScrollToTop';
 import Login          from './pages/Login';
 
 /* ===== STUDENTE ===== */
-import StudentApp           from './student/StudentApp';
-import StudentCourses       from './components/StudentCourses';
-import MyCourses            from './student/MyCourses';
-import CourseDetail         from './student/CourseDetail';
-import LessonPage           from './student/LessonPage';
-import ExploreCourses       from './student/ExploreCourses';
-import StudentProfile       from './student/StudentProfile';
-import StudentProfileEdit   from './student/StudentProfileEdit';
-import StudentFAQ           from './student/StudentFAQ';
+import StudentApp             from './student/StudentApp';
+import StudentCourses         from './components/StudentCourses';
+import MyCourses              from './student/MyCourses';
+import CourseDetail           from './student/CourseDetail';
+import LessonPage             from './student/LessonPage';
+import ExploreCourses         from './student/ExploreCourses';
+import StudentProfile         from './student/StudentProfile';
+import StudentProfileEdit     from './student/StudentProfileEdit';
+import StudentFAQ             from './student/StudentFAQ';
 
 /* ===== DOCENTE ===== */
-import TeacherApp           from './teacher/TeacherApp';
-import TeacherCourses       from './teacher/TeacherCourses';
-import TeacherCourseDetail  from './teacher/TeacherCourseDetail';
-import TeacherSectionNew    from './teacher/TeacherSectionNew';
-import TeacherLessonEdit    from './teacher/TeacherLessonEdit';
-import TeacherLessonNew     from './teacher/TeacherLessonNew';
-import TeacherLessonPreview from './teacher/TeacherLessonPreview';
-import TeacherCourseNew     from './teacher/TeacherCourseNew';
-import TeacherCourseEdit    from './teacher/TeacherCourseEdit';
+import TeacherApp             from './teacher/TeacherApp';
+import TeacherCourses         from './teacher/TeacherCourses';
+import TeacherCourseDetail    from './teacher/TeacherCourseDetail';
+import TeacherSectionNew      from './teacher/TeacherSectionNew';
+import TeacherLessonEdit      from './teacher/TeacherLessonEdit';
+import TeacherLessonNew       from './teacher/TeacherLessonNew';
+import TeacherLessonPreview   from './teacher/TeacherLessonPreview';
+import TeacherCourseNew       from './teacher/TeacherCourseNew';
+import TeacherCourseEdit      from './teacher/TeacherCourseEdit';
+import TeacherDashboard       from './teacher/TeacherGeneralDashboard';
+import TeacherCourseDashboard from './teacher/TeacherCourseDashboard';
+import TeacherProfile         from './teacher/TeacherProfile';
+import TeacherProfileEdit     from './teacher/TeacherProfileEdit';
+import TeacherAssessments          from './teacher/TeacherAssessments';
 
 export default function App() {
   return (
@@ -52,6 +57,11 @@ export default function App() {
         <Route path="/docente" element={<TeacherApp />}>
           <Route path="corsi" element={<TeacherCourses />} />
           <Route path="corsi/:courseId" element={<TeacherCourseDetail />} />
+          <Route path="dashboard" element={<TeacherDashboard />} />
+          <Route path="corsi/:courseId/dashboard" element={<TeacherCourseDashboard />} />
+          <Route path="profilo" element={<TeacherProfile />} />
+          <Route path="profilo/modifica" element={<TeacherProfileEdit />} />
+          <Route path="valutazioni" element={<TeacherAssessments />} />
 
           {/* Lezioni */}
           <Route path="corsi/:courseId/sezioni/:secId/lezioni/nuova" element={<TeacherLessonNew />} />

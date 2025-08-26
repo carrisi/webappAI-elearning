@@ -1,86 +1,88 @@
+// src/teacher/pages/TeacherProfile.jsx
 import React from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import './Style/StudentProfile.css';
-import './Style/MyCourses.css'; // per glass-card/hero e bottoni
-import myCourses from '../data/mockCourses';
+import './Style/TeacherProfile.css';
+import './Style/TeacherCourses.css'; // per glass-card/hero e card corsi
+import teacherCourses from '../data/teacherCoursesMock';
 
-export default function StudentProfile() {
-  // Mock utente (integra con store/auth quando pronto)
-  const user = {
-    initials: 'AC',
+export default function TeacherProfile() {
+  // Mock dati profilo (in futuro: fetch dal backend)
+  const profile = {
+    initials: 'AD',
     avatarUrl: null,
-    name: 'Alessandro',
-    surname: 'Carrisi',
-    role: 'Studente',
-    degree: 'Informatica',
-    year: 2,
-    email: 'a.carrisi3@studenti.uniba.it',
-    sede: 'Bari, IT',
-    bio: "Studente di Informatica appassionato di AI applicata all'e-learning. Costruisco front-end reattivi, integro LLM e curo la UX.",
+    name: 'Nome',
+    surname: 'Cognome',
+    role: 'Docente',
+    department: 'Dipartimento di Informatica',
+    email: 'docente@example.com',
+    phone: '+39 …',
+    website: 'https://example.com',
+    linkedin: 'https://linkedin.com/in/username',
+    github: 'https://github.com/username',
+    bio: 'Breve biografia del docente…',
+    stats: { courses: teacherCourses.length, students: 128, lastActive: 'Oggi' },
   };
 
-  const enrolled = myCourses;
-  const inCorso = enrolled.filter(c => c.stato === 'attivo');
-  const completati = enrolled.filter(c => c.stato !== 'attivo');
+  const taughtCourses = teacherCourses;
 
   return (
-    <Container className="student-profile-view py-4">
-      {/* HERO (replica stile lato docente) */}
+    <Container className="teacher-profile-view py-4">
+      {/* HERO */}
       <section className="glass-hero text-white mb-4 profile-hero">
         <Row className="g-3 align-items-center">
           <Col xs={12} md="auto">
             <div className="avatar-ring xl">
-              {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={`${user.name} ${user.surname}`} />
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt={`${profile.name} ${profile.surname}`} />
               ) : (
-                <div className="avatar-placeholder">{user.initials}</div>
+                <div className="avatar-placeholder">{profile.initials}</div>
               )}
             </div>
           </Col>
           <Col>
             <h1 className="hero-title mb-1">
-              {user.name} {user.surname}
+              {profile.name} {profile.surname}
             </h1>
             <p className="hero-subtitle mb-2">
-              {user.role} • {user.degree} ({user.year}° anno)
+              {profile.role} • {profile.department}
             </p>
             <div className="badge-teacher d-flex gap-2 flex-wrap">
-              <Badge bg="light" text="dark">{user.role}</Badge>
+              <Badge bg="light" text="dark">{profile.role}</Badge>
               <Badge bg="light" text="dark">Anno Accademico 2024/25</Badge>
             </div>
           </Col>
           <Col xs={12} md="auto" className="mt-2 mt-md-0">
-            <Link to="/studente/impostazioni" className="landing-btn primary">
+            <Link to="/docente/profilo/modifica" className="landing-btn primary">
               Modifica profilo
             </Link>
           </Col>
         </Row>
       </section>
 
-      {/* BIO */}
+      {/* 1) BIOGRAFIA */}
       <Row className="g-3">
         <Col xs={12}>
           <Card className="h-100 glass-card">
             <Card.Body>
               <h5 className="mb-3">Biografia</h5>
-              <p className="mb-0 text-white-90">{user.bio}</p>
+              <p className="mb-0 text-white-90">{profile.bio}</p>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* CONTATTI + INFO */}
+      {/* 2) CONTATTI + SOCIAL */}
       <Row className="g-3">
         <Col xs={12} md={6}>
           <Card className="h-100 glass-card">
             <Card.Body>
               <h5 className="mb-3">Contatti</h5>
               <ul className="profile-list">
-                <li><span>Email</span><a href={`mailto:${user.email}`}>{user.email}</a></li>
-                <li><span>Matricola</span>736830</li>
-                <li><span>Sede</span>{user.sede}</li>
+                <li><span>Email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+                <li><span>Telefono</span><a href={`tel:${profile.phone}`}>{profile.phone}</a></li>
+                <li><span>Sito</span><a href={profile.website} target="_blank" rel="noreferrer">{profile.website}</a></li>
               </ul>
             </Card.Body>
           </Card>
@@ -91,31 +93,32 @@ export default function StudentProfile() {
             <Card.Body>
               <h5 className="mb-3">Social</h5>
               <ul className="profile-list">
-                <li><span>—</span>Nessun social collegato</li>
+                <li><span>LinkedIn</span><a href={profile.linkedin} target="_blank" rel="noreferrer">{profile.linkedin}</a></li>
+                <li><span>GitHub</span><a href={profile.github} target="_blank" rel="noreferrer">{profile.github}</a></li>
               </ul>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* METRICHE (stessa griglia del docente) */}
+      {/* 3) METRICHE */}
       <Row className="g-3">
         <Col xs={12}>
           <Card className="h-100 glass-card">
             <Card.Body>
-              <h5 className="mb-3">Statistiche</h5>
+              <h5 className="mb-3">Metriche</h5>
               <div className="kpi-grid">
                 <div className="kpi">
-                  <div className="kpi-value">{enrolled.length}</div>
-                  <div className="kpi-label">Iscrizioni</div>
+                  <div className="kpi-value">{profile.stats.courses}</div>
+                  <div className="kpi-label">Corsi attivi</div>
                 </div>
                 <div className="kpi">
-                  <div className="kpi-value">{inCorso.length}</div>
-                  <div className="kpi-label">In corso</div>
+                  <div className="kpi-value">{profile.stats.students}</div>
+                  <div className="kpi-label">Studenti</div>
                 </div>
                 <div className="kpi">
-                  <div className="kpi-value">{completati.length}</div>
-                  <div className="kpi-label">Completati</div>
+                  <div className="kpi-value">{profile.stats.lastActive}</div>
+                  <div className="kpi-label">Ultima attività</div>
                 </div>
               </div>
             </Card.Body>
@@ -123,35 +126,29 @@ export default function StudentProfile() {
         </Col>
       </Row>
 
-      {/* CORSI (card identiche al lato docente) */}
+      {/* 4) CORSI */}
       <Row className="g-3">
         <Col xs={12}>
           <Card className="h-100 glass-card">
             <Card.Body>
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <h5 className="mb-0">Corsi</h5>
-                <Link to="/studente/corsi" className="landing-btn outline">
+                <Link to="/docente/corsi" className="landing-btn outline">
                   Vai a tutti i corsi
                 </Link>
               </div>
 
               <Row className="g-3">
-                {enrolled.map(corso => (
+                {taughtCourses.map(corso => (
                   <Col key={corso.id} xs={12} lg={6}>
                     <Card className="h-100 glass-card clickable-card">
                       <Card.Body>
-                        <Card.Title className="courseTitle mb-1" id={`course-${corso.id}`}>
+                        <Card.Title className="courseTitle mb-1" id="title">
                           {corso.titolo}
                         </Card.Title>
-
-                        <div className="small text-white-90 mb-2">
-                          Docente: {corso.instructor}
-                        </div>
-
                         {corso.descrizione && (
                           <Card.Text className="mb-3">{corso.descrizione}</Card.Text>
                         )}
-
                         <div className="course-meta mb-2 d-flex gap-2 flex-wrap">
                           {Number.isFinite(corso?.introduzione?.credits) && (
                             <Badge bg="light" text="dark">{corso.introduzione.credits} CFU</Badge>
@@ -161,18 +158,15 @@ export default function StudentProfile() {
                           )}
                         </div>
                       </Card.Body>
-
                       <Card.Footer className="d-flex align-items-center justify-content-between gap-2">
                         <small className="text-muted">
-                          {corso.stato === 'attivo'
-                            ? 'In corso'
-                            : corso.stato.charAt(0).toUpperCase() + corso.stato.slice(1)}
+                          {corso.stato.charAt(0).toUpperCase() + corso.stato.slice(1)}
                         </small>
                         <div className="d-flex gap-2 ms-auto">
-                          <Link to={`/studente/corsi/${corso.id}`} className="landing-btn primary">
-                            Apri corso
+                          <Link to={`/docente/corsi/${corso.id}/dashboard`} className="landing-btn primary">
+                            Apri dashboard
                           </Link>
-                          <Link to={`/studente/corsi/${corso.id}`} className="landing-btn outline">
+                          <Link to={`/docente/corsi/${corso.id}`} className="landing-btn outline">
                             Dettagli corso
                           </Link>
                         </div>

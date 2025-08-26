@@ -1,8 +1,10 @@
-/* Wrapper */
-.student-profile-view { background: transparent; padding-bottom: 4rem; }
+/* src/teacher/pages/Style/TeacherProfileView.css */
 
-/* Hero (stesse classi del lato docente) */
+.teacher-profile-view { background: transparent; padding-bottom: 4rem; }
+
+/* Hero */
 .profile-hero { padding: 2rem; border-radius: 20px; margin-bottom: 2rem; }
+
 .avatar-ring.xl{
   width: 120px; height: 120px; border-radius: 50%;
   background: rgba(255,255,255,0.06);
@@ -16,16 +18,18 @@
 
 .text-white-90{ color: rgba(255,255,255,.92); }
 
-.badge-teacher { justify-content: center; }
+.badge-teacher {
+  justify-content: center;
+}
 
-/* Liste contatti/social (pari al docente) */
+/* Liste contatti/social */
 .profile-list{ list-style:none; padding:0; margin:0; }
 .profile-list li{ display:flex; gap:.5rem; justify-content:space-between; padding:.35rem 0; }
 .profile-list span{ color:#fff; opacity:.8; font-weight:600; }
 .profile-list a{ color:#fff; text-decoration: underline rgba(255,255,255,.25); }
 .profile-list a:hover{ text-decoration-color:#fff; }
 
-/* KPI (pari al docente) */
+/* KPI */
 .kpi-grid{
   display:grid;
   grid-template-columns: repeat(3, 1fr);
@@ -41,11 +45,17 @@
 .kpi-value{ font-weight: 800; font-size: 1.4rem; line-height:1; }
 .kpi-label{ opacity:.9; margin-top:.25rem; color:#fff; }
 
-/* Card spacing & stessa altezza fra colonne */
-.student-profile-view .glass-card{ margin-bottom: 1.5rem; }
-.student-profile-view .row + .row { margin-top: 1.5rem; }
-.student-profile-view .row > [class*="col-"] { display: flex; }
-.student-profile-view .row > [class*="col-"] .card { flex: 1; }
+/* Card spacing */
+.teacher-profile-view .glass-card{ margin-bottom: 1.5rem; }
+
+/* 🔥 Spazio extra tra le sezioni */
+.teacher-profile-view .row + .row {
+  margin-top: 1.5rem;
+}
+
+/* Card stessa altezza */
+.teacher-profile-view .row > [class*="col-"] { display: flex; }
+.teacher-profile-view .row > [class*="col-"] .card { flex: 1; }
 
 /* Responsive */
 @media (max-width: 768px){

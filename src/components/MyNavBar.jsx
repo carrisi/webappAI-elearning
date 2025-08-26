@@ -24,7 +24,7 @@ export default function MyNavbar() {
   return (
     <Navbar expand="lg" className="mb-4 glass-nav">
       <Container fluid className="px-0">
-        <Navbar.Brand as={Link} to="/studente">AI-Learning</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/studente">AI-Learning • Studente</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="nav-bar">

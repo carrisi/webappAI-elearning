@@ -35,7 +35,7 @@ function CourseCard({ corso }) {
 
         <Card.Footer>
           <small className="text-muted">
-            {corso.stato === 'attivo' ? 'Pubblicato' : 'Bozza'}
+            {corso.stato.charAt(0).toUpperCase() + corso.stato.slice(1)}
           </small>
         </Card.Footer>
       </Card>

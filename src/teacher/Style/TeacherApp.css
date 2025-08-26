@@ -2,7 +2,25 @@
 
 /* ===== Reset minimo ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
+
+/* === SFONDO: gradiente su layer fisso, non sul body === */
+:root{
+  --teacher-app-gradient: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%);
+}
+html, body, #root { min-height: 100%; }
+body{
+  background: transparent;        /* il gradiente è nel ::before */
+  position: relative;             /* per sicurezza con lo pseudo-elemento */
+}
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;                       /* top/right/bottom/left: 0 */
+  z-index: -1;                    /* resta dietro a tutto */
+  background: var(--teacher-app-gradient);
+  pointer-events: none;           /* non blocca i click */
+  /* background-attachment: fixed;  opzionale per vecchi browser */
+}
 
 /* ===== Wrapper landing (namespace) ===== */
 .landing {
