@@ -91,7 +91,7 @@ export default function TeacherCourseDashboard() {
             <Card className="glass-card chat-panel h-100">
               <Card.Body className="p-0">
                 <div className="chat-container">
-                  <ChatBox />
+                  <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
                 </div>
               </Card.Body>
             </Card>

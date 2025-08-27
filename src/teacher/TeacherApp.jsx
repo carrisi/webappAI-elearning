@@ -78,17 +78,10 @@ export default function TeacherApp() {
                 <p className="landing-subtitle">
                   Chiedi di generare quiz dalle tue slide, riassunti di PDF, o risposte alle FAQ degli studenti.
                 </p>
-                <div
-                  className="landing-chat"
-                  style={{
-                    height:
-                      typeof window !== 'undefined' && window.innerWidth < 992
-                        ? 'auto'
-                        : Math.min(chatHeight, 600)
-                  }}
-                >
-                  <ChatBox />
+                <div className="chat-container">
+                  <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
                 </div>
+
               </div>
 
               {/* BENEFICI DOCENTE */}

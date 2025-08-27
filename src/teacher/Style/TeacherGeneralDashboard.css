@@ -16,7 +16,7 @@
 .kpi-label{opacity:.9;margin-top:.35rem;}
 
 /* Chat panel */
-.chat-panel{display:flex;flex-direction:column;overflow:hidden;}
+.chat-panel{display:flex;flex-direction:column;overflow:hidden;background: transparent;}
 .chat-container{height:520px;padding:0;}
 .quick-prompts{list-style:disc;padding-left:1.25rem;color:#fff;}
 .quick-prompts li{margin-bottom:.4rem;}

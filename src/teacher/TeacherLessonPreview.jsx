@@ -65,8 +65,8 @@ export default function TeacherLessonPreview() {
           <div className="video-container" ref={mediaRef}>
             {videoUrl ? <VideoPlayer src={videoUrl} /> : <div style={{color:'#fff',padding:'1rem'}}>Video mancante</div>}
           </div>
-          <div className="chat-container" style={{ height: mediaH }}>
-            <ChatBox />
+          <div className="chat-container">
+            <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
           </div>
         </div>
 

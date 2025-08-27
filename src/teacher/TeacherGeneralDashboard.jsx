@@ -72,14 +72,13 @@ export default function TeacherDashboard() {
         <h2 id="chatTitle" className="dash-heading">ChatAI Globale</h2>
         <Row className="g-3 align-items-stretch">
           <Col xs={12} lg={7}>
-            <Card className="glass-card chat-panel h-100">
-              <Card.Body className="p-0">
-                <div className="chat-container">
-                  <ChatBox />
-                </div>
-              </Card.Body>
-            </Card>
+            <div className="chat-panel h-100">
+              <div className="chat-container">
+                <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
+              </div>
+            </div>
           </Col>
+
 
           <Col xs={12} lg={5}>
             <Card className="glass-card h-100">
