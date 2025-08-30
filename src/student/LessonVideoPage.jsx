@@ -41,7 +41,7 @@ export default function LessonVideoPage({ title, videoUrl }) {
           className="chat-container"
           style={{ height: mediaHeight }}
         >
-          <ChatBox />
+          <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
         </div>
       </div>
 

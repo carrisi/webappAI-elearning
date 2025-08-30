@@ -11,9 +11,10 @@ export default function StudentApp() {
   const navigate = useNavigate();
   const isLanding = location.pathname === '/studente';
 
-  // Ref all’illustrazione sticky (colonna destra) per allineare l’altezza della chat
+  // Manteniamo la logica del ref per coerenza con TeacherApp,
+  // anche se l'altezza chat ora è gestita dal CSS (.chat-container).
   const imgRef = useRef(null);
-  const [chatHeight, setChatHeight] = useState(420); // fallback iniziale
+  const [chatHeight, setChatHeight] = useState(420);
 
   useEffect(() => {
     const updateFromImg = () => {
@@ -22,7 +23,6 @@ export default function StudentApp() {
         if (h > 0) setChatHeight(h);
       }
     };
-    // ResizeObserver per variazioni dinamiche
     let ro = null;
     if (typeof ResizeObserver !== 'undefined' && imgRef.current) {
       ro = new ResizeObserver(() => updateFromImg());
@@ -41,12 +41,12 @@ export default function StudentApp() {
       <MyNavbar />
       <main className={isLanding ? 'landing' : ''}>
         {isLanding ? (
-          // ====== LAYOUT STICKY A DUE COLONNE: SINISTRA (TUTTE LE SEZIONI), DESTRA (IMMAGINE STICKY) ======
+          // ====== LAYOUT STICKY A DUE COLONNE ======
           <section className="landing-stickyLayout">
-            {/* Colonna sinistra: TUTTO il contenuto della landing */}
+            {/* Colonna sinistra: contenuti */}
             <div className="landing-col-left">
 
-              {/* HERO fullscreen (solo nel primo viewport) */}
+              {/* HERO */}
               <div className="landing-hero">
                 <div className="landing-hero-inner">
                   <h1 className="landing-title">Impara più velocemente</h1>
@@ -54,30 +54,31 @@ export default function StudentApp() {
                     L’AI risponde alle tue domande sui materiali del corso: PDF, slide e video.
                   </p>
                   <div className="landing-cta">
-                    <button className="landing-btn primary" onClick={() => navigate('/studente/corsi')}>
+                    <button
+                      className="landing-btn primary"
+                      onClick={() => navigate('/studente/corsi')}
+                    >
                       I miei corsi
                     </button>
-                    <button className="landing-btn outline" onClick={() => navigate('/studente/scopri')}>
+                    <button
+                      className="landing-btn outline"
+                      onClick={() => navigate('/studente/scopri')}
+                    >
                       Scopri nuovi corsi
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* DEMO CHAT – stesso stile visivo dell’Hero */}
+              {/* DEMO CHAT — wrapper identico al lato docente */}
               <div className="landing-demo" id="demo">
                 <h2 className="landing-title">Prova la Chat AI</h2>
                 <p className="landing-subtitle">
                   Scrivi una domanda come faresti al docente e ricevi risposte contestuali ai tuoi contenuti.
                 </p>
-                <div
-                  className="landing-chat"
-                  style={{
-                    // desktop: stessa altezza dell’immagine sticky; mobile: auto
-                    height: typeof window !== 'undefined' && window.innerWidth < 992 ? 'auto' : Math.min(chatHeight, 600)
-                  }}
-                >
-                  <ChatBox />
+
+                <div className="chat-container">
+                  <ChatBox variant="standalone" showHeader placeholder="Chiedi alla ChatAI..." />
                 </div>
               </div>
 
@@ -107,52 +108,44 @@ export default function StudentApp() {
               <section className="landing-section landing-testimonials">
                 <h2 className="landing-heading">Cosa dicono gli studenti</h2>
                 <div className="landing-testimonialsGrid">
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “Maria, Informatica: -30% sui tempi di preparazione agli esami.”
                     </blockquote>
                     <figcaption>— Caso reale, sessione estiva</figcaption>
                   </figure>
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “Con la chat AI mi sento seguito anche fuori dagli orari di lezione.”
                     </blockquote>
                     <figcaption>— Studente triennale</figcaption>
                   </figure>
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “Grazie all’app ho capito meglio concetti complessi senza dover aspettare le esercitazioni.”
                     </blockquote>
                     <figcaption>— Marco, Ingegneria</figcaption>
                   </figure>
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “Ho potuto ripassare le slide del corso con spiegazioni personalizzate, come se fosse un tutor privato.”
                     </blockquote>
                     <figcaption>— Giulia, Medicina</figcaption>
                   </figure>
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “Finalmente posso studiare quando voglio: anche di notte ho sempre risposte puntuali.”
                     </blockquote>
                     <figcaption>— Luca, Economia</figcaption>
                   </figure>
-                              
                   <figure className="landing-quote">
                     <blockquote>
                       “La funzione FAQ mi ha fatto risparmiare tempo, trovando subito le domande che facevano anche i miei colleghi.”
                     </blockquote>
                     <figcaption>— Sara, Giurisprudenza</figcaption>
                   </figure>
-                              
                 </div>
               </section>
-
 
               {/* FAQ */}
               <section className="landing-section landing-faq">
@@ -170,7 +163,6 @@ export default function StudentApp() {
                   <p>Sì, l’app si adatta a corsi universitari e scolastici di qualunque disciplina.</p>
                 </details>
 
-                {/* Bottone link alla pagina FAQ completa */}
                 <div className="landing-faqButtonWrapper">
                   <button
                     className="landing-btn primary"
@@ -182,7 +174,7 @@ export default function StudentApp() {
               </section>
             </div>
 
-            {/* Colonna destra: illustrazione sempre sticky rispetto a TUTTA la landing */}
+            {/* Colonna destra: illustrazione sticky */}
             <div className="landing-col-right">
               <div className="landing-imageCard">
                 <img ref={imgRef} src={heroImgLanding} alt="Studente che impara online" />

@@ -4,32 +4,31 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 
 /* ===== Wrapper landing (namespace) ===== */
 .landing {
-  --nav-offset: 100px;                 /* regola in base all'altezza reale della navbar */
+  --nav-offset: 100px;
   width: 100vw;
   box-sizing: border-box;
   padding: 6em 10rem 2em;
 }
 
-/* ===== Layout sticky globale: sinistra (tutte le sezioni) + destra (sticky) ===== */
-/* Un'unica grid che contiene TUTTI i blocchi a sinistra: la colonna destra resta sticky per tutta la durata */
+/* ===== Layout sticky: sinistra + destra (sticky) ===== */
 .landing .landing-stickyLayout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
-  align-items: stretch;                 /* fondamentale per avere altezza di riga che abbraccia tutti i blocchi sinistri */
+  align-items: stretch;
   overflow: visible;
 }
 
-/* HERO fullscreen (prima schermata) */
+/* HERO */
 .landing .landing-hero {
-  min-height: calc(100vh - var(--nav-offset)); /* riempie il primo viewport, al netto della navbar */
+  min-height: calc(100vh - var(--nav-offset));
   display: flex;
   align-items: center;
-  padding: 1rem 0 4.5rem;               /* respiro sotto, come Explore */
+  padding: 1rem 0 4.5rem; /* ridotto più avanti in mobile */
 }
 .landing .landing-hero-inner { width: 100%; }
 
-/* Tipografia coerente per Hero e Demo */
+/* Tipografia */
 .landing .landing-title {
   font-size: clamp(2.2rem, 4vw + 1rem, 5rem);
   font-weight: 800;
@@ -60,26 +59,27 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 .landing .landing-btn.outline { background:transparent; color:#fff; border-color:#fff; }
 .landing .landing-btn:hover { transform: translateY(-1px); }
 
-/* DEMO (stesso stile) */
+/* DEMO */
 .landing .landing-demo { padding-top: 1rem; }
 
-/* Chat wrapper: height impostata inline da JS (nessuna height fissa qui) */
-.landing .landing-chat {
-  border-radius: 12px;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.2);
-  overflow: hidden;
+/* === Wrapper chat UNIFICATO (come TeacherApp) === */
+.chat-container {
+  height: 520px;
+  padding: 0;
+}
+@media (max-width: 992px) {
+  .chat-container { height: 420px; }
+}
+@media (max-width: 576px) {
+  .chat-container { height: 360px; }
 }
 
-/* ===== Colonna destra (sticky) ===== */
+/* Colonna destra (sticky) */
 .landing .landing-col-right {
-  align-self: stretch;                  /* la cella destra abbraccia l'altezza complessiva della colonna sinistra */
+  align-self: stretch;
   display: flex; justify-content: center; align-items: flex-start;
 }
-.landing .landing-imageCard {
-  position: sticky;
-  top: var(--nav-offset);               /* resta sempre visibile mentre la colonna sinistra scorre */
-}
+.landing .landing-imageCard { position: sticky; top: var(--nav-offset); }
 .landing .landing-imageCard img {
   width: 125%;
   max-width: 640px;
@@ -92,8 +92,8 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 @media (min-width: 1200px){ .landing .landing-imageCard img{ max-width: 840px; margin-top: 36px; } }
 @media (min-width: 1400px){ .landing .landing-imageCard img{ max-width: 980px; margin-top: 48px; } }
 
-/* ===== Sezioni extra (coerenti) ===== */
-.landing .landing-section { margin-top: 4.5rem; }
+/* Sezioni extra */
+.landing .landing-section { margin-top: 4.5rem; } /* compattiamo più avanti in mobile */
 .landing .landing-heading {
   font-size: clamp(1.8rem, 2vw + 1rem, 2.5rem);
   font-weight: 800;
@@ -103,16 +103,8 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
   margin-bottom: 1rem;
 }
 
-/* Benefici */
-.landing .landing-benefits {
-  padding-top: 15rem;
-}
-
-.landing .landing-benefitList {
-  list-style: none; padding: 0; margin: 0;
-  color: #fff; line-height: 1.6; font-size: 1.05rem;
-}
-.landing .landing-benefitList li { margin-bottom: .5rem; }
+/* Benefici (molto largo su desktop, compattiamo in mobile) */
+.landing .landing-benefits { padding-top: 15rem; }
 
 /* Caratteristiche */
 .landing .landing-featureGrid {
@@ -162,20 +154,37 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
   justify-content: center;
 }
 
-/* ===== Responsive ===== */
+/* =========================
+   Responsive: compattiamo
+   ========================= */
 @media (max-width: 1200px){
   .landing { padding:5em 6rem 2em; }
 }
+
+/* Tablet e mobile */
 @media (max-width: 992px){
   .landing { padding:5em 3rem 2em; }
   .landing .landing-stickyLayout { grid-template-columns: 1fr; }
-  .landing .landing-hero { min-height: calc(100vh - var(--nav-offset)); padding-bottom: 3rem; text-align: center; }
+  .landing .landing-hero {
+    min-height: calc(100vh - var(--nav-offset));
+    padding-bottom: 1.75rem; /* prima 3rem: riduciamo lo spazio dopo l’hero */
+    text-align: center;
+  }
   .landing .landing-subtitle { margin-left: auto; margin-right: auto; }
   .landing .landing-cta { justify-content: center; }
   .landing .landing-imageCard { position: relative; top: 0; margin-top: 2rem; }
   .landing .landing-imageCard img { width: 100%; max-width: 480px; margin: 0 auto; }
+
+  /* Spazio tra sezioni più compatto */
+  .landing .landing-section { margin-top: 2.25rem; }
+  /* “Benefici” senza il buco enorme in mobile/tablet */
+  .landing .landing-benefits { padding-top: 2rem; } /* da 15rem -> 2rem */
 }
+
+/* Mobile “stretto” */
 @media (max-width: 576px){
-  .landing { padding:5em 1.25rem 1.5em; }
+  .landing { padding:4.5em 1.25rem 1.25em; } /* leggermente più compatto */
   .landing .landing-title { font-size: clamp(1.9rem, 7vw + .5rem, 3rem); }
+  .landing .landing-section { margin-top: 1.5rem; }
+  .landing .landing-benefits { padding-top: 1.5rem; }
 }
