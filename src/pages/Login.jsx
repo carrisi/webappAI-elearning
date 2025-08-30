@@ -1,100 +1,86 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase.js';
+// src/pages/Login.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import "./Style/Login.css";
 
-import './Style/Login.css';
-import RoleSwitch from '../components/RoleSwitch.jsx';
-import LogoImg from '../assets/logo_placeholder.png';
+export default function Login() {
+  const nav = useNavigate();
+  const { login } = useAuth();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState(null); // "student" | "teacher"
+  const [error, setError] = useState("");
 
-const roles = [
-  { key: 'studente', label: 'Studente'},
-  { key: 'docente',  label: 'Docente'},
-];
-
-const Login = () => {
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [error, setError]         = useState('');
-  const navigate                  = useNavigate();
-
-  const handleRoleToggle = e => {
-    // se checked = true → docente (index 1), altrimenti studente (index 0)
-    setRoleIndex(e.target.checked ? 1 : 0);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const u = await login({ email, password, role });
+      if (u.role === "student") nav("/studente", { replace: true });
+      else nav("/docente", { replace: true });
+    } catch (err) {
+      setError(err.message || "Errore di accesso");
+    }
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      await setDoc(
-        doc(db, 'users', cred.user.uid),
-        { role: roles[roleIndex].key },
-        { merge: true }
-      );
-      navigate(roles[roleIndex].key === 'studente' ? '/studente' : '/docente');
-    } catch (err) {
-      console.error(err);
-      setError('Email o password non validi');
-    }
-  }
-
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <div className="left">
-          <img src={LogoImg} alt="Logo piattaforma" id='logo_login'/>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum quas impedit labore est, consequatur sunt quos vero vitae eveniet voluptatem!</p>
+    <div className="login-page">
+      <form className="login-card" onSubmit={handleSubmit}>
+        <h1 className="login-title">Accedi</h1>
+
+        <div className="role-switch">
+          <button
+            type="button"
+            className={`role-btn ${role === "student" ? "active" : ""}`}
+            onClick={() => setRole("student")}
+            aria-pressed={role === "student"}
+          >
+            Studente
+          </button>
+          <button
+            type="button"
+            className={`role-btn ${role === "teacher" ? "active" : ""}`}
+            onClick={() => setRole("teacher")}
+            aria-pressed={role === "teacher"}
+          >
+            Docente
+          </button>
         </div>
 
-        <div className="right">
-          <h2>Effettua il Login</h2>
-          <form onSubmit={handleSubmit}>
-            <RoleSwitch
-              roleIndex={roleIndex}
-              onToggle={handleRoleToggle}
-            />
+        <label className="login-label">
+          Email
+          <input
+            className="login-input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="es. nome@uniba.it"
+            required
+          />
+        </label>
 
-            <div className="form-group">
-              <i className="fas fa-user" />
-              <input
-                type="text"
-                placeholder="Username"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
-            </div>
+        <label className="login-label">
+          Password
+          <input
+            className="login-input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+        </label>
 
-            <div className="form-group">
-              <i className="fas fa-lock" />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-            </div>
+        {error && <div className="login-error">{error}</div>}
 
-            {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+        <button className="login-submit" type="submit" disabled={!role}>
+          Accedi come {role === "teacher" ? "Docente" : role === "student" ? "Studente" : "…"}
+        </button>
 
-            <div className="checkbox-group">
-              <label>
-                <input type="checkbox" /> Remember
-              </label>
-              <a href="#">Forgot password?</a>
-            </div>
-            <button type="submit" className="btn">LOGIN</button>
-          </form>
-        </div>
-      </div>
+        <p className="login-hint">Seleziona prima il ruolo.</p>
+      </form>
     </div>
   );
-};
-
-export default Login;
+}

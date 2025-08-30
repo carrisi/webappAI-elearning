@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import MyNavbar from '../components/MyNavBar';
 import ChatBox from '../components/ChatBox';
-import './Style/StenteApp.css';
+import './Style/StudentApp.css';
 import heroImgLanding from '../assets/images/hero-illustration-StudentApp.png';
 
 export default function StudentApp() {
