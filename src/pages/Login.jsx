@@ -1,100 +1,158 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase.js';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import './Style/Login.css'
 
-import './Style/Login.css';
-import RoleSwitch from '../components/RoleSwitch.jsx';
-import LogoImg from '../assets/logo_placeholder.png';
+// === MOCK MODE: metti a false quando colleghi Firebase ===
+const MOCK_MODE = true;
 
+const ROLES = ["studente", "docente"];
 
-const roles = [
-  { key: 'studente', label: 'Studente'},
-  { key: 'docente',  label: 'Docente'},
-];
+export default function Login() {
+  const [role, setRole] = useState(ROLES[0]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const [error, setError] = useState("");
 
-const Login = () => {
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [error, setError]         = useState('');
-  const navigate                  = useNavigate();
+  const nav = useNavigate();
+  const location = useLocation();
 
-  const handleRoleToggle = e => {
-    // se checked = true → docente (index 1), altrimenti studente (index 0)
-    setRoleIndex(e.target.checked ? 1 : 0);
+  useEffect(() => {
+    const saved = localStorage.getItem("login.role");
+    if (saved && ROLES.includes(saved)) setRole(saved);
+  }, []);
+
+  const onRole = (r) => {
+    setRole(r);
+    localStorage.setItem("login.role", r);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
+
+    const go = role === "studente" ? "/studente" : "/docente";
+
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      await setDoc(
-        doc(db, 'users', cred.user.uid),
-        { role: roles[roleIndex].key },
-        { merge: true }
-      );
-      navigate(roles[roleIndex].key === 'studente' ? '/studente' : '/docente');
+      if (MOCK_MODE) {
+        await new Promise((r) => setTimeout(r, 300));
+        nav(go);
+        return;
+      }
+      // TODO: Firebase:
+      // const cred = await signInWithEmailAndPassword(auth, email, password);
+      // await setDoc(doc(db, "users", cred.user.uid), { role }, { merge: true });
+      // nav(go);
     } catch (err) {
-      console.error(err);
-      setError('Email o password non validi');
+      setError("Email o password non validi.");
     }
-  }
+  };
+
+  const justRegistered = location.state?.justRegistered;
+  const registeredEmail = location.state?.email;
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <div className="left">
-          <img src={LogoImg} alt="Logo piattaforma" id='logo_login'/>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum quas impedit labore est, consequatur sunt quos vero vitae eveniet voluptatem!</p>
-        </div>
+    <div className="login-v2">
+      <div className="login-card glass">
+        {/* Header sinistro con logo/claim */}
+        <aside className="panel">
+          <div className="brand">
+            <div className="logo">AI</div>
+            <h1>AI Learning</h1>
+            <p>Una piattaforma e-learning intelligente, con chat AI sui contenuti caricati.</p>
+          </div>
+          <ul className="bullets">
+            <li>Accesso rapido per Studenti e Docenti</li>
+            <li>UI in glassmorphism, responsive</li>
+            <li>Pronta per integrazione Firebase</li>
+          </ul>
+        </aside>
 
-        <div className="right">
-          <h2>Effettua il Login</h2>
-          <form onSubmit={handleSubmit}>
-            <RoleSwitch
-              roleIndex={roleIndex}
-              onToggle={handleRoleToggle}
-            />
+        {/* Form di login */}
+        <section className="form">
+          <h2>Accedi al tuo spazio</h2>
 
-            <div className="form-group">
-              <i className="fas fa-user" />
+          {MOCK_MODE && (
+            <p className="hint">Modalità demo: il login reindirizza in base al ruolo.</p>
+          )}
+
+          {justRegistered && (
+            <p className="success">
+              Account creato per <strong>{registeredEmail}</strong>. Ora effettua l’accesso.
+            </p>
+          )}
+
+          <div className="segmented" role="tablist" aria-label="Seleziona ruolo">
+            <button
+              type="button"
+              className={role === "studente" ? "active" : ""}
+              onClick={() => onRole("studente")}
+              aria-selected={role === "studente"}
+            >
+              Studente
+            </button>
+            <button
+              type="button"
+              className={role === "docente" ? "active" : ""}
+              onClick={() => onRole("docente")}
+              aria-selected={role === "docente"}
+            >
+              Docente
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate>
+            <label className="field">
+              <span>Email istituzionale</span>
               <input
-                type="text"
-                placeholder="Username"
+                type="email"
+                placeholder="nome.cognome@esempio.it"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="username"
                 required
               />
-            </div>
+            </label>
 
-            <div className="form-group">
-              <i className="fas fa-lock" />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            <label className="field">
+              <span>Password</span>
+              <div className="pwd-wrap">
+                <input
+                  type={showPwd ? "text" : "password"}
+                  placeholder="La tua password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle"
+                  onClick={() => setShowPwd((s) => !s)}
+                  aria-label={showPwd ? "Nascondi password" : "Mostra password"}
+                >
+                  {showPwd ? "Nascondi" : "Mostra"}
+                </button>
+              </div>
+            </label>
 
-            {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+            {error && <p className="error">{error}</p>}
 
-            <div className="checkbox-group">
-              <label>
+            <div className="row small">
+              <label className="check">
                 <input type="checkbox" /> Remember
               </label>
-              <a href="#">Forgot password?</a>
+              <a className="link" href="#">Forgot password?</a>
             </div>
-            <button type="submit" className="btn">LOGIN</button>
+
+            <button className="primary" type="submit">Login</button>
           </form>
-        </div>
+
+          <p className="footer">
+            Non hai un account? <Link to="/register">Crea un account</Link>
+          </p>
+        </section>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

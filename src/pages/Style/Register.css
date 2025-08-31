@@ -1,0 +1,158 @@
+/* ===== Layout base con layer di sfondo coerente (scoped) ===== */
+.register-v2 {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 3rem 1rem;
+  position: relative;
+}
+.register-v2::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(255,255,255,0.08), transparent 60%),
+    radial-gradient(900px 600px at 85% 20%, rgba(255,255,255,0.06), transparent 60%),
+    linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%);
+  pointer-events: none;
+}
+
+/* ===== Card glass (coerente con Login) ===== */
+.register-v2 .glass {
+  backdrop-filter: blur(14px);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.22);
+}
+.register-v2 .register-card {
+  width: min(880px, 98vw);
+  padding: 2rem;
+  overflow: hidden;
+}
+
+/* ===== Header compatto ===== */
+.register-v2 .reg-header{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: .9rem;
+  color: #fff;
+  margin-bottom: .75rem;
+}
+.register-v2 .reg-header .logo{
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  font-weight: 800;
+  background: rgba(255,255,255,0.22);
+  color: #0f172a;
+}
+.register-v2 .reg-header h1{
+  margin: 0 0 .15rem;
+  font-size: 1.8rem;
+}
+.register-v2 .reg-header p{
+  margin: 0;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ===== Segmented ruoli (Studente/Docente) ===== */
+.register-v2 .segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin: .75rem 0 1rem;
+}
+.register-v2 .segmented button {
+  padding: .7rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(17,24,39,.15);
+  background: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease;
+}
+.register-v2 .segmented button:hover { transform: translateY(-1px); }
+.register-v2 .segmented .active {
+  background: #e5e7ff;
+  border-color: #a5b4fc;
+  color: #3730a3;
+}
+
+/* ===== Form ===== */
+.register-v2 .reg-form { display: grid; gap: .9rem; }
+.register-v2 .grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .9rem;
+}
+
+.register-v2 .field { display: grid; gap: .35rem; }
+.register-v2 .field > span { font-weight: 600; color: #222; }
+.register-v2 .field input {
+  width: 100%;
+  padding: .9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.register-v2 .field input:focus {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  background: #fff;
+}
+
+/* password toggle */
+.register-v2 .pwd-wrap { position: relative; display: grid; }
+.register-v2 .toggle {
+  position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  border: 0; background: transparent; cursor: pointer;
+  padding: .35rem .55rem; border-radius: 8px; color: #4b5563;
+}
+.register-v2 .toggle:hover { background: #eef2ff; color: #3730a3; }
+
+/* terms */
+.register-v2 .check.terms {
+  display: inline-flex; align-items: center; gap: .5rem;
+  color: #111827;
+  margin-top: .25rem;
+}
+
+/* errori & alert */
+.register-v2 .field-error { color: #d72638; font-weight: 600; font-size: .9rem; }
+.register-v2 .alert {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #7f1d1d;
+  padding: .6rem .8rem;
+  border-radius: 12px;
+}
+
+/* CTA coerente con Login (scoped) */
+.register-v2 .primary {
+  width: 100%;
+  padding: .95rem 1.2rem;
+  border-radius: 12px;
+  border: 1px solid #a5b4fc;
+  background: linear-gradient(135deg, rgba(99,102,241,.9), rgba(147,51,234,.85));
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: transform .06s ease, box-shadow .2s ease;
+}
+.register-v2 .primary:disabled { opacity: .7; cursor: not-allowed; }
+.register-v2 .primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(99,102,241,.25); }
+
+.register-v2 .footer { text-align: center; margin-top: .25rem; color: #111827; }
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .register-v2 .register-card { padding: 1.25rem; }
+  .register-v2 .grid-2 { grid-template-columns: 1fr; }
+  .register-v2 .reg-header h1 { font-size: 1.6rem; }
+}

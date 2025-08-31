@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import ScrollToTop    from './components/ScrollToTop';
 import Login          from './pages/Login';
+import Register       from './pages/Register';
 
 /* ===== STUDENTE ===== */
 import StudentApp             from './student/StudentApp';
@@ -40,6 +41,7 @@ export default function App() {
       <Routes>
         {/* Login */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* ===== LATO STUDENTE ===== */}
         <Route path="/studente" element={<StudentApp />}>
