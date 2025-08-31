@@ -1,3 +1,7 @@
+// TEST FIREBASE PER FIREBASE
+// import { auth, db } from "../firebase";
+// console.log("Auth OK:", !!auth, "DB OK:", !!db);
+
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import './Style/Login.css'

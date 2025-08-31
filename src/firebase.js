@@ -2,25 +2,30 @@
 import { initializeApp } from "firebase/app";
 
 // Se ti serve l’autenticazione
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence, } from "firebase/auth";
 
 // Se ti serve il database Firestore
 import { getFirestore } from "firebase/firestore";
 
 // Incolla qui i valori dal tuo progetto Firebase
 const firebaseConfig = {
-  apiKey:            "AIzaSyDTTjgouDv3phem-_Ca0jUm9sk6zko7rFQ",
-  authDomain:        "ai-learning-uniba.firebaseapp.com",
-  projectId:         "ai-learning-uniba",
-  storageBucket:     "ai-learning-uniba.firebasestorage.app",
-  messagingSenderId: "986137106908",
-  appId:             "1:986137106908:web:007191ea75c554bc129719",
-  measurementId:     "G-HW8DWLF88D"
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  // storageBucket:  import.meta.env...
 };
 
 // Inizializza l’app
 const app = initializeApp(firebaseConfig);
 
-// Esporta i servizi che userai nel resto della app
+// Mantieni la sessione fintanto che l’utente non esce
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
+await setPersistence(auth, browserLocalPersistence);
+
+// Firestore per i profili/ruoli
+export const db = getFirestore(app);
+
+export default app;
