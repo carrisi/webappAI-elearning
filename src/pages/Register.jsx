@@ -2,15 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Style/Register.css";
 
-/**
- * Registrazione utente (frontend-only).
- * - Ruolo: "student" | "teacher"
- * - Campi: nome, cognome, email, password, conferma password
- *
- * TODO (Firebase, step successivo):
- *  - createUserWithEmailAndPassword(auth, email, password)
- *  - setDoc(doc(db, "users", uid), { role, name, surname, ... })
- */
+import { registerWithRole } from "../services/auth";
+
 export default function Register() {
   const navigate = useNavigate();
   const [role, setRole] = useState("student");
@@ -56,12 +49,26 @@ export default function Register() {
     if (!validate()) return;
 
     setSubmitting(true);
+    setErrors({});
     try {
-      // MOCK: simula creazione e torna al login con banner
-      await new Promise((r) => setTimeout(r, 700));
-      navigate("/login", { state: { justRegistered: true, email: form.email } });
+      await registerWithRole({
+        email: form.email,
+        password: form.password,
+        role,
+        name: form.name,
+        surname: form.surname
+      });
+
+      // redirect in base al ruolo
+      navigate(role === "teacher" ? "/docente" : "/studente", { replace: true });
     } catch (err) {
-      setErrors({ general: "Impossibile completare la registrazione. Riprova." });
+      console.error("[REGISTER]", err.code, err.message, err.customData);
+      // mapping base degli errori più comuni
+      let msg = "Impossibile completare la registrazione. Riprova.";
+      if (err?.code === "auth/email-already-in-use") msg = "Email già registrata.";
+      if (err?.code === "auth/weak-password") msg = "Password troppo debole.";
+      if (err?.code === "permission-denied") msg = "Permessi insufficienti su Firestore (regole?).";
+      setErrors({ general: msg });
     } finally {
       setSubmitting(false);
     }
@@ -70,7 +77,7 @@ export default function Register() {
   return (
     <div className="register-v2">
       <div className="register-card glass">
-        {/* Header/brand breve per coerenza con Login */}
+        {/* Header/brand */}
         <header className="reg-header">
           <div className="logo">AI</div>
           <div>
@@ -79,7 +86,7 @@ export default function Register() {
           </div>
         </header>
 
-        {/* Segmented switch ruolo (stesso pattern di Login) */}
+        {/* Switch ruolo */}
         <div className="segmented" role="tablist" aria-label="Seleziona ruolo">
           <button
             type="button"
@@ -206,6 +213,7 @@ export default function Register() {
             Hai già un account? <Link to="/login">Accedi</Link>
           </p>
 
+          {/* Manteniamo il ruolo nel form (non necessario per Firebase ma utile per debug) */}
           <input type="hidden" name="role" value={role} />
         </form>
       </div>

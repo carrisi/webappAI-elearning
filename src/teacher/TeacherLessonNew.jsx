@@ -2,40 +2,47 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, Container, Form, Badge } from 'react-bootstrap';
+import { createLesson } from '../services/courses';
 import './Style/TeacherLessonNew.css';
 
 export default function TeacherLessonNew() {
-  const { courseId } = useParams();
+  const { courseId, secId } = useParams();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [kind, setKind] = useState('video');
+  const [kind, setKind] = useState('video');   // 'video' | 'pdf' | 'videopdf'
   const [duration, setDuration] = useState('');
+  const [videoUrl, setVideoUrl] = useState(''); // <-- aggiunto: legare il campo URL
 
   const fileTypes =
-    kind === 'videopdf' ? ['video', 'pdf'] :
-    kind === 'video'    ? ['video'] :
-    ['pdf'];
+    kind === 'videopdf' ? ['video', 'pdf']
+    : kind === 'video'  ? ['video']
+    :                     ['pdf'];
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    alert(
-      `Lezione creata (mock):\n` +
-      `Titolo: ${title}\n` +
-      `Tipo: ${fileTypes.join(' + ')}\n` +
-      (duration ? `Durata: ${duration}\n` : '') +
-      (description ? `Descrizione: ${description}\n` : '')
-    );
-    navigate(`/docente/corsi/${courseId}`);
+    try {
+      // Niente Storage per ora: salviamo SOLO metadati (videoUrl e/o fileTypes)
+      await createLesson(courseId, secId, {
+        title,
+        description,
+        duration,
+        fileTypes,
+        videoUrl: (kind === 'video' || kind === 'videopdf') ? videoUrl : '',
+        type: kind === 'video' ? 'video' : (kind === 'pdf' ? 'reading' : 'video'), // opzionale
+      });
+      navigate(`/docente/corsi/${courseId}`);
+    } catch (err) {
+      console.error('createLesson:', err);
+      alert('Impossibile creare la lezione.');
+    }
   };
 
   return (
     <Container className="py-4 teacher-lesson-new">
-      {/* Glass unico, due inner: header + form */}
       <Card className="glass-surface lesson-card">
         <Card.Body className="lesson-card__body lesson-stack">
-          {/* Header trasparente */}
           <div className="lesson-card__inner header-inner">
             <header className="lesson-header">
               <h1 className="hero-title m-0">Crea nuova lezione</h1>
@@ -45,10 +52,8 @@ export default function TeacherLessonNew() {
             </header>
           </div>
 
-          {/* Form con sfondo bianco */}
           <div className="lesson-card__inner form-inner">
             <Form onSubmit={onSubmit}>
-              {/* Titolo */}
               <Form.Group className="mb-3">
                 <Form.Label>Titolo</Form.Label>
                 <Form.Control
@@ -59,67 +64,44 @@ export default function TeacherLessonNew() {
                 />
               </Form.Group>
 
-              {/* Tipologia */}
               <Form.Group className="mb-3">
                 <Form.Label>Tipologia contenuto</Form.Label>
                 <div className="d-flex flex-wrap gap-2 mb-2 type-buttons">
-                  <Button
-                    type="button"
-                    className={`lesson-type-btn ${kind === 'video' ? 'active' : ''}`}
-                    onClick={() => setKind('video')}
-                  >
-                    🎬 Video
-                  </Button>
-                  <Button
-                    type="button"
-                    className={`lesson-type-btn ${kind === 'pdf' ? 'active' : ''}`}
-                    onClick={() => setKind('pdf')}
-                  >
-                    📄 PDF
-                  </Button>
-                  <Button
-                    type="button"
-                    className={`lesson-type-btn ${kind === 'videopdf' ? 'active' : ''}`}
-                    onClick={() => setKind('videopdf')}
-                  >
-                    🎬 + 📄 Entrambi
-                  </Button>
+                  <Button type="button" className={`lesson-type-btn ${kind === 'video' ? 'active' : ''}`} onClick={() => setKind('video')}>🎬 Video</Button>
+                  <Button type="button" className={`lesson-type-btn ${kind === 'pdf' ? 'active' : ''}`} onClick={() => setKind('pdf')}>📄 PDF</Button>
+                  <Button type="button" className={`lesson-type-btn ${kind === 'videopdf' ? 'active' : ''}`} onClick={() => setKind('videopdf')}>🎬 + 📄 Entrambi</Button>
                 </div>
                 <div>
-                  {fileTypes.map((t) => (
-                    <Badge key={t} bg="light" text="dark" className="me-1">{t}</Badge>
-                  ))}
+                  {fileTypes.map((t) => (<Badge key={t} bg="light" text="dark" className="me-1">{t}</Badge>))}
                 </div>
               </Form.Group>
-                
-              {/* Campo Video URL (se selezionato) */}
+
               {(kind === 'video' || kind === 'videopdf') && (
-  <Form.Group className="mb-3">
-    <Form.Label>Link Video</Form.Label>
-    <Form.Control
-      type="url"
-      placeholder="https://…"
-      required={kind !== 'pdf'}
-    />
-    <Form.Text className="text-muted">
-      Inserisci il link al video (YouTube, Vimeo, ecc.).
-    </Form.Text>
-  </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Link Video</Form.Label>
+                  <Form.Control
+                    type="url"
+                    placeholder="https://…"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    required={kind !== 'pdf'}
+                  />
+                  <Form.Text className="text-muted">
+                    Inserisci il link al video (YouTube, Vimeo, ecc.).
+                  </Form.Text>
+                </Form.Group>
               )}
-              
-              {/* Upload PDF (se selezionato) */}
+
               {(kind === 'pdf' || kind === 'videopdf') && (
-  <Form.Group className="mb-4">
-    <Form.Label>Carica PDF</Form.Label>
-    <Form.Control type="file" accept="application/pdf" required={kind !== 'video'} />
-    <Form.Text className="text-muted">
-      Formato supportato: PDF.
-    </Form.Text>
-  </Form.Group>
+                <Form.Group className="mb-4">
+                  <Form.Label>Carica PDF</Form.Label>
+                  <Form.Control type="file" accept="application/pdf" required={kind !== 'video'} />
+                  <Form.Text className="text-muted">
+                    Per ora salveremo solo i metadati (niente upload su Storage).
+                  </Form.Text>
+                </Form.Group>
               )}
 
-
-              {/* Durata */}
               <Form.Group className="mb-3">
                 <Form.Label>Durata (opzionale)</Form.Label>
                 <Form.Control
@@ -129,7 +111,6 @@ export default function TeacherLessonNew() {
                 />
               </Form.Group>
 
-              {/* Descrizione */}
               <Form.Group className="mb-4">
                 <Form.Label>Descrizione (opzionale)</Form.Label>
                 <Form.Control
@@ -141,27 +122,17 @@ export default function TeacherLessonNew() {
                 />
               </Form.Group>
 
-              {/* CTA */}
               <div className="form-actions">
-                <Button type="button" className="btn-fixed btn-cancel" onClick={() => navigate(-1)}>
-                  Annulla
-                </Button>
-                <Button type="submit" className="btn-fixed btn-confirm">
-                  Crea
-                </Button>
+                <Button type="button" className="btn-fixed btn-cancel" onClick={() => navigate(-1)}>Annulla</Button>
+                <Button type="submit" className="btn-fixed btn-confirm">Crea</Button>
               </div>
             </Form>
           </div>
         </Card.Body>
       </Card>
 
-      {/* Link secondario */}
       <div className="text-center mt-3">
-        <Button
-          type="button"
-          className="btn-glass-outline"
-          onClick={() => navigate(`/docente/corsi/${courseId}`)}
-        >
+        <Button type="button" className="btn-glass-outline" onClick={() => navigate(`/docente/corsi/${courseId}`)}>
           Torna al corso
         </Button>
       </div>

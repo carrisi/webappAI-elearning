@@ -1,8 +1,8 @@
 // src/teacher/pages/TeacherCourses.jsx
-import React from 'react';
+import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import teacherCourses from '../data/teacherCoursesMock';
+import { listMyCourses } from "../services/courses";
 import './Style/TeacherCourses.css';
 
 function CourseCard({ corso }) {
@@ -48,12 +48,22 @@ export default function TeacherCourses() {
   const navigate = useNavigate();
   const q = (params.get('q') || '').toLowerCase();
 
-  const filtered = teacherCourses.filter(c =>
-    [c.titolo, c.instructor, c.descrizione, c?.introduzione?.semester, String(c?.introduzione?.credits)]
-      .join(' ')
-      .toLowerCase()
-      .includes(q)
-  );
+const [items, setItems] = useState([]);
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  let alive = true;
+  listMyCourses()
+    .then(rows => { if (alive) setItems(rows); })
+    .finally(() => { if (alive) setLoading(false); });
+  return () => { alive = false; };
+}, []);
+
+ const filtered = items.filter(c =>
+  [c.titolo, c.descrizione, c?.introduzione?.professor, c?.introduzione?.semester, String(c?.introduzione?.credits)]
+    .join(' ')
+    .toLowerCase()
+    .includes(q)
+);
 
   return (
     <Container className="py-4">
@@ -70,7 +80,8 @@ export default function TeacherCourses() {
 
       {/* Lista corsi */}
       <Row className="g-3">
-        {filtered.map(corso => (
+        {loading && <Col><p className="text-white-50">Caricamento corsi…</p></Col>}
+        {!loading && filtered.map(corso => (
           <Col key={corso.id} xs={12} md={6} lg={4}>
             <CourseCard corso={corso} />
           </Col>

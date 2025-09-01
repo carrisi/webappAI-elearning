@@ -1,15 +1,140 @@
 // src/teacher/pages/TeacherCourseDashboard.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
 import ChatBox from '../components/ChatBox';
-import teacherCourses from '../data/teacherCoursesMock';
 import './Style/TeacherCourseDashboard.css';
-import './Style/TeacherCourses.css'; // per glass-card/hero coerenti
+import './Style/TeacherCourses.css';
+
+// Firebase
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 
 export default function TeacherCourseDashboard() {
   const { courseId } = useParams();
-  const corso = teacherCourses.find(c => String(c.id) === String(courseId));
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
+  const [corso, setCorso] = useState(null);
+
+  // KPI/insight (AI) — rimangono mock per ora
+  const kpi = [
+    { label: 'Domande AI (30gg)', value: 42 },
+    { label: 'Argomenti con lacune', value: 3 },
+    { label: 'Segnalazioni materiali', value: 2 },
+    { label: 'Studenti a rischio', value: 5 },
+  ];
+  const topQuestions = [
+    'Differenza tra O(n) e O(log n) negli algoritmi',
+    'Ricorsione: casi base e profondità massima',
+    'Come normalizzare un database (3NF)?'
+  ];
+  const weakTopics = ['Ricorsione', 'Complessità logaritmica', 'Join SQL'];
+  const materialFlags = [
+    'Slide Lezione 3: ref mancante alla slide 12',
+    'PDF Lezione 5: formulazione ambigua a pag. 7'
+  ];
+
+  // ----- STATISTICHE GENERALI (struttura corso) -----
+  const [stats, setStats] = useState({
+    sections: 0,
+    lessonsTotal: 0,
+    lessonsVideo: 0,
+    lessonsPdf: 0,
+    lessonsBoth: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!alive) return;
+      if (!user) {
+        setErr('Devi effettuare l’accesso.');
+        setLoading(false);
+        return;
+      }
+      try {
+        setErr(null);
+        const ref = doc(db, 'courses', String(courseId));
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          setCorso(null);
+          setLoading(false);
+          return;
+        }
+        const data = { id: snap.id, ...snap.data() };
+        setCorso(data);
+
+        // Carica sezioni e lezioni per i conteggi generali
+        setStatsLoading(true);
+        const sectionsRef = collection(db, 'courses', String(courseId), 'sections');
+        const secSnap = await getDocs(sectionsRef);
+
+        const sectionDocs = secSnap.docs;
+        let lessonsTotal = 0;
+        let lessonsVideo = 0;
+        let lessonsPdf = 0;
+        let lessonsBoth = 0;
+
+        // Leggi in parallelo le lezioni di ogni sezione
+        await Promise.all(
+          sectionDocs.map(async (sdoc) => {
+            const lessonsRef = collection(
+              db,
+              'courses',
+              String(courseId),
+              'sections',
+              sdoc.id,
+              'lessons'
+            );
+            const lesSnap = await getDocs(lessonsRef);
+            lesSnap.forEach((ldoc) => {
+              const L = ldoc.data() || {};
+              // euristica robusta: consideriamo presenti se stringa non vuota
+              const hasVideo = !!(L.videoUrl && String(L.videoUrl).trim().length);
+              const hasPdf   = !!(L.pdfUrl && String(L.pdfUrl).trim().length);
+              lessonsTotal += 1;
+              if (hasVideo && hasPdf) lessonsBoth += 1;
+              else if (hasVideo) lessonsVideo += 1;
+              else if (hasPdf) lessonsPdf += 1;
+            });
+          })
+        );
+
+        setStats({
+          sections: sectionDocs.length,
+          lessonsTotal,
+          lessonsVideo,
+          lessonsPdf,
+          lessonsBoth,
+        });
+      } catch (e) {
+        console.error('Load course / stats', e);
+        setErr('Impossibile caricare il corso o le statistiche.');
+      } finally {
+        setStatsLoading(false);
+        setLoading(false);
+      }
+    });
+    return () => { alive = false; unsub && unsub(); };
+  }, [courseId]);
+
+  if (loading) {
+    return (
+      <Container className="py-5">
+        <div className="text-white-50">Caricamento…</div>
+      </Container>
+    );
+  }
+
+  if (err) {
+    return (
+      <Container className="py-5">
+        <div className="alert alert-danger glass-card">{err}</div>
+      </Container>
+    );
+  }
 
   if (!corso) {
     return (
@@ -23,31 +148,11 @@ export default function TeacherCourseDashboard() {
     );
   }
 
-  // Mock KPI per corso (collega poi al backend/AI)
-  const kpi = [
-    { label: 'Domande AI (30gg)', value: 42 },
-    { label: 'Argomenti con lacune', value: 3 },
-    { label: 'Segnalazioni materiali', value: 2 },
-    { label: 'Studenti a rischio', value: 5 },
-  ];
-
-  // Mock insight (collega poi a data reale)
-  const topQuestions = [
-    'Differenza tra O(n) e O(log n) negli algoritmi',
-    'Ricorsione: casi base e profondità massima',
-    'Come normalizzare un database (3NF)?'
-  ];
-  const weakTopics = ['Ricorsione', 'Complessità logaritmica', 'Join SQL'];
-  const materialFlags = [
-    'Slide Lezione 3: ref mancante alla slide 12',
-    'PDF Lezione 5: formulazione ambigua a pag. 7'
-  ];
-
   return (
-    <Container className="teacher-course-dashboard py-4">
-      {/* HERO con titolo corso (stile glass identico) */}
+    <Container className="teacher-course-dashboard py-4 px-3">
+      {/* HERO con titolo corso */}
       <section className="glass-hero text-white mb-4">
-        <h1 className="hero-title mb-1">{corso.titolo}</h1>
+        <h1 className="hero-title mb-1">{corso.titolo || 'Corso senza titolo'}</h1>
         {corso.descrizione && <p className="hero-subtitle mb-2">{corso.descrizione}</p>}
 
         <div className="d-flex gap-2 flex-wrap justify-content-center mt-2">
@@ -66,9 +171,9 @@ export default function TeacherCourseDashboard() {
         </div>
       </section>
 
-      {/* 1) KPI corso */}
+      {/* 1) Panoramica corso AI (già presente) */}
       <section aria-labelledby="kpiTitle" className="mb-4">
-        <h2 id="kpiTitle" className="dash-heading">Panoramica corso</h2>
+        <h2 id="kpiTitle" className="dash-heading">Panoramica corso (AI)</h2>
         <Row className="g-3">
           {kpi.map((item, i) => (
             <Col key={i} xs={6} md={3}>
@@ -82,6 +187,60 @@ export default function TeacherCourseDashboard() {
           ))}
         </Row>
       </section>
+
+      {/* 1-bis) Panoramica GENERALE (conteggi reali da Firestore) */}
+      <section className="mb-4">
+        <h2 className="dash-heading">Panoramica generale</h2>
+
+        {/* riga 1: Sezioni + Lezioni */}
+        <Row className="g-3 justify-content-center">
+          <Col xs={6} md={6}>
+            <Card className="glass-card kpi-card h-100">
+              <Card.Body>
+                <div className="kpi-value">{stats.sections}</div>
+                <div className="kpi-label">Sezioni</div>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={6} md={6}>
+            <Card className="glass-card kpi-card h-100">
+              <Card.Body>
+                <div className="kpi-value">{stats.lessonsTotal}</div>
+                <div className="kpi-label">Lezioni</div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* riga 2: Video, PDF, Video+PDF */}
+        <Row className="g-3 mt-0 justify-content-center">
+          <Col xs={6} md={4}>
+            <Card className="glass-card kpi-card h-100">
+              <Card.Body>
+                <div className="kpi-value">{stats.lessonsVideo}</div>
+                <div className="kpi-label">Lezioni video</div>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={6} md={4}>
+            <Card className="glass-card kpi-card h-100">
+              <Card.Body>
+                <div className="kpi-value">{stats.lessonsPdf}</div>
+                <div className="kpi-label">Lezioni PDF</div>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={6} md={4}>
+            <Card className="glass-card kpi-card h-100">
+              <Card.Body>
+                <div className="kpi-value">{stats.lessonsBoth}</div>
+                <div className="kpi-label">Video + PDF</div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </section>
+
 
       {/* 2) ChatAI contestuale al corso */}
       <section aria-labelledby="chatTitle" className="mb-4">
@@ -98,7 +257,7 @@ export default function TeacherCourseDashboard() {
           </Col>
 
           <Col xs={12} lg={5}>
-            <Card className="glass-card h-100">
+            <Card className="glass-card">
               <Card.Body>
                 <h5 className="mb-3">Prompt veloci (corso)</h5>
                 <ul className="quick-prompts">
@@ -110,9 +269,8 @@ export default function TeacherCourseDashboard() {
 
                 <h6 className="mt-4">Azioni rapide</h6>
                 <div className="d-flex flex-wrap gap-2 mt-2">
-                  <Link to={`/docente/corsi/${corso.id}/modifica`} className="landing-btn outline">Modifica materiale</Link>
-                  <Button variant="light" className="landing-btn outline">Crea quiz</Button>
-                  <Button variant="light" className="landing-btn outline">Genera riassunto</Button>
+                  <Button variant="light" className="landing-btn primary">Crea quiz</Button>
+                  <Button variant="light" className="landing-btn primary">Genera riassunto</Button>
                 </div>
               </Card.Body>
             </Card>
@@ -124,7 +282,6 @@ export default function TeacherCourseDashboard() {
       <section aria-labelledby="insightTitle" className="mb-5">
         <h2 id="insightTitle" className="dash-heading">Insight AI del corso</h2>
         <Row className="g-3">
-          {/* Domande più frequenti */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -136,7 +293,6 @@ export default function TeacherCourseDashboard() {
             </Card>
           </Col>
 
-          {/* Argomenti con lacune */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -148,7 +304,6 @@ export default function TeacherCourseDashboard() {
             </Card>
           </Col>
 
-          {/* Qualità materiali */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -160,7 +315,6 @@ export default function TeacherCourseDashboard() {
             </Card>
           </Col>
 
-          {/* Placeholder grafici */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>

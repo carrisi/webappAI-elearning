@@ -1,54 +1,94 @@
-// src/teacher/pages/TeacherDashboard.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ChatBox from '../components/ChatBox';
-import teacherCourses from '../data/teacherCoursesMock';
 
-// Stili: dashboard + (riuso stile card/hero identico a TeacherCourses)
+// Stili invariati
 import './Style/TeacherGeneralDashboard.css';
-import './Style/TeacherCourses.css'; // mantiene glass-card/hero coerenti alle card corsi
+import './Style/TeacherCourses.css';
+
+// Firebase
+import { auth, db } from '../firebase';
+import {
+  onAuthStateChanged
+} from 'firebase/auth';
+import {
+  collection, query, where, orderBy, getDocs
+} from 'firebase/firestore';
 
 export default function TeacherDashboard() {
-  // KPI generali (mock)
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
+  const [courses, setCourses] = useState([]);
+
+  // KPI/Insight rimangono mock per ora (solo UI)
   const kpi = [
     { label: 'Domande AI (30gg)', value: 185 },
     { label: 'Argomenti con lacune', value: 12 },
     { label: 'Segnalazioni materiali', value: 9 },
     { label: 'Studenti a rischio', value: 17 },
   ];
-
-  // Insight globali (mock)
-  const topQuestions = [
-    'Differenza tra O(n) e O(log n) negli algoritmi',
-    'Cos’è un Transformer nelle reti neurali?',
-    'Come normalizzare un database (3NF)?',
-  ];
   const weakTopics = ['Ricorsione', 'SQL avanzato', 'Backpropagation'];
   const materialFlags = [
     'Slide Algoritmi: errore slide 12',
     'PDF Basi di Dati: ref mancante pag. 7',
   ];
+  const topQuestions = [
+    'Differenza tra O(n) e O(log n) negli algoritmi',
+    'Cos’è un Transformer nelle reti neurali?',
+    'Come normalizzare un database (3NF)?',
+  ];
+
+  useEffect(() => {
+    let alive = true;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!alive) return;
+      if (!user) {
+        setErr('Devi effettuare l’accesso.');
+        setLoading(false);
+        return;
+      }
+      try {
+        setErr(null);
+        const q = query(
+          collection(db, 'courses'),
+          where('ownerId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        );
+        const snap = await getDocs(q);
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setCourses(list);
+      } catch (e) {
+        console.error('Load courses', e);
+        setErr('Impossibile caricare i corsi.');
+      } finally {
+        setLoading(false);
+      }
+    });
+    return () => { alive = false; unsub && unsub(); };
+  }, []);
 
   return (
     <Container className="teacher-dashboard py-4">
-      {/* HERO generale (glass come TeacherCourses) */}
+      {/* HERO */}
       <section className="glass-hero text-white mb-4">
         <h1 className="hero-title mb-1">Dashboard Docente</h1>
         <p className="hero-subtitle mb-2">
           Panoramica delle attività, domande AI e insight dagli studenti
         </p>
-
         <div className="d-flex gap-2 flex-wrap justify-content-center mt-2">
           <Badge bg="light" text="dark">Docente attivo</Badge>
           <Badge bg="light" text="dark">Anno Accademico 2024/25</Badge>
         </div>
-
         <div className="hero-actions d-flex justify-content-center flex-wrap gap-2 mt-3">
           <Link to="/docente/corsi" className="landing-btn outline">Vai ai corsi</Link>
           <Link to="/docente/corsi/nuovo" className="landing-btn primary">Crea nuovo corso</Link>
         </div>
       </section>
+
+      {/* Error/Loading */}
+      {err && <div className="alert alert-danger glass-card">{err}</div>}
+      {loading && <div className="text-white-50 mb-3">Caricamento…</div>}
 
       {/* KPI generali */}
       <section aria-labelledby="kpiTitle" className="mb-4">
@@ -79,7 +119,6 @@ export default function TeacherDashboard() {
             </div>
           </Col>
 
-
           <Col xs={12} lg={5}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -103,17 +142,16 @@ export default function TeacherDashboard() {
         </Row>
       </section>
 
-      {/* I miei corsi — card identiche a TeacherCourses, con bottoni extra nel footer */}
+      {/* I miei corsi (ora da Firestore) */}
       <section aria-labelledby="myCoursesTitle" className="mb-4">
         <h2 id="myCoursesTitle" className="dash-heading">I miei corsi</h2>
         <Row className="g-3">
-          {teacherCourses.map(corso => (
+          {courses.map(corso => (
             <Col key={corso.id} xs={12} md={6} lg={4}>
-              {/* Struttura e classi identiche a TeacherCourses.CourseCard */}
               <Card className="h-100 glass-card clickable-card">
                 <Card.Body>
                   <Card.Title className="courseTitle mb-1" id="title">
-                    {corso.titolo}
+                    {corso.titolo || 'Corso senza titolo'}
                   </Card.Title>
 
                   <div className="small text-muted mb-2">
@@ -132,16 +170,11 @@ export default function TeacherDashboard() {
                       <Badge bg="light" text="dark">{corso.introduzione.semester}</Badge>
                     )}
                   </div>
-
-                  <div className="course-tags d-flex gap-2 flex-wrap">
-                    {/* tag lato docente in step successivo */}
-                  </div>
                 </Card.Body>
 
-                {/* Footer identico con stato + bottoni richiesti */}
                 <Card.Footer className="d-flex flex-wrap align-items-center justify-content-between gap-2">
                   <small className="text-muted">
-                    {corso.stato.charAt(0).toUpperCase() + corso.stato.slice(1)}
+                    {(corso.stato || 'bozza').replace(/^./, c => c.toUpperCase())}
                   </small>
 
                   <div className="d-flex gap-2 ms-auto">
@@ -162,14 +195,23 @@ export default function TeacherDashboard() {
               </Card>
             </Col>
           ))}
+
+          {!loading && !err && courses.length === 0 && (
+            <Col xs={12}>
+              <Card className="glass-card">
+                <Card.Body className="text-center text-white-50">
+                  Nessun corso trovato. Crea il primo corso dal pulsante in alto.
+                </Card.Body>
+              </Card>
+            </Col>
+          )}
         </Row>
       </section>
 
-      {/* Insight AI */}
+      {/* Insight AI (mock UI) */}
       <section aria-labelledby="insightTitle" className="mb-5">
         <h2 id="insightTitle" className="dash-heading">Insight AI</h2>
         <Row className="g-3">
-          {/* Domande più frequenti */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -180,8 +222,6 @@ export default function TeacherDashboard() {
               </Card.Body>
             </Card>
           </Col>
-
-          {/* Argomenti con lacune */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -192,8 +232,6 @@ export default function TeacherDashboard() {
               </Card.Body>
             </Card>
           </Col>
-
-          {/* Segnalazioni materiali */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -204,8 +242,6 @@ export default function TeacherDashboard() {
               </Card.Body>
             </Card>
           </Col>
-
-          {/* Placeholder grafici */}
           <Col xs={12} md={6}>
             <Card className="glass-card h-100">
               <Card.Body>

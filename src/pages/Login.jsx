@@ -4,51 +4,71 @@
 
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import './Style/Login.css'
+import "./Style/Login.css";
 
-// === MOCK MODE: metti a false quando colleghi Firebase ===
-const MOCK_MODE = true;
+// 🔗 servizi Firebase
+import { login } from "../services/auth";
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
-const ROLES = ["studente", "docente"];
+// Mappatura delle route in base al ruolo salvato in Firestore
+const PATH_BY_ROLE = {
+  student: "/studente",
+  teacher: "/docente",
+};
+
+// Valori dell'interruttore UI (solo estetica)
+const ROLES_UI = ["studente", "docente"];
 
 export default function Login() {
-  const [role, setRole] = useState(ROLES[0]);
+  const [roleUi, setRoleUi] = useState(ROLES_UI[0]); // solo per UI
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const nav = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const saved = localStorage.getItem("login.role");
-    if (saved && ROLES.includes(saved)) setRole(saved);
+    const saved = localStorage.getItem("login.roleUi");
+    if (saved && ROLES_UI.includes(saved)) setRoleUi(saved);
   }, []);
 
   const onRole = (r) => {
-    setRole(r);
-    localStorage.setItem("login.role", r);
+    setRoleUi(r);
+    localStorage.setItem("login.roleUi", r);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const go = role === "studente" ? "/studente" : "/docente";
+    setSubmitting(true);
 
     try {
-      if (MOCK_MODE) {
-        await new Promise((r) => setTimeout(r, 300));
-        nav(go);
-        return;
-      }
-      // TODO: Firebase:
-      // const cred = await signInWithEmailAndPassword(auth, email, password);
-      // await setDoc(doc(db, "users", cred.user.uid), { role }, { merge: true });
-      // nav(go);
+      // 1) Login Firebase Auth
+      const { user } = await login(email, password);
+
+      // 2) Leggi profilo/ruolo da Firestore
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      const profile = snap.exists() ? snap.data() : null;
+
+      // 3) Decidi rotta: prima in base al profilo, fallback all'UI se assente
+      const path =
+        PATH_BY_ROLE[profile?.role] ??
+        (roleUi === "docente" ? PATH_BY_ROLE.teacher : PATH_BY_ROLE.student);
+
+      nav(path, { replace: true });
     } catch (err) {
-      setError("Email o password non validi.");
+      // Messaggi più utili
+      let msg = "Email o password non validi.";
+      if (err?.code === "auth/too-many-requests") msg = "Troppi tentativi. Riprova più tardi.";
+      if (err?.code === "auth/user-disabled") msg = "Utente disabilitato.";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -68,7 +88,7 @@ export default function Login() {
           <ul className="bullets">
             <li>Accesso rapido per Studenti e Docenti</li>
             <li>UI in glassmorphism, responsive</li>
-            <li>Pronta per integrazione Firebase</li>
+            <li>Integrazione Firebase attiva</li>
           </ul>
         </aside>
 
@@ -76,30 +96,26 @@ export default function Login() {
         <section className="form">
           <h2>Accedi al tuo spazio</h2>
 
-          {MOCK_MODE && (
-            <p className="hint">Modalità demo: il login reindirizza in base al ruolo.</p>
-          )}
-
           {justRegistered && (
             <p className="success">
               Account creato per <strong>{registeredEmail}</strong>. Ora effettua l’accesso.
             </p>
           )}
 
-          <div className="segmented" role="tablist" aria-label="Seleziona ruolo">
+          <div className="segmented" role="tablist" aria-label="Seleziona ruolo (solo UI)">
             <button
               type="button"
-              className={role === "studente" ? "active" : ""}
+              className={roleUi === "studente" ? "active" : ""}
               onClick={() => onRole("studente")}
-              aria-selected={role === "studente"}
+              aria-selected={roleUi === "studente"}
             >
               Studente
             </button>
             <button
               type="button"
-              className={role === "docente" ? "active" : ""}
+              className={roleUi === "docente" ? "active" : ""}
               onClick={() => onRole("docente")}
-              aria-selected={role === "docente"}
+              aria-selected={roleUi === "docente"}
             >
               Docente
             </button>
@@ -146,10 +162,13 @@ export default function Login() {
               <label className="check">
                 <input type="checkbox" /> Remember
               </label>
+              {/* TODO: collega alla funzione reset password quando la aggiungiamo */}
               <a className="link" href="#">Forgot password?</a>
             </div>
 
-            <button className="primary" type="submit">Login</button>
+            <button className="primary" type="submit" disabled={submitting}>
+              {submitting ? "Accesso in corso..." : "Login"}
+            </button>
           </form>
 
           <p className="footer">

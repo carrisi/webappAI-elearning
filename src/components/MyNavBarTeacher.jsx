@@ -50,7 +50,7 @@ export default function MyNavBarTeacher() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
-            <Button type="submit" className="btn-cerca" variant="outline-primary">
+            <Button type="submit" className="btn-cerca">
               Cerca
             </Button>
           </Form>

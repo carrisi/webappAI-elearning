@@ -1,0 +1,42 @@
+========================================
+    MODIFICHE NEI FILE PER FIREBASE
+========================================
+
+================= TO DO ================
+[   ]   Dopo la creazione di un account non vengo reindirizzato immediatamente,
+        devo fare il refresh della Pagina.
+
+[   ]   Durante la creazione di un corso mettere dei limiti nel form.
+
+[   ]   In "i miei corsi" accorciare la descrizione del corso aggiungendo "...";
+        Farlo anche per "Profilo".
+
+[   ]   Quando creo un corso voglio che il nome e cognome del docente non possano essere cambiati
+        visto che un docente può creare un corso solo per se stesso.
+========================================
+
+================= FILE =================
+[   ]   TeacherApp
+[ X ]   TeacherCourse
+[ X ]   TeacherCourseDetail
+[ X ]   TeacherCourseNew
+[ X ]   TeacherCourseEdit
+[ X ]   TeacherSectionNew
+[ X ]   TeacherLessonNew
+[ X ]   TeacherLessonEdit
+[ X ]   TeacherLessonPreview
+[ X ]   TeacherProfile
+            TEST:
+            [ X ]   Vedere se creando un nuovo account si crea con name-surname e non più con displayName
+
+[ X ]   TeacherProfileEdit
+[ X ]   TeacherGeneralDashboard
+[ X ]   TeacherCourseDashboard
+[   ]   TeacherAssessments
+[   ]   NavBar
+            TODO:
+            [ X ]   Aggiungere logout
+                    [ X ]   Controllare se le rotte sono bloccate dopo il logout
+
+            [   ]   Aggiungere Pagina FAQ
+========================================

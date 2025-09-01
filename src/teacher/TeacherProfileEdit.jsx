@@ -1,36 +1,60 @@
-// src/teacher/pages/TeacherProfile.jsx
-import React, { useRef, useState } from 'react';
+// src/teacher/pages/TeacherProfileEdit.jsx
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Container, Row, Col, Card, Form, Button, Badge
+  Container, Row, Col, Card, Form, Button, Badge, Alert, Spinner
 } from 'react-bootstrap';
 import './Style/TeacherProfileEdit.css';
-import './Style/TeacherCourses.css'; // per coerenza di glass-hero / glass-card / btn
+import './Style/TeacherCourses.css';
+
+import { auth, db } from '../firebase';
+
+import {
+  onAuthStateChanged,
+  updateProfile as updateAuthProfile,
+  // --- Sicurezza ---
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+  updateEmail,
+} from 'firebase/auth';
+import {
+  doc, getDoc, setDoc, updateDoc, serverTimestamp,
+} from 'firebase/firestore';
+
+/** Helpers */
+const firstPart = (full) => (full || '').trim().split(' ')[0] || '';
+const lastPart  = (full) => {
+  const t = (full || '').trim().split(' ');
+  return t.length > 1 ? t.slice(1).join(' ') : '';
+};
+const normalizeUrl = (u) => {
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return u;
+  return `https://${u}`;
+};
 
 export default function TeacherProfileEdit() {
-  // Stato mock del profilo
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
+  const [ok, setOk] = useState(null);
+
+  // Stato profilo (usato da form)
   const [profile, setProfile] = useState({
-    name: 'Nome Docente',
-    surname: 'Cognome',
+    name: '',
+    surname: '',
     role: 'Docente',
-    department: 'Dipartimento di Informatica',
-    email: 'docente@example.com',
+    department: '',
+    email: '',
     phone: '',
     bio: 'Breve biografia del docente…',
     website: '',
     linkedin: '',
     github: '',
-    notifications: {
-      aiWeeklyDigest: true,
-      courseEvents: true,
-      studentMessages: true,
-      marketing: false
-    }
   });
 
-  // Avatar
+  // Avatar (preview locale)
   const [avatarPreview, setAvatarPreview] = useState(null);
   const avatarInputRef = useRef(null);
-
   const onPickAvatar = () => avatarInputRef.current?.click();
   const onAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -40,39 +64,219 @@ export default function TeacherProfileEdit() {
     reader.readAsDataURL(file);
   };
 
-  // Handlers
+  /** Caricamento iniziale Auth + Firestore */
+  useEffect(() => {
+    let alive = true;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!alive) return;
+      if (!user) {
+        setErr('Devi effettuare l’accesso per modificare il profilo.');
+        setLoading(false);
+        return;
+      }
+      try {
+        setErr(null); setOk(null);
+        const ref  = doc(db, 'users', user.uid);
+        const snap = await getDoc(ref);
+        const data = snap.exists() ? snap.data() : {};
+
+        const name    = data?.name    || firstPart(user.displayName) || '';
+        const surname = data?.surname || lastPart(user.displayName)  || '';
+
+        // Backfill dei campi mancanti
+        if ((!data?.name || !data?.surname) && (name || surname)) {
+          await setDoc(ref, {
+            name: name || null,
+            surname: surname || null,
+            displayName: [name, surname].filter(Boolean).join(' ') || null,
+            updatedAt: serverTimestamp(),
+          }, { merge: true });
+        }
+
+        setProfile((p) => ({
+          ...p,
+          name,
+          surname,
+          role: data?.role === 'teacher' ? 'Docente' : (data?.role || 'Docente'),
+          department: data?.department || '',
+          email: data?.email || user.email || '',
+          phone: data?.phone || '',
+          bio: data?.bio || p.bio,
+          website: data?.website || '',
+          linkedin: data?.linkedin || '',
+          github: data?.github || '',
+        }));
+      } catch (e) {
+        console.error('TeacherProfileEdit load', e);
+        setErr('Impossibile caricare il profilo.');
+      } finally {
+        setLoading(false);
+      }
+    });
+    return () => { alive = false; unsub && unsub(); };
+  }, []);
+
+  /** Handlers base form */
   const onChange = (e) => {
     const { name, value } = e.target;
-    setProfile(p => ({ ...p, [name]: value }));
+    setProfile((p) => ({ ...p, [name]: value }));
   };
-  const onToggle = (key) => {
-    setProfile(p => ({
-      ...p,
-      notifications: { ...p.notifications, [key]: !p.notifications[key] }
-    }));
-  };
-  const onSaveProfile = (e) => {
+
+  /** Salvataggio: Dati personali */
+  const [savingProfile, setSavingProfile] = useState(false);
+  const onSaveProfile = async (e) => {
     e.preventDefault();
-    alert('Profilo salvato (mock).');
+    setOk(null); setErr(null); setSavingProfile(true);
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('not-authenticated');
+      const ref = doc(db, 'users', user.uid);
+
+      const displayName = `${(profile.name || '').trim()} ${(profile.surname || '').trim()}`.trim();
+      if (displayName) {
+        await updateAuthProfile(user, { displayName });
+      }
+
+      const payload = {
+        name: (profile.name || '').trim(),
+        surname: (profile.surname || '').trim(),
+        department: (profile.department || '').trim(),
+        email: (profile.email || '').trim(),
+        bio: (profile.bio || '').trim(),
+        displayName: displayName || null,
+        updatedAt: serverTimestamp(),
+      };
+
+      try {
+        await updateDoc(ref, payload);
+      } catch {
+        await setDoc(ref, payload, { merge: true });
+      }
+
+      setOk('Profilo aggiornato correttamente.');
+    } catch (e) {
+      console.error('Save profile', e);
+      setErr('Errore nel salvataggio del profilo.');
+    } finally {
+      setSavingProfile(false);
+    }
   };
-  const onChangePassword = (e) => {
+
+  /** Salvataggio: Contatti & Social */
+  const [savingContacts, setSavingContacts] = useState(false);
+  const onSaveContacts = async (e) => {
     e.preventDefault();
-    alert('Password aggiornata (mock).');
+    setOk(null); setErr(null); setSavingContacts(true);
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('not-authenticated');
+      const ref = doc(db, 'users', user.uid);
+
+      const website  = normalizeUrl(profile.website);
+      const linkedin = normalizeUrl(profile.linkedin);
+      const github   = normalizeUrl(profile.github);
+
+      await setDoc(ref, {
+        phone: (profile.phone || '').trim(),
+        website,
+        linkedin,
+        github,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+
+      setOk('Contatti aggiornati con successo.');
+    } catch (e) {
+      console.error('Save contacts', e);
+      setErr('Errore nel salvataggio dei contatti.');
+    } finally {
+      setSavingContacts(false);
+    }
   };
+
+  /** ----------------------- SICUREZZA ----------------------- */
+  const [pwdForm, setPwdForm] = useState({
+    current: '',
+    next: '',
+    confirm: '',
+    newEmail: '', // opzionale: aggiorna anche l’email di accesso
+  });
+  const [changingPwd, setChangingPwd] = useState(false);
+
+  const onChangePassword = async (e) => {
+    e.preventDefault();
+    setOk(null); setErr(null); setChangingPwd(true);
+    try {
+      const user = auth.currentUser;
+      if (!user?.email) throw new Error('not-authenticated');
+
+      if (pwdForm.next && pwdForm.next.length < 8) {
+        throw new Error('La nuova password deve avere almeno 8 caratteri.');
+      }
+      if (pwdForm.next !== pwdForm.confirm) {
+        throw new Error('Le nuove password non coincidono.');
+      }
+
+      // Re-auth con la password attuale
+      const cred = EmailAuthProvider.credential(user.email, pwdForm.current);
+      await reauthenticateWithCredential(user, cred);
+
+      // Aggiorna password (se richiesta)
+      if (pwdForm.next) {
+        await updatePassword(user, pwdForm.next);
+      }
+
+      // Aggiorna email (opzionale) + riflesso su Firestore
+      const newEmail = (pwdForm.newEmail || '').trim();
+      if (newEmail && newEmail !== user.email) {
+        await updateEmail(user, newEmail);
+        await setDoc(doc(db, 'users', user.uid), { email: newEmail, updatedAt: serverTimestamp() }, { merge: true });
+        // Se l’email cambia, aggiorno anche il profilo in pagina
+        setProfile((p) => ({ ...p, email: newEmail }));
+      }
+
+      setOk('Sicurezza aggiornata correttamente.');
+      setPwdForm({ current: '', next: '', confirm: '', newEmail: '' });
+    } catch (e) {
+      console.error('Change password/email', e);
+      // Messaggi più chiari per errori comuni
+      const code = e?.code || '';
+      let msg = e?.message || 'Errore di sicurezza.';
+      if (code === 'auth/wrong-password') msg = 'Password attuale non corretta.';
+      if (code === 'auth/weak-password') msg = 'La nuova password è troppo debole.';
+      if (code === 'auth/requires-recent-login') msg = 'Per favore, riesegui l’accesso e riprova.';
+      if (code === 'auth/invalid-email') msg = 'Nuova email non valida.';
+      if (code === 'auth/email-already-in-use') msg = 'La nuova email è già in uso.';
+      setErr(msg);
+    } finally {
+      setChangingPwd(false);
+    }
+  };
+
+  /** Render */
+  if (loading) {
+    return (
+      <Container className="teacher-profile-page py-4">
+        <Spinner animation="border" size="sm" className="me-2" />
+        <span>Caricamento…</span>
+      </Container>
+    );
+  }
 
   return (
     <Container className="teacher-profile-page py-4">
-      {/* HERO */}
       <section className="glass-hero text-white mb-4">
         <h1 className="hero-title mb-1">Profilo Docente</h1>
         <p className="hero-subtitle mb-2">
           Gestisci dati personali, preferenze e sicurezza dell’account
         </p>
         <div className="d-flex gap-2 flex-wrap justify-content-center mt-2">
-          <Badge bg="light" text="dark">{profile.role}</Badge>
+          <Badge bg="light" text="dark">{profile.role || 'Docente'}</Badge>
           <Badge bg="light" text="dark">Anno Accademico 2024/25</Badge>
         </div>
       </section>
+
+      {!!err && <Alert variant="danger" className="glass-card">{err}</Alert>}
+      {!!ok &&  <Alert variant="success" className="glass-card">{ok}</Alert>}
 
       <Row className="g-3 align-items-stretch">
         {/* COLONNA SINISTRA */}
@@ -86,11 +290,14 @@ export default function TeacherProfileEdit() {
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Avatar" />
                   ) : (
-                    <div className="avatar-placeholder">AD</div>
+                    <div className="avatar-placeholder">
+                      {(profile.name?.[0] || 'A').toUpperCase()}
+                      {(profile.surname?.[0] || 'D').toUpperCase()}
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 justify-content-center">
                 <Button className="landing-btn primary" onClick={onPickAvatar}>
                   Carica immagine
                 </Button>
@@ -113,10 +320,10 @@ export default function TeacherProfileEdit() {
           </Card>
 
           {/* Contatti & Social */}
-          <Card className="glass-card">
+          <Card className="glass-card profile-card">
             <Card.Body>
               <h5 className="mb-3">Contatti & Social</h5>
-              <Form onSubmit={(e) => e.preventDefault()}>
+              <Form onSubmit={onSaveContacts}>
                 <Form.Group className="mb-3">
                   <Form.Label>Telefono</Form.Label>
                   <Form.Control
@@ -164,51 +371,19 @@ export default function TeacherProfileEdit() {
                   </Col>
                 </Row>
                 <div className="d-flex justify-content-end">
-                  <Button className="landing-btn outline" onClick={() => alert('Salvato (mock).')}>
-                    Salva contatti
+                  <Button type="submit" disabled={savingContacts} className="landing-btn primary">
+                    {savingContacts ? 'Salvataggio…' : 'Salva contatti'}
                   </Button>
                 </div>
               </Form>
             </Card.Body>
           </Card>
 
-          {/* Notifiche */}
+          {/* Notifiche (placeholder) */}
           <Card className="glass-card">
             <Card.Body>
               <h5 className="mb-3">Preferenze notifiche</h5>
-              <Form>
-                <Form.Check
-                  type="switch"
-                  id="notif-ai"
-                  label="Digest settimanale AI (domande, trend, insight)"
-                  checked={profile.notifications.aiWeeklyDigest}
-                  onChange={() => onToggle('aiWeeklyDigest')}
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="switch"
-                  id="notif-course"
-                  label="Eventi corso (nuove lezioni, valutazioni, scadenze)"
-                  checked={profile.notifications.courseEvents}
-                  onChange={() => onToggle('courseEvents')}
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="switch"
-                  id="notif-students"
-                  label="Messaggi/segna­lazioni dagli studenti"
-                  checked={profile.notifications.studentMessages}
-                  onChange={() => onToggle('studentMessages')}
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="switch"
-                  id="notif-marketing"
-                  label="Aggiornamenti marketing/prodotto"
-                  checked={profile.notifications.marketing}
-                  onChange={() => onToggle('marketing')}
-                />
-              </Form>
+              <div className="text-white-50">Integrazione notifiche verrà aggiunta più avanti.</div>
             </Card.Body>
           </Card>
         </Col>
@@ -256,7 +431,9 @@ export default function TeacherProfileEdit() {
                         name="role"
                         value={profile.role}
                         onChange={onChange}
-                        placeholder="Ruolo"
+                        placeholder="Docente"
+                        disabled
+                        title="Il ruolo tecnico (teacher|student) è gestito dal sistema."
                       />
                     </Form.Group>
                   </Col>
@@ -285,6 +462,9 @@ export default function TeacherProfileEdit() {
                         onChange={onChange}
                         placeholder="email@ateneo.it"
                       />
+                      <Form.Text className="text-white-50">
+                        L’allineamento con l’email in Auth si farà nella sezione Sicurezza.
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                   <Col sm={6}>
@@ -309,60 +489,95 @@ export default function TeacherProfileEdit() {
                     name="bio"
                     value={profile.bio}
                     onChange={onChange}
-                    placeholder="Racconta la tua esperienza…"
+                    placeholder="Docente appassionato di tecnologie innovative e apprendimento digitale…"
                   />
                 </Form.Group>
 
                 <div className="d-flex justify-content-end gap-2">
-                  <Button type="submit" className="landing-btn primary">Salva profilo</Button>
+                  <Button type="submit" disabled={savingProfile} className="landing-btn primary">
+                    {savingProfile ? 'Salvataggio…' : 'Salva profilo'}
+                  </Button>
                 </div>
               </Form>
             </Card.Body>
           </Card>
 
-          {/* Sicurezza / Password */}
-          <Card className="glass-card">
+          {/* Sicurezza / Password + Email */}
+          <Card className="glass-card profile-card">
             <Card.Body>
               <h5 className="mb-3">Sicurezza</h5>
               <Form onSubmit={onChangePassword}>
                 <Row className="g-2">
-                  <Col md={4}>
+                  <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Password attuale</Form.Label>
-                      <Form.Control type="password" placeholder="••••••••" required />
+                      <Form.Control
+                        type="password"
+                        placeholder="••••••••"
+                        value={pwdForm.current}
+                        onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
+                        required
+                      />
                     </Form.Group>
                   </Col>
-                  <Col md={4}>
+                  <Col md={3}>
                     <Form.Group className="mb-3">
                       <Form.Label>Nuova password</Form.Label>
-                      <Form.Control type="password" placeholder="Nuova password" required />
+                      <Form.Control
+                        type="password"
+                        placeholder="Min 8 caratteri"
+                        value={pwdForm.next}
+                        onChange={(e) => setPwdForm({ ...pwdForm, next: e.target.value })}
+                      />
                     </Form.Group>
                   </Col>
-                  <Col md={4}>
+                  <Col md={3}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Conferma nuova password</Form.Label>
-                      <Form.Control type="password" placeholder="Conferma" required />
+                      <Form.Label>Conferma</Form.Label>
+                      <Form.Control
+                        type="password"
+                        placeholder="Ripeti"
+                        value={pwdForm.confirm}
+                        onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
+                      />
                     </Form.Group>
                   </Col>
                 </Row>
+
+                <Row className="g-2">
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Nuova email (opzionale)</Form.Label>
+                      <Form.Control
+                        type="email"
+                        placeholder="nuova.email@ateneo.it"
+                        value={pwdForm.newEmail}
+                        onChange={(e) => setPwdForm({ ...pwdForm, newEmail: e.target.value })}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
                 <div className="d-flex justify-content-end gap-2">
-                  <Button type="submit" className="landing-btn outline">Aggiorna password</Button>
+                  <Button type="submit" disabled={changingPwd} className="landing-btn primary">
+                    {changingPwd ? 'Aggiornamento…' : 'Aggiorna sicurezza'}
+                  </Button>
                 </div>
               </Form>
 
-              <hr />
+              <hr style={{ height: 3, border: 'none', backgroundColor: 'rgba(255,255,255,.25)', borderRadius: 2 }} />
 
               <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2">
                 <div>
                   <h6 className="mb-1">Logout da tutti i dispositivi</h6>
                   <small className="text-white-50">
-                    Forza il logout su web e dispositivi mobili collegati.
+                    Per sicurezza, riesegui l’accesso se richiesto.
                   </small>
                 </div>
                 <Button
                   variant="light"
                   className="landing-btn outline"
-                  onClick={() => alert('Logout forzato (mock).')}
+                  onClick={() => window.location.assign('/logout')}
                 >
                   Disconnetti ovunque
                 </Button>

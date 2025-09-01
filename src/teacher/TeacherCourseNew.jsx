@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Form, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import './Style/TeacherCourseNew.css'; // CSS dedicato (aggiornato)
+import './Style/TeacherCourseNew.css'; // CSS dedicato
+
+import { createCourseWithInitialSectionAndLesson } from "../services/courses";
 
 export default function TeacherCourseNew() {
   const navigate = useNavigate();
@@ -34,24 +36,31 @@ export default function TeacherCourseNew() {
     () => [...(hasVideo ? ['video'] : []), ...(hasPdf ? ['pdf'] : [])],
     [hasVideo, hasPdf]
   );
-
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(
-      `Nuovo corso creato (mock):\n` +
-      `Titolo: ${title}\n` +
-      `Sottotitolo: ${subtitle.substring(0, 100)}…\n` +
-      `Anno: ${academicYear} | Docente: ${prof}\n` +
-      `CdL: ${degree} | Semestre: ${semester} | CFU: ${credits}\n` +
-      `Note: ${notes}\n${officeHoursTitle}: ${officeHours}\n` +
-      `Sezione iniziale: ${sectionTitle}\n` +
-      `Lezione iniziale: ${lessonTitle} [${currentTypes.join(' + ') || '—'}]` +
-      (hasVideo ? `\nVideo: ${videoUrl || '—'}` : '') +
-      (duration ? `\nDurata: ${duration}` : '') +
-      (lessonDesc ? `\nDescrizione lezione: ${lessonDesc}` : '')
-    );
-    navigate('/docente/corsi');
+    const courseId = await createCourseWithInitialSectionAndLesson({
+      titolo: title,
+      descrizione: subtitle,
+      stato: "attivo",
+      introd: {
+        academicYear, professor: prof, degree, semester,
+        credits: credits ? Number(credits) : null,
+        notes, officeHoursTitle, officeHours,
+      },
+      initialSectionTitle: sectionTitle || null,
+      initialLesson: lessonTitle ? {
+        title: lessonTitle,
+        fileTypes: currentTypes,                  // es. ['video','pdf']
+        videoUrl: hasVideo ? videoUrl : "",
+        duration,
+        description: lessonDesc,
+        type: hasVideo ? "video" : (hasPdf ? "reading" : null),
+      } : null
+    });
+    navigate(`/docente/corsi/${courseId}`);
   };
+
 
   return (
     <div className="cnew-page">
