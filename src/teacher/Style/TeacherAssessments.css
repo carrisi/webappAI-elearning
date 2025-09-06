@@ -1,3 +1,147 @@
-.form-label{
-  color: black;
+/* ===========================
+   FILTRO: select-pill
+   =========================== */
+
+.btn-select-wrap.landing-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+.btn-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: .9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid currentColor;
+  pointer-events: none;
+  opacity: .95;
+}
+.btn-select.form-select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background: transparent; color: inherit; border: 0; outline: 0; box-shadow: none;
+  padding: .55rem 2.25rem .55rem 1rem; line-height: 1.25; border-radius: 999px;
+}
+.btn-select-wrap:hover { filter: brightness(1.05); }
+.btn-select-wrap:focus-within { box-shadow: 0 0 0 .25rem rgba(255,255,255,.15); }
+.btn-select.form-select:disabled { opacity: .7; cursor: not-allowed; }
+@media (max-width: 768px) {
+  .btn-select-wrap.w-auto { width: 100% !important; }
+  .btn-select.form-select   { width: 100%; }
+}
+.btn-select.form-select.form-select-sm { padding-top: .375rem; padding-bottom: .375rem; }
+.hero-subtitle.m-0 { line-height: 1.2; }
+.filter-under-hero .hero-subtitle { line-height: 1.2; }
+
+/* ===========================
+   HERO: offset
+   =========================== */
+.teacher-assessments .glass-hero { margin-top: 4rem; margin-bottom: 2rem; }
+
+/* ===========================
+   MODALI (flat + glass)
+   =========================== */
+.soft-backdrop { background-color: rgba(20, 16, 37, 0.35) !important; }
+.glass-wrap-modal {
+  margin: .5rem auto;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; width: 100%;
+  padding-left: .75rem; padding-right: .75rem;
+}
+.glass-wrap-modal.modal-dialog-centered { min-height: 100vh; }
+.glass-wrap-modal .modal-content { background: transparent; border: none; box-shadow: none; }
+.modal-surface { background: transparent; border: none; display: flex; justify-content: center; }
+.modal-surface-inner {
+  margin: 0 auto; max-width: 900px; position: relative; overflow: visible;
+  background: var(--surface,#fff); color: var(--text,#1d1e20);
+  border-radius: 20px; border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 10px 30px rgba(0,0,0,.30), inset 0 0 0 1px rgba(255,255,255,.06);
+  align-items: center;
+}
+/* Evita che il ::before “sporga” in mobile e generi overflow */
+@media (max-width: 576px) {
+  .modal-surface-inner::before { inset: -6px; }
+}
+.modal-surface-inner::before {
+  content: ""; position: absolute; inset: -8px; border-radius: 28px;
+  backdrop-filter: blur(8px) saturate(140%); -webkit-backdrop-filter: blur(8px) saturate(140%);
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.18); z-index: -1;
+}
+.modal-row-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+.modal-title { font-weight: 600; font-size: 1.125rem; }
+.modal-close-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(0,0,0,.08);
+  background: transparent; line-height: 1;
+}
+.modal-close-btn:hover { background: rgba(0,0,0,.04); }
+.modal-content-flat { padding: 8px 18px 0; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 18px 18px; }
+.landing-btn.primary.danger { border-color: rgba(220,53,69,.4); }
+.landing-btn.primary.danger:hover,
+.landing-btn.primary.danger:focus { border-color: rgba(220,53,69,.7); box-shadow: 0 0 0 .25rem rgba(220,53,69,.2); }
+
+/* ===========================
+   LAYOUT WIDE
+   =========================== */
+.teacher-assessments.container {
+  width: 100%;
+  max-width: 1760px;
+  margin-left: auto; margin-right: auto;
+  padding-left: clamp(16px, 3.5vw, 40px);
+  padding-right: clamp(16px, 3.5vw, 40px);
+}
+@media (min-width: 1800px) { .teacher-assessments.container { max-width: 1840px; } }
+@media (min-width: 992px) { .teacher-assessments .row.g-3 { --bs-gutter-x: 1.25rem; } }
+.teacher-assessments .sidebar-card { min-width: 0; }
+.teacher-assessments .filter-under-hero { width: 100%; gap: .75rem; }
+
+/* =========================================================
+   FIX RESPONSIVE OVERFLOW (hardening su container/row/col)
+   ========================================================= */
+
+/* 1) Taglia qualsiasi overflow orizzontale della pagina */
+.teacher-assessments,
+.teacher-assessments.container { overflow-x: hidden; }
+
+/* 2) Le colonne Bootstrap non devono allargarsi >100% in flex */
+.teacher-assessments .row > [class*="col"] { min-width: 0; max-width: 100%; }
+
+/* 3) Ogni blocco principale non eccede i bordi */
+.teacher-assessments .glass-hero,
+.teacher-assessments .glass-card,
+.teacher-assessments .glass-subcard,
+.teacher-assessments .filter-under-hero { max-width: 100%; }
+
+/* 4) Evita mismatch tra gutter negativi della .row e padding container */
+@media (max-width: 576px) {
+  .teacher-assessments .row { --bs-gutter-x: 1rem; } /* riduci leggermente */
+  .teacher-assessments.container {
+    padding-left: max(12px, calc(var(--bs-gutter-x, 1.5rem) * .5));
+    padding-right: max(12px, calc(var(--bs-gutter-x, 1.5rem) * .5));
+  }
+}
+
+/* 5) Bottoni: niente a capo (evita micro-sforamenti dovuti al wrap) */
+.teacher-assessments .landing-btn { white-space: nowrap; }
+
+/* 6) Tabelle/accordion: restano entro viewport; scroll solo locale se necessario */
+.teacher-assessments .table { width: 100%; max-width: 100%; }
+.teacher-assessments .accordion { max-width: 100%; }
+.teacher-assessments .accordion .glass-subcard { overflow: hidden; }
+
+/* 7) Box-shadow e bordi arrotondati non devono “sporgere” in mobile */
+@media (max-width: 576px) {
+  .teacher-assessments .glass-card,
+  .teacher-assessments .glass-hero { overflow: clip; }
+  @supports not (overflow: clip) {
+    .teacher-assessments .glass-card,
+    .teacher-assessments .glass-hero { overflow: hidden; }
+  }
 }

@@ -227,7 +227,7 @@ export default function TeacherProfile() {
                           <Card.Title className="courseTitle mb-1" id="title">
                             {titolo}
                           </Card.Title>
-                          {descrizione && <Card.Text className="mb-3">{descrizione}</Card.Text>}
+                          {descrizione && <Card.Text className="courseDescription mb-3">{descrizione}</Card.Text>}
 
                           <div className="course-meta mb-2 d-flex gap-2 flex-wrap">
                             {Number.isFinite(credits) && <Badge bg="light" text="dark">{credits} CFU</Badge>}

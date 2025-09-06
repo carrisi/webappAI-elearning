@@ -85,3 +85,6 @@
 .courseTitle { color: #fff; }
 .course-meta .badge, .course-tags .badge { border: 1px solid rgba(0,0,0,0.05); backdrop-filter: blur(2px); }
 .clickable-card:hover .courseTitle { text-decoration: underline; }
+.clickable-card .course-card-description {
+  -webkit-line-clamp: 5; /* mostra massimo 3 righe */
+}

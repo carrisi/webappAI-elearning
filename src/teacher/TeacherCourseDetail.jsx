@@ -8,24 +8,29 @@ import {
   listSections,
   listLessons,
   deleteSectionDeep,
-  deleteLesson
+  deleteLesson,
+  deleteCourseDeep
 } from '../services/courses';
 
 export default function TeacherCourseDetail() {
-  const { courseId } = useParams();                      // stringa Firestore
+  const { courseId } = useParams();
   const navigate = useNavigate();
 
   const [corso, setCorso] = useState(null);
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // modali elimina
   const [showDeleteSection, setShowDeleteSection] = useState(false);
   const [showDeleteLesson, setShowDeleteLesson] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
 
-  // carica corso + sezioni + lezioni
+  const [showDeleteCourse, setShowDeleteCourse] = useState(false);
+  const [deletingCourse, setDeletingCourse] = useState(false);
+
+  // NEW STATE per mostra altro/meno
+  const [expanded, setExpanded] = useState(false);
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -55,7 +60,6 @@ export default function TeacherCourseDetail() {
     return () => { alive = false; };
   }, [courseId]);
 
-  // === HANDLER ELIMINAZIONI (backend vero) ===
   const handleOpenSectionModal = (secId) => {
     setSelectedSection(secId);
     setShowDeleteSection(true);
@@ -99,6 +103,21 @@ export default function TeacherCourseDetail() {
     }
   };
 
+  // handler elimina corso
+  const handleConfirmDeleteCourse = async () => {
+    try {
+      setDeletingCourse(true);
+      await deleteCourseDeep(courseId);
+      navigate('/docente/corsi', { replace: true });
+    } catch (e) {
+      console.error('deleteCourseDeep:', e);
+      alert('Errore durante l’eliminazione del corso.');
+    } finally {
+      setDeletingCourse(false);
+      setShowDeleteCourse(false);
+    }
+  };
+
   if (loading) return <Container className="py-4 text-white">Caricamento…</Container>;
   if (!corso)  return <Container className="py-4 text-white">Corso non trovato.</Container>;
 
@@ -122,7 +141,19 @@ export default function TeacherCourseDetail() {
               <div className="intro-office">{corso.introduzione?.officeHours}</div>
               <hr />
               <h5>Obiettivi del corso</h5>
-              <p>{corso.descrizione}</p>
+              
+              <p className={`course-description ${expanded ? 'expanded' : 'collapsed'}`}>
+                {corso.descrizione}
+              </p>
+              {corso.descrizione && corso.descrizione.length > 0 && (
+                <Button
+                  variant="link"
+                  className="toggle-description"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? 'Mostra meno' : 'Mostra altro'}
+                </Button>
+              )}
 
               <div className="text-center mt-3">
                 <Button as={Link} to={`/docente/corsi/${courseId}/modifica`} className="btn-glass">
@@ -131,28 +162,31 @@ export default function TeacherCourseDetail() {
               </div>
             </div>
 
-            {/* Sezioni + lezioni (UI invariata) */}
+            {/* sezioni e lezioni */}
             {sections.length === 0 ? (
               <p className="text-white-50">Nessuna sezione presente. Aggiungine una qui sotto.</p>
             ) : (
               <Accordion alwaysOpen defaultActiveKey={sections.map(s => s.id)} className="cd-accordion">
                 {sections.map(sec => (
                   <Accordion.Item eventKey={sec.id} key={sec.id}>
+                    {/* HEADER: solo titolo, niente bottoni */}
                     <Accordion.Header>
                       <span className="cd-section-title">{sec.title}</span>
-                      <div className="cd-section-actions" onClick={(e) => e.stopPropagation()}>
+                    </Accordion.Header>
+
+                    {/* BODY: toolbar azioni + elenco lezioni */}
+                    <Accordion.Body>
+                      {/* Toolbar azioni sezione */}
+                      <div className="d-flex justify-content-end mb-2">
                         <Button
                           size="sm"
-                          className="btn btn-sm btn-glass"
-                          id="eliminaSezione"
+                          className="btn btn-sm btn-glass btn-delete"
                           onClick={() => handleOpenSectionModal(sec.id)}
                         >
                           Elimina sezione
                         </Button>
                       </div>
-                    </Accordion.Header>
 
-                    <Accordion.Body>
                       <ListGroup variant="flush">
                         {(sec.lessons || []).map(lez => (
                           <ListGroup.Item
@@ -163,10 +197,12 @@ export default function TeacherCourseDetail() {
                               <span>{lez.title}</span>{" "}
                               <small className="text-muted ms-3">[{(lez.fileTypes || []).join(", ")}]</small>
                             </div>
-
+                        
                             <div className="d-flex gap-2">
-                              <Link className="btn btn-sm btn-glass" to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}`}>Anteprima</Link>
-                              <Link className="btn btn-sm btn-glass" to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}/modifica`}>Modifica</Link>
+                              <Link className="btn btn-sm btn-glass"
+                                   to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}`}>Anteprima</Link>
+                              <Link className="btn btn-sm btn-glass"
+                                   to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}/modifica`}>Modifica</Link>
                               <Button
                                 size="sm"
                                 className="btn btn-sm btn-glass btn-delete"
@@ -178,12 +214,17 @@ export default function TeacherCourseDetail() {
                           </ListGroup.Item>
                         ))}
                       </ListGroup>
-
-                      <Button as={Link} to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/nuova`} className="btn-glass mt-2">
+                      
+                      <Button
+                        as={Link}
+                        to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/nuova`}
+                        className="btn-glass mt-2"
+                      >
                         + Aggiungi lezione
                       </Button>
                     </Accordion.Body>
                   </Accordion.Item>
+
                 ))}
               </Accordion>
             )}
@@ -205,11 +246,19 @@ export default function TeacherCourseDetail() {
         </Tabs>
       </div>
 
-      <div className="text-center mt-3">
+      {/* BOTTONI IN BASSO */}
+      <div className="text-center mt-3 d-flex justify-content-center gap-2 flex-wrap">
         <Link to="/docente/corsi" className="landing-btn outline">Torna ai corsi</Link>
+        <Button
+          variant="danger"
+          className="landing-btn primary"
+          onClick={() => setShowDeleteCourse(true)}
+        >
+          🗑️ Elimina corso
+        </Button>
       </div>
 
-      {/* Modali elimina (UI invariata) */}
+      {/* Modali elimina */}
       <Modal show={showDeleteSection} onHide={() => setShowDeleteSection(false)} centered>
         <Modal.Header closeButton className="glass-modal-header"><Modal.Title>Conferma eliminazione</Modal.Title></Modal.Header>
         <Modal.Body className="glass-modal-body">Sei sicuro di voler eliminare questa sezione? Verranno eliminate anche le lezioni contenute.</Modal.Body>
@@ -225,6 +274,22 @@ export default function TeacherCourseDetail() {
         <Modal.Footer className="glass-modal-footer">
           <Button className="btn-glass-outline" onClick={() => setShowDeleteLesson(false)}>Annulla</Button>
           <Button className="btn-glass" onClick={handleConfirmDeleteLesson}>Elimina</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modale elimina corso */}
+      <Modal show={showDeleteCourse} onHide={() => setShowDeleteCourse(false)} centered>
+        <Modal.Header closeButton className="glass-modal-header"><Modal.Title>Elimina corso</Modal.Title></Modal.Header>
+        <Modal.Body className="glass-modal-body">
+          Questa azione eliminerà definitivamente il corso e <b>tutti</b> i contenuti correlati.
+        </Modal.Body>
+        <Modal.Footer className="glass-modal-footer">
+          <Button className="btn-glass-outline" onClick={() => setShowDeleteCourse(false)} disabled={deletingCourse}>
+            Annulla
+          </Button>
+          <Button className="btn-glass outline" onClick={handleConfirmDeleteCourse} disabled={deletingCourse}>
+            {deletingCourse ? 'Elimino…' : 'Elimina definitivamente'}
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

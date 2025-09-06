@@ -257,3 +257,61 @@ export async function deleteLesson(courseId, sectionId, lessonId) {
   const ref = doc(db, "courses", courseId, "sections", sectionId, "lessons", lessonId);
   await deleteDoc(ref);
 }
+
+/* ------------------------------ DELETE CORSO (deep) ------------------------------ */
+/**
+ * Elimina un corso e tutte le sottocollezioni note:
+ * - sections → lessons
+ * - assessments → grades
+ * - materials (se presente)
+ * Poi elimina il documento corso.
+ */
+export async function deleteCourseDeep(courseId) {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error("not-authenticated");
+
+  const courseRef = doc(db, "courses", courseId);
+  const snap = await getDoc(courseRef);
+  if (!snap.exists()) return; // già eliminato
+  if (snap.data().ownerId !== uid) throw new Error("forbidden");
+
+  const toDelete = [];
+
+  // sections -> lessons
+  const secSnap = await getDocs(collection(db, "courses", courseId, "sections"));
+  for (const sec of secSnap.docs) {
+    const lesSnap = await getDocs(collection(db, "courses", courseId, "sections", sec.id, "lessons"));
+    for (const les of lesSnap.docs) {
+      toDelete.push(doc(db, "courses", courseId, "sections", sec.id, "lessons", les.id));
+    }
+    toDelete.push(doc(db, "courses", courseId, "sections", sec.id));
+  }
+
+  // assessments -> grades
+  const assessSnap = await getDocs(collection(db, "courses", courseId, "assessments"));
+  for (const a of assessSnap.docs) {
+    const gradesSnap = await getDocs(collection(db, "courses", courseId, "assessments", a.id, "grades"));
+    for (const g of gradesSnap.docs) {
+      toDelete.push(doc(db, "courses", courseId, "assessments", a.id, "grades", g.id));
+    }
+    toDelete.push(doc(db, "courses", courseId, "assessments", a.id));
+  }
+
+  // materials (se esiste)
+  try {
+    const matSnap = await getDocs(collection(db, "courses", courseId, "materials"));
+    for (const m of matSnap.docs) {
+      toDelete.push(doc(db, "courses", courseId, "materials", m.id));
+    }
+  } catch { /* sottocollezione assente: ignora */ }
+
+  // Commit in chunk (max 500 op/batch)
+  for (let i = 0; i < toDelete.length; i += 400) {
+    const batch = writeBatch(db);
+    for (const ref of toDelete.slice(i, i + 400)) batch.delete(ref);
+    await batch.commit();
+  }
+
+  // Elimina il documento del corso
+  await deleteDoc(courseRef);
+}

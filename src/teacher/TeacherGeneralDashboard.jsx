@@ -132,7 +132,6 @@ export default function TeacherDashboard() {
 
                 <h6 className="mt-4">Azioni rapide</h6>
                 <div className="d-flex flex-wrap gap-2 mt-2">
-                  <Link to="/docente/corsi" className="landing-btn outline">Gestisci corsi</Link>
                   <Button variant="light" className="landing-btn outline">Crea quiz</Button>
                   <Button variant="light" className="landing-btn outline">Genera riassunto</Button>
                 </div>
@@ -159,7 +158,7 @@ export default function TeacherDashboard() {
                   </div>
 
                   {corso.descrizione && (
-                    <Card.Text className="mb-3">{corso.descrizione}</Card.Text>
+                    <Card.Text className="courseDescription mb-3">{corso.descrizione}</Card.Text>
                   )}
 
                   <div className="course-meta mb-2 d-flex gap-2 flex-wrap">

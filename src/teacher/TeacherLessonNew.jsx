@@ -130,12 +130,6 @@ export default function TeacherLessonNew() {
           </div>
         </Card.Body>
       </Card>
-
-      <div className="text-center mt-3">
-        <Button type="button" className="btn-glass-outline" onClick={() => navigate(`/docente/corsi/${courseId}`)}>
-          Torna al corso
-        </Button>
-      </div>
     </Container>
   );
 }

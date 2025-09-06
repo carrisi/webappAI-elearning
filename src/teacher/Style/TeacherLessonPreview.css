@@ -1,0 +1,123 @@
+/* ===== Wrapper comuni ===== */
+.lesson-video-page,
+.lesson-pdf-page,
+.lesson-videopdf-page {
+  width: 100vw;
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* ===== Titoli/descrizioni ===== */
+.lesson-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.lesson-video-page .lesson-title { padding-top: 6rem; margin-bottom: 1rem; }
+.lesson-description {
+  font-size: 1.125rem;
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  max-width: 800px;
+  margin: 0.5rem auto 1.5rem;
+  line-height: 1.4;
+}
+
+/* ===== Toggle ===== */
+.view-toggle { display:flex; justify-content:center; gap:8px; margin-bottom:1.5rem; }
+.view-toggle button {
+  padding:.5rem 1.5rem; font-size:1rem;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.15); color:#fff; border-radius:4px;
+  backdrop-filter:blur(5px); transition:background .2s;
+}
+.view-toggle button.active { background:rgba(255,255,255,0.35); font-weight:600; }
+
+/* ===== Layout =====
+   Desktop: split 2:1 (media | chat)
+   Mobile/Tablet: colonna (media sopra, chat sotto)
+*/
+.lesson-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 0 5rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 991.98px) {
+  .lesson-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+  }
+}
+
+/* ===== Media ===== */
+.media-pane { width: 100%; height: 100%; }
+
+.video-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdf-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pdf-container iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; border: none;
+}
+
+/* ===== Chat (scroll interno) ===== */
+.chat-container {
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  border-left:   1px solid rgba(255,255,255,0.3);
+  border-right:  1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  box-shadow:    0 8px 32px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  overflow: hidden; /* evita che il contenuto allunghi la card */
+}
+.chat-fill { height: 100%; display:flex; flex-direction:column; }
+.chat-container .chat-box { height:100% !important; display:flex; flex-direction:column; }
+.chat-container .chat-box .messages { flex:1 1 auto; overflow:auto; }
+.chat-container .chat-box .input-form { flex:0 0 auto; }
+
+/* Responsive: chat sotto al media ma con altezza fissa + scroll interno */
+@media (max-width: 991.98px) {
+  .chat-container {
+    height: min(60vh, 520px); /* fissa la card in responsive */
+  }
+}
+
+/* ===== Riassunto ===== */
+.lesson-summary {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+}
+.lesson-summary h2 { text-align:center; margin-bottom:1rem; font-size:1.5rem; }
+.lesson-summary p  { margin:0; font-size:1rem; line-height:1.6; }

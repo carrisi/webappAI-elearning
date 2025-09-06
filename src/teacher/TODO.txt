@@ -1,17 +1,17 @@
 ========================================
-    MODIFICHE NEI FILE PER FIREBASE
+                MODIFICHE
 ========================================
 
 ================= TO DO ================
 [   ]   Dopo la creazione di un account non vengo reindirizzato immediatamente,
         devo fare il refresh della Pagina.
 
-[   ]   Durante la creazione di un corso mettere dei limiti nel form.
+[ X ]   Durante la creazione di un corso mettere dei limiti nel form.
 
-[   ]   In "i miei corsi" accorciare la descrizione del corso aggiungendo "...";
+[ X ]   In "i miei corsi" accorciare la descrizione del corso aggiungendo "...";
         Farlo anche per "Profilo".
 
-[   ]   Quando creo un corso voglio che il nome e cognome del docente non possano essere cambiati
+[ X ]   Quando creo un corso voglio che il nome e cognome del docente non possano essere cambiati
         visto che un docente può creare un corso solo per se stesso.
 ========================================
 
@@ -25,18 +25,43 @@
 [ X ]   TeacherLessonNew
 [ X ]   TeacherLessonEdit
 [ X ]   TeacherLessonPreview
-[ X ]   TeacherProfile
-            TEST:
-            [ X ]   Vedere se creando un nuovo account si crea con name-surname e non più con displayName
-
+[ X ]   TeacherProfile:         [ X ]   Vedere se creando un nuovo account si crea con name-surname e non più con displayName
 [ X ]   TeacherProfileEdit
-[ X ]   TeacherGeneralDashboard
+[ X ]   TeacherGeneralDashboard:[ X ] Cancellare bottone Gestisci corsi
 [ X ]   TeacherCourseDashboard
-[   ]   TeacherAssessments
-[   ]   NavBar
-            TODO:
-            [ X ]   Aggiungere logout
-                    [ X ]   Controllare se le rotte sono bloccate dopo il logout
 
-            [   ]   Aggiungere Pagina FAQ
+[ X ]   TeacherAssessments:     [ X ]   Controllare se realmente inserisce gli esami/esoneri/esercitazioni
+
+[ X ]   NavBar:                 [ X ]   Aggiungere logout
+                                [ X ]   Controllare se le rotte sono bloccate dopo il logout
+
+[   ]   Aggiungere Pagina FAQ
+========================================
+
+================ DESIGN ================
+[ X ]   TeacherCourseNew:       [ X ] Cambiare scritte nere con bianco
+
+[ X ]   TeacherProfileEdit:     [ X ] Cambiare la scritta "carica immagine" con "carica"
+
+[ X ]   TeacherCourseDetail:    [ X ] Accorciare gli obbiettivi del corso e inserire "mostra altro" se è troppo lungo
+                                [ X ] Inserire bottone per eliminare corso
+
+[ X ]   TeacherLessonNew:       [ X ] Eliminare bottone "Torna al corso"
+
+[ X ]   TeacherAssessments      [ X ] Aggiungere badge all'appello anche quando abbiamo filtrato per corso
+========================================
+
+============== RESPONSIVE ==============
+[   ]   NavBar:                 [   ] Ottimizzare per responsive
+
+[   ]   TeacherApp:             [   ] Avvicinare gli elementi
+                                [   ] Eliminare immagine
+
+[ X ]   TeacherGeneralDashboard:[ X ] Sistemare bottone Apri Dashboard (course cards)
+
+[ X ]   TeacherDashboard:       [ X ] Pulsante "Vai a tutti i corsi" sella sezione corsi
+
+[ X ]   TeacherCourseEdit:      [ X ] Scorrendo un po a destra e sinistra si muove la pagina, non va bene in responsive
+
+[ X ]   TeacherLessonPreview:   [ X ] Mettere prima il video/pdf poi la chat sotto, non accanto
 ========================================

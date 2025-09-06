@@ -14,7 +14,7 @@ function CourseCard({ corso }) {
           <div className="small text-muted mb-2">Iscritti: — {/* hook al backend in futuro */}</div>
 
           {corso.descrizione && (
-            <Card.Text className="mb-3">{corso.descrizione}</Card.Text>
+            <Card.Text className="mb-3 course-card-description">{corso.descrizione}</Card.Text>
           )}
 
           {/* Dettagli coerenti con lo studente */}

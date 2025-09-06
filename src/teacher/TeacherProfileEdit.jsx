@@ -299,7 +299,7 @@ export default function TeacherProfileEdit() {
               </div>
               <div className="d-flex gap-2 justify-content-center">
                 <Button className="landing-btn primary" onClick={onPickAvatar}>
-                  Carica immagine
+                  Carica
                 </Button>
                 <Button
                   variant="light"

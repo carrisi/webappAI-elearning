@@ -195,6 +195,32 @@
   grid-column: span 2;
 }
 
+/* testo descrizione corso */
+.course-detail-page .course-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #000;
+}
+
+.course-detail-page .course-description.collapsed {
+  -webkit-line-clamp: 3; /* mostra massimo 3 righe */
+}
+
+.course-detail-page .course-description.expanded {
+  -webkit-line-clamp: unset;
+}
+
+.course-detail-page .toggle-description {
+  background: none;
+  border: none;
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+}
+
 /* ========================== */
 /* ====== RESPONSIVE =========*/
 /* ========================== */

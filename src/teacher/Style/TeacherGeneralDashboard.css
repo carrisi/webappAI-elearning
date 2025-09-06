@@ -28,7 +28,13 @@
 .card-footer .landing-btn {
   padding: .45rem .85rem;
   font-size: .95rem;
+  white-space: nowrap;
 }
 
 /* Spazio sezione corsi */
 #myCoursesTitle { scroll-margin-top: 80px; }
+
+/* Descrizione corsi */
+.courseDescription {
+  -webkit-line-clamp: 5; /* mostra massimo 5 righe */
+}

@@ -57,6 +57,11 @@
 .teacher-profile-view .row > [class*="col-"] { display: flex; }
 .teacher-profile-view .row > [class*="col-"] .card { flex: 1; }
 
+/* Descrizione corso */
+.courseDescription {
+  -webkit-line-clamp: 5; /* mostra massimo 5 righe */
+}
+
 /* Responsive */
 @media (max-width: 768px){
   .kpi-grid{ grid-template-columns: 1fr; }
