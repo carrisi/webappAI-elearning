@@ -1,17 +1,17 @@
 // src/pages/ExploreCourses.jsx
 import React, { useMemo, useState, useEffect } from 'react';
-import {
-  Container, Row, Col, Card, Form, Badge, Button, Modal
-} from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Badge, Button, Modal, Spinner, Alert } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import enrolledCourses from '../data/mockCourses';
-import catalogRaw from '../data/mockCatalog';
+
+import heroImg from '../assets/images/hero-elearning.png';
 import './Style/ExploreCourses.css';
-import '../components/component-style/MyNavBar.css';
-import './Style/MyCourses.css';
 
-import heroImg from '../assets/images/hero-elearning.png'
+// Servizi Firestore
+import { listPublicCourses } from '../services/courses';
+import { listMyEnrollments } from '../services/enrollments';
+import { createAccessRequest, getMyAccessRequest } from '../services/accessRequests';
 
+// --- util livello -> classi ---
 function levelClassName(livello = '') {
   const lv = (livello || '').toLowerCase();
   if (lv.startsWith('prin')) return 'beginner';
@@ -20,42 +20,62 @@ function levelClassName(livello = '') {
   return 'default';
 }
 
-// --- Card singola (stile come MyCourses: senza immagine) ---
-function CourseCard({ corso, isEnrolled, onRequest }) {
-  const lvlClass = levelClassName(corso.livello);
+// --- Modal flat coerente con TeacherAssessments ---
+function SimpleModal({ show, onHide, title, children, actions, size = "lg" }) {
+  return (
+    <Modal
+      show={show}
+      onHide={onHide}
+      centered
+      size={size}
+      dialogClassName="glass-wrap-modal"
+      contentClassName="modal-surface"
+      backdropClassName="soft-backdrop"
+    >
+      <div className="modal-surface-inner">
+        <div className="modal-row-top">
+          <div className="modal-title">{title}</div>
+          <button className="modal-close-btn" aria-label="Chiudi" onClick={onHide}>✕</button>
+        </div>
+        <div className="modal-content-flat">
+          {children}
+        </div>
+        {actions && <div className="modal-actions">{actions}</div>}
+      </div>
+    </Modal>
+  );
+}
+
+// --- Card singola corso ---
+function CourseCard({ corso, isEnrolled, onOpen }) {
+  const lvlClass = levelClassName(corso?.introduzione?.level || corso.livello);
 
   return (
     <Card className="h-100 glass-card clickable-card position-relative">
-      {/* Pills in alto: livello (sx) e stato iscrizione (dx) */}
-      {corso.livello && (
-        <span className={`pill pill-level ${lvlClass}`}>{corso.livello}</span>
+      {(corso?.introduzione?.level || corso.livello) && (
+        <span className={`pill pill-level ${lvlClass}`}>{corso?.introduzione?.level || corso.livello}</span>
       )}
       <span className={`pill pill-enrollment ${isEnrolled ? 'pill-enrolled' : 'pill-not-enrolled'}`}>
         {isEnrolled ? 'Iscritto' : 'Non iscritto'}
       </span>
 
-      {/* >>> padding-top per evitare sovrapposizione col titolo */}
       <Card.Body className="course-body">
-        {/* Titolo sotto i pill */}
-        <Card.Title className="courseTitle mb-1">{corso.titolo}</Card.Title>
-
-        <div className="small text-muted mb-2">Docente: {corso.instructor}</div>
+        <Card.Title className="courseTitle mb-1">{corso.titolo || 'Senza titolo'}</Card.Title>
+        <div className="small text-muted mb-2">Docente: {corso.introduzione?.professor || corso.professor || '—'}</div>
 
         {corso.descrizione && (
-          <Card.Text className="mb-3">{corso.descrizione}</Card.Text>
+          <Card.Text className="mb-3 courseDescription">{corso.descrizione}</Card.Text>
         )}
 
-        {/* 1) DETTAGLI (CFU, semestre) - riga dedicata */}
         <div className="course-meta mb-2">
-          {Number.isFinite(corso?.introduzione?.credits) && (
-            <Badge bg="light" text="dark">{corso.introduzione.credits} CFU</Badge>
+          {Number.isFinite(Number(corso?.introduzione?.credits)) && (
+            <Badge bg="light" text="dark">{Number(corso.introduzione.credits)} CFU</Badge>
           )}
           {corso?.introduzione?.semester && (
-            <Badge bg="light" text="dark">{corso.introduzione.semester}</Badge>
+            <Badge bg="light" text="dark" className='courseSemester'>{corso.introduzione.semester}</Badge>
           )}
         </div>
 
-        {/* 2) HASHTAG - riga dedicata */}
         <div className="course-tags mb-3">
           {(corso.tags || []).slice(0, 6).map(t => (
             <Badge key={t} bg="light" text="dark">#{t}</Badge>
@@ -63,7 +83,7 @@ function CourseCard({ corso, isEnrolled, onRequest }) {
         </div>
 
         <div className="d-flex justify-content-end">
-          <Button className="btn-glass" onClick={() => onRequest(corso)}>
+          <Button className="btn-glass" onClick={() => onOpen(corso)}>
             Dettagli e richiesta
           </Button>
         </div>
@@ -76,30 +96,58 @@ export default function ExploreCourses() {
   const { search } = useLocation();
   const params = useMemo(() => new URLSearchParams(search), [search]);
 
-  // filtri/sort (senza selezione tag)
+  // UI state filtri/sort
   const [q, setQ] = useState(params.get('q') || '');
   const [level, setLevel] = useState('Tutti');
   const [semester, setSemester] = useState('Tutti');
-  const [enrollFilter, setEnrollFilter] = useState('Tutti'); // Tutti | Iscritti | Non iscritti
+  const [enrollFilter, setEnrollFilter] = useState('Tutti');
   const [cfuMin, setCfuMin] = useState('');
   const [cfuMax, setCfuMax] = useState('');
   const [sortBy, setSortBy] = useState('Rilevanza');
 
-  useEffect(() => {
-    setQ(params.get('q') || '');
-  }, [params]);
+  // Dati da Firestore
+  const [catalog, setCatalog] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);   // miei enrollment
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
 
-  // dedup catalogo
-  const catalog = useMemo(() => {
-    const map = new Map();
-    (catalogRaw || []).forEach(c => map.set(c.id, c));
-    return Array.from(map.values());
+  useEffect(() => { setQ(params.get('q') || ''); }, [params]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true); setErr(null);
+        const [pubCourses, myEnrolls] = await Promise.all([
+          listPublicCourses(),
+          listMyEnrollments()
+        ]);
+        if (!alive) return;
+        setCatalog(pubCourses || []);
+        setEnrollments(myEnrolls || []);
+      } catch (e) {
+        console.error(e);
+        if (!alive) return;
+        setErr('Impossibile caricare il catalogo corsi.');
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
-  const enrolledIds = useMemo(() => new Set((enrolledCourses || []).map(c => c.id)), []);
+  // Set utili
+  const enrolledIds = useMemo(() =>
+    new Set((enrollments || [])
+      .filter(e => e.status === 'active')
+      .map(e => e.courseId)), [enrollments]);
 
+  // Opzioni dinamiche
   const allLevels = useMemo(() => {
-    const s = new Set(catalog.map(c => c.livello).filter(Boolean));
+    const s = new Set(
+      catalog.map(c => c?.introduzione?.level || c.livello).filter(Boolean)
+    );
     return ['Tutti', ...Array.from(s).sort()];
   }, [catalog]);
 
@@ -108,64 +156,62 @@ export default function ExploreCourses() {
     return ['Tutti', ...Array.from(s).sort()];
   }, [catalog]);
 
+  // Statistiche top
   const stats = useMemo(() => {
     const total = catalog.length;
 
-    // livelli
     const byLevel = { Principiante: 0, Intermedio: 0, Avanzato: 0, Altro: 0 };
     catalog.forEach(c => {
-      const lv = (c.livello || '').toLowerCase();
+      const lv = (c?.introduzione?.level || c.livello || '').toLowerCase();
       if (lv.startsWith('prin')) byLevel.Principiante++;
       else if (lv.startsWith('inter')) byLevel.Intermedio++;
       else if (lv.startsWith('avan')) byLevel.Avanzato++;
       else byLevel.Altro++;
     });
 
-    // CFU (per valore effettivo presente)
     const byCFU = new Map();
     catalog.forEach(c => {
       const cf = Number(c.introduzione?.credits);
       if (!Number.isFinite(cf)) return;
       byCFU.set(cf, (byCFU.get(cf) || 0) + 1);
     });
-    const cfuList = [...byCFU.entries()].sort((a, b) => a[0] - b[0]); // [[6,4], [9,2], …]
+    const cfuList = [...byCFU.entries()].sort((a, b) => a[0] - b[0]);
 
-    // Semestre
     const bySem = new Map();
     catalog.forEach(c => {
       const s = c.introduzione?.semester;
       if (!s) return;
       bySem.set(s, (bySem.get(s) || 0) + 1);
     });
-    const semList = [...bySem.entries()]; // [[“primo semestre”, 5], …]
+    const semList = [...bySem.entries()];
 
     return { total, byLevel, cfuList, semList };
   }, [catalog]);
 
-
+  // Ricerca e filtri
   const relevanceScore = (c, term) => {
     if (!term) return 0;
     const t = term.toLowerCase();
     let score = 0;
     if (c.titolo?.toLowerCase().includes(t)) score += 3;
-    if (c.instructor?.toLowerCase().includes(t)) score += 2;
+    if (c.introduzione?.professor?.toLowerCase().includes(t)) score += 2;
     if (c.descrizione?.toLowerCase().includes(t)) score += 1;
-    if ((c.tags || []).some(x => x.toLowerCase().includes(t))) score += 1;
+    if ((c.tags || []).some(x => String(x).toLowerCase().includes(t))) score += 1;
     return score;
   };
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-
-    return catalog.filter(c => {
+    return (catalog || []).filter(c => {
       const matchText =
         !term ||
         c.titolo?.toLowerCase().includes(term) ||
-        c.instructor?.toLowerCase().includes(term) ||
+        c.introduzione?.professor?.toLowerCase().includes(term) ||
         c.descrizione?.toLowerCase().includes(term) ||
-        (c.tags || []).some(t => t.toLowerCase().includes(term));
+        (c.tags || []).some(t => String(t).toLowerCase().includes(term));
 
-      const matchLevel = level === 'Tutti' || c.livello === level;
+      const lvl = c?.introduzione?.level || c.livello;
+      const matchLevel = level === 'Tutti' || lvl === level;
 
       const sem = c.introduzione?.semester;
       const matchSem = semester === 'Tutti' || sem === semester;
@@ -187,57 +233,74 @@ export default function ExploreCourses() {
   const results = useMemo(() => {
     const term = q.trim();
     const arr = [...filtered];
-
     const compareAlpha = (a, b, key) =>
       (a[key] || '').localeCompare(b[key] || '', 'it', { sensitivity: 'base' });
 
     switch (sortBy) {
-      case 'Titolo A→Z':
-        arr.sort((a, b) => compareAlpha(a, b, 'titolo'));
-        break;
-      case 'Titolo Z→A':
-        arr.sort((a, b) => compareAlpha(b, a, 'titolo'));
-        break;
-      case 'Docente A→Z':
-        arr.sort((a, b) => compareAlpha(a, b, 'instructor'));
-        break;
-      case 'CFU ↑':
-        arr.sort(
-          (a, b) => (Number(a.introduzione?.credits) || 0) - (Number(b.introduzione?.credits) || 0)
-        );
-        break;
-      case 'CFU ↓':
-        arr.sort(
-          (a, b) => (Number(b.introduzione?.credits) || 0) - (Number(a.introduzione?.credits) || 0)
-        );
-        break;
-      case 'Livello':
-        arr.sort((a, b) => compareAlpha(a, b, 'livello'));
-        break;
+      case 'Titolo A→Z': arr.sort((a, b) => compareAlpha(a, b, 'titolo')); break;
+      case 'Titolo Z→A': arr.sort((a, b) => compareAlpha(b, a, 'titolo')); break;
+      case 'Docente A→Z': arr.sort((a, b) => (a.introduzione?.professor || '').localeCompare(b.introduzione?.professor || '', 'it', { sensitivity: 'base' })); break;
+      case 'CFU ↑': arr.sort((a, b) => (Number(a.introduzione?.credits) || 0) - (Number(b.introduzione?.credits) || 0)); break;
+      case 'CFU ↓': arr.sort((a, b) => (Number(b.introduzione?.credits) || 0) - (Number(a.introduzione?.credits) || 0)); break;
+      case 'Livello': arr.sort((a, b) => (a?.introduzione?.level || a.livello || '').localeCompare(b?.introduzione?.level || b.livello || '', 'it', { sensitivity: 'base' })); break;
       case 'Rilevanza':
       default:
-        if (!term) {
-          arr.sort((a, b) => compareAlpha(a, b, 'titolo'));
-        } else {
-          arr.sort((a, b) => relevanceScore(b, term) - relevanceScore(a, term));
-        }
+        if (!term) arr.sort((a, b) => compareAlpha(a, b, 'titolo'));
+        else arr.sort((a, b) => relevanceScore(b, term) - relevanceScore(a, term));
         break;
     }
     return arr;
   }, [filtered, sortBy, q]);
 
-  // modale
+  // Modale richiesta
   const [selected, setSelected] = useState(null);
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  const sendRequest = () => {
-    setSending(true);
-    setTimeout(() => {
+  // Stato richiesta già esistente per il corso selezionato
+  const [myReq, setMyReq] = useState(null);
+  const [reqLoading, setReqLoading] = useState(false);
+
+  // Carica la mia eventuale richiesta quando apro il modale
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!selected?.id) { setMyReq(null); return; }
+      try {
+        setReqLoading(true);
+        const r = await getMyAccessRequest(selected.id);
+        if (!alive) return;
+        setMyReq(r);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!alive) return;
+        setReqLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [selected?.id]);
+
+  const handleRequest = async () => {
+    if (!selected || sending) return;
+    try {
+      setSending(true);
+      const created = await createAccessRequest(selected.id, note);
       setSent(true);
+      setMyReq(created);
+    } catch (e) {
+      console.error(e);
+      const map = {
+        "already-pending": "Hai già una richiesta in attesa per questo corso.",
+        "already-approved": "La richiesta è già approvata.",
+        "already-rejected": "La richiesta è stata rifiutata dal docente.",
+      };
+      setErr(map[e.message] || 'Errore durante la richiesta di accesso.');
+    } finally {
       setSending(false);
-    }, 700);
+    }
   };
 
   const closeModal = () => {
@@ -245,16 +308,26 @@ export default function ExploreCourses() {
     setNote('');
     setSending(false);
     setSent(false);
+    setExpanded(false);
+    setMyReq(null);
+    setReqLoading(false);
   };
 
   const resetFilters = () => {
-    setLevel('Tutti');
-    setSemester('Tutti');
-    setEnrollFilter('Tutti');
-    setCfuMin('');
-    setCfuMax('');
-    setSortBy('Rilevanza');
+    setLevel('Tutti'); setSemester('Tutti'); setEnrollFilter('Tutti');
+    setCfuMin(''); setCfuMax(''); setSortBy('Rilevanza');
   };
+
+  if (loading) {
+    return (
+      <div className="explore-page">
+        <Container className="px-0 py-4">
+          <Spinner animation="border" size="sm" className="me-2" />
+          <span className="text-white">Caricamento catalogo…</span>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="explore-page">
@@ -263,21 +336,12 @@ export default function ExploreCourses() {
           <Row className="align-items-center gy-4">
             <Col md={6} className="hero-left">
               <h1 className="hero-title">Esplora nuovi corsi</h1>
-              <p className="hero-sub">
-                Scopri il catalogo completo, filtra per livello, semestre e CFU e invia una richiesta di accesso.
-              </p>
-
+              <p className="hero-sub">Scopri il catalogo completo, filtra per livello, semestre e CFU e invia una richiesta di accesso.</p>
               <div className="hero-cta d-flex gap-2">
-                <a href="#explore-filters" className="landing-btn primary">
-                  Inizia la ricerca
-                </a>
-                <a href="/studente/corsi" className="landing-btn outline">
-                  Scopri i miei corsi
-                </a>
+                <a href="#explore-filters" className="landing-btn primary">Inizia la ricerca</a>
+                <a href="/studente/corsi" className="landing-btn outline">Scopri i miei corsi</a>
               </div>
-
             </Col>
-
             <Col md={6} className="hero-right">
               <img src={heroImg} alt="E-learning illustration" className="hero-illustration" />
             </Col>
@@ -285,92 +349,54 @@ export default function ExploreCourses() {
         </Container>
       </section>
 
-      {/* --- HOW TO SEARCH --- */}
       <section className="howto-banner">
         <div className="howto-inner">
           <h3>Come cercare velocemente</h3>
           <ol className="howto-steps">
             <li>Digita <strong>titolo</strong>, <strong>docente</strong> o un <strong>#tag</strong> nella barra di ricerca.</li>
-            <li>Filtra per <strong>Livello</strong>, <strong>Semestre</strong> e <strong>CFU</strong> per restringere i risultati.</li>
+            <li>Filtra per <strong>Livello</strong>, <strong>Semestre</strong> e <strong>CFU</strong>.</li>
             <li>Apri <strong>Dettagli</strong> e invia la <strong>richiesta</strong> con un messaggio opzionale al docente.</li>
           </ol>
         </div>
       </section>
 
-      {/* --- STATISTICHE CATALOGO --- */}
       <section className="stats-section">
         <div className="stats-grid">
-          {/* KPI totale */}
           <div className="stat-card kpi">
             <div className="stat-kpi">{stats.total}</div>
             <div className="stat-label">Corsi totali</div>
           </div>
 
-          {/* Per livello */}
-          <div className="stat-card">
-            <div className="stat-title">Per livello</div>
-            <div className="stat-chips">
-              {stats.byLevel.Principiante > 0 && (
-                <button className="chip chip-lv-beginner" onClick={() => setLevel('Principiante')}>
-                  Principiante <span className="chip-badge">{stats.byLevel.Principiante}</span>
-                </button>
-              )}
-              {stats.byLevel.Intermedio > 0 && (
-                <button className="chip chip-lv-intermediate" onClick={() => setLevel('Intermedio')}>
-                  Intermedio <span className="chip-badge">{stats.byLevel.Intermedio}</span>
-                </button>
-              )}
-              {stats.byLevel.Avanzato > 0 && (
-                <button className="chip chip-lv-advanced" onClick={() => setLevel('Avanzato')}>
-                  Avanzato <span className="chip-badge">{stats.byLevel.Avanzato}</span>
-                </button>
-              )}
-            </div>
-          </div>
-            
-          {/* Per CFU */}
           <div className="stat-card">
             <div className="stat-title">Per CFU</div>
             <div className="stat-chips">
               {stats.cfuList.map(([cfu, count]) => (
-                <button
-                  key={cfu}
-                  className="chip"
-                  onClick={() => { setCfuMin(String(cfu)); setCfuMax(String(cfu)); }}
-                  title={`Filtra per ${cfu} CFU`}
-                >
+                <button key={cfu} className="chip" onClick={() => { setCfuMin(String(cfu)); setCfuMax(String(cfu)); }}>
                   {cfu} CFU <span className="chip-badge">{count}</span>
                 </button>
               ))}
             </div>
           </div>
-            
-          {/* Per semestre (opzionale, a tutta riga se vuoi) */}
-          {stats.semList.length > 0 && (
-            <div className="stat-card stat-span">
+
+            <div className="stat-card">
               <div className="stat-title">Per semestre</div>
               <div className="stat-chips">
                 {stats.semList.map(([sem, count]) => (
-                  <button
-                    key={sem}
-                    className="chip"
-                    onClick={() => setSemester(sem)}
-                    title={`Filtra per ${sem}`}
-                  >
+                  <button key={sem} className="chip" onClick={() => setSemester(sem)}>
                     {sem} <span className="chip-badge">{count}</span>
                   </button>
                 ))}
               </div>
             </div>
-          )}
         </div>
       </section>
 
-      {/* ancora per scroll */}
       <div id="explore-filters" />
 
       <Container className="px-0">
-        {/* Filtri solo con placeholder, senza “Applica” */}
+        {!!err && <Alert variant="danger" className="glass-card">{err}</Alert>}
+
+        {/* Filtri */}
         <Form className="mb-4 filters-bar">
           <Row className="g-3 align-items-end">
             <Col xs={12} lg={4}>
@@ -385,74 +411,40 @@ export default function ExploreCourses() {
             </Col>
 
             <Col xs={6} md={4} lg={2}>
-              <Form.Select
-                aria-label="Livello"
-                value={level === 'Tutti' ? '' : level}
-                onChange={(e) => setLevel(e.target.value || 'Tutti')}
-              >
+              <Form.Select aria-label="Livello" value={level === 'Tutti' ? '' : level} onChange={(e) => setLevel(e.target.value || 'Tutti')}>
                 <option value="" disabled hidden>Livello</option>
                 <option value="Tutti">Tutti</option>
-                {allLevels.filter(v => v !== 'Tutti').map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
+                {allLevels.filter(v => v !== 'Tutti').map(v => (<option key={v} value={v}>{v}</option>))}
               </Form.Select>
             </Col>
-              
+
             <Col xs={6} md={4} lg={2}>
-              <Form.Select
-                aria-label="Semestre"
-                value={semester === 'Tutti' ? '' : semester}
-                onChange={(e) => setSemester(e.target.value || 'Tutti')}
-              >
+              <Form.Select aria-label="Semestre" value={semester === 'Tutti' ? '' : semester} onChange={(e) => setSemester(e.target.value || 'Tutti')}>
                 <option value="" disabled hidden>Semestre</option>
                 <option value="Tutti">Tutti</option>
-                {allSemesters.filter(v => v !== 'Tutti').map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
+                {allSemesters.filter(v => v !== 'Tutti').map(v => (<option key={v} value={v}>{v}</option>))}
               </Form.Select>
             </Col>
-              
+
             <Col xs={6} md={3} lg={2}>
-              <Form.Control
-                type="number"
-                min={0}
-                placeholder="CFU min (es. 3)"
-                value={cfuMin}
-                onChange={(e) => setCfuMin(e.target.value)}
-                aria-label="CFU min"
-              />
+              <Form.Control type="number" min={0} placeholder="CFU min (es. 3)" value={cfuMin} onChange={(e) => setCfuMin(e.target.value)} aria-label="CFU min" />
             </Col>
-              
+
             <Col xs={6} md={3} lg={2}>
-              <Form.Control
-                type="number"
-                min={0}
-                placeholder="CFU max (es. 12)"
-                value={cfuMax}
-                onChange={(e) => setCfuMax(e.target.value)}
-                aria-label="CFU max"
-              />
+              <Form.Control type="number" min={0} placeholder="CFU max (es. 12)" value={cfuMax} onChange={(e) => setCfuMax(e.target.value)} aria-label="CFU max" />
             </Col>
-              
+
             <Col xs={12} md={6} lg={3}>
-              <Form.Select
-                aria-label="Iscrizione"
-                value={enrollFilter === 'Tutti' ? '' : enrollFilter}
-                onChange={(e) => setEnrollFilter(e.target.value || 'Tutti')}
-              >
+              <Form.Select aria-label="Iscrizione" value={enrollFilter === 'Tutti' ? '' : enrollFilter} onChange={(e) => setEnrollFilter(e.target.value || 'Tutti')}>
                 <option value="" disabled hidden>Iscrizione</option>
                 <option value="Tutti">Tutti</option>
                 <option value="Iscritti">Iscritti</option>
                 <option value="Non iscritti">Non iscritti</option>
               </Form.Select>
             </Col>
-              
+
             <Col xs={12} md={6} lg={3}>
-              <Form.Select
-                aria-label="Ordina per"
-                value={sortBy === 'Rilevanza' ? '' : sortBy}
-                onChange={(e) => setSortBy(e.target.value || 'Rilevanza')}
-              >
+              <Form.Select aria-label="Ordina per" value={sortBy === 'Rilevanza' ? '' : sortBy} onChange={(e) => setSortBy(e.target.value || 'Rilevanza')}>
                 <option value="" disabled hidden>Ordina per</option>
                 <option value="Rilevanza">Rilevanza</option>
                 <option value="Titolo A→Z">Titolo A→Z</option>
@@ -463,21 +455,14 @@ export default function ExploreCourses() {
                 <option value="Livello">Livello</option>
               </Form.Select>
             </Col>
-              
-            {/* Reset a larghezza naturale */}
+
             <Col xs="auto" className='d-flex'>
-              <Button
-                type="button"
-                className="btn-glass-outline btn-reset"
-                onClick={resetFilters}
-              >
+              <Button type="button" className="btn-glass-outline btn-reset" onClick={resetFilters}>
                 Reset
               </Button>
             </Col>
           </Row>
         </Form>
-
-              
 
         {/* Lista corsi */}
         <Row className="g-4">
@@ -485,7 +470,7 @@ export default function ExploreCourses() {
             const isEnrolled = enrolledIds.has(corso.id);
             return (
               <Col key={corso.id} xs={12} md={6} lg={4}>
-                <CourseCard corso={corso} isEnrolled={isEnrolled} onRequest={setSelected} />
+                <CourseCard corso={corso} isEnrolled={isEnrolled} onOpen={setSelected} />
               </Col>
             );
           })}
@@ -495,90 +480,80 @@ export default function ExploreCourses() {
         </Row>
       </Container>
 
-      {/* Modale */}
-      <Modal
+      {/* Modale Dettagli + Richiesta */}
+      <SimpleModal
         show={!!selected}
         onHide={closeModal}
-        centered
-        contentClassName="glass-modal"       // effetto glass sul contenuto
-        backdropClassName="glass-backdrop"   // backdrop morbido + blur
+        title={selected?.titolo || "Dettagli corso"}
+        actions={
+          <>
+            <Button variant="light" className="landing-btn outline" onClick={closeModal} disabled={sending}>Chiudi</Button>
+            <Button
+              variant="light"
+              className="landing-btn primary"
+              onClick={handleRequest}
+              disabled={
+                sending ||
+                sent ||
+                (selected?.id && enrolledIds.has(selected.id)) ||
+                reqLoading ||
+                (myReq && ["pending", "approved"].includes(myReq.status))
+              }
+              title={
+                (selected?.id && enrolledIds.has(selected.id))
+                  ? "Sei già iscritto al corso"
+                  : myReq?.status === "pending"
+                  ? "Richiesta già inviata"
+                  : myReq?.status === "approved"
+                  ? "Richiesta approvata"
+                  : undefined
+              }
+            >
+              {sent ? 'Richiesta inviata' : (sending ? 'Invio…' : 'Richiedi accesso')}
+            </Button>
+          </>
+        }
       >
-        {!sent ? (
-          <>
-            <Modal.Header closeButton>
-              <Modal.Title className="text-white">{selected?.titolo}</Modal.Title>
-            </Modal.Header>
-        
-            <Modal.Body>
-              {selected && (
-                <>
-                  <p className="mb-1 text-white-50">Docente: {selected.instructor}</p>
-                  <p className="mb-3 text-white">{selected.descrizione}</p>
-              
-                  <ul className="modal-meta text-white">
-                    {selected.introduzione?.credits != null && (
-                      <li><strong>CFU:</strong> {selected.introduzione.credits}</li>
-                    )}
-                    {selected.durata && <li><strong>Durata:</strong> {selected.durata}</li>}
-                    {selected.livello && <li><strong>Livello:</strong> {selected.livello}</li>}
-                    {selected.introduzione?.semester && (
-                      <li><strong>Semestre:</strong> {selected.introduzione.semester}</li>
-                    )}
-                  </ul>
-                  
-                  <div className="d-flex flex-wrap gap-2 mb-3">
-                    {(selected.tags || []).map(tag => (
-                      <Badge key={tag} bg="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                  
-                  {/* Nota per il docente */}
-                  <Form.Group className="mb-2">
-                    <Form.Label className="text-white-75">Nota per il docente (opzionale)</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      placeholder="Scrivi una breve richiesta o motivazione…"
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                    />
-                  </Form.Group>
-                </>
-              )}
-            </Modal.Body>
-            
-            <Modal.Footer>
-              {/* testo del bottone Annulla più leggibile sul glass */}
-              <Button className="btn-glass-outline text-white" onClick={closeModal}>
-                Annulla
-              </Button>
-              <Button
-                className="btn-glass"
-                onClick={() => { setSent(true); /* oppure sendRequest(); */ }}
-                disabled={enrolledIds.has(selected?.id)}
-                title={enrolledIds.has(selected?.id) ? 'Sei già iscritto a questo corso' : undefined}
-              >
-                {enrolledIds.has(selected?.id) ? 'Già iscritto' : 'Richiedi accesso'}
-              </Button>
-            </Modal.Footer>
-          </>
-        ) : (
-          <>
-            <Modal.Header closeButton>
-              <Modal.Title className="text-white">Richiesta inviata</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <p className="mb-0 text-white-75">
-                La tua richiesta è stata inviata ed è in attesa di approvazione.
-              </p>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button className="btn-glass" onClick={closeModal}>Ok</Button>
-            </Modal.Footer>
-          </>
-        )}
-      </Modal>
+        {!selected ? null : (
+          <div className="course-detail">
+            <p className="text-muted mb-4">
+              Docente: <strong>{selected.introduzione?.professor || '—'}</strong> ·
+              {Number.isFinite(Number(selected.introduzione?.credits)) && <> CFU: <strong>{Number(selected.introduzione.credits)}</strong></>}
+              {selected.introduzione?.semester && <> · Semestre: <strong>{selected.introduzione.semester}</strong></>}
+            </p>
 
+            {/* Descrizione con Mostra altro/Meno */}
+            {selected?.descrizione && (
+              <>
+                <p className={`course-description ${expanded ? 'expanded' : 'collapsed'}`}>
+                  <p className='text-muted mb-0'>Descrizione: </p>
+                  <span>{selected.descrizione}</span>
+                </p>
+                <Button
+                  variant="link"
+                  className="toggle-description mb-4 pt-0"
+                  onClick={() => setExpanded(v => !v)}
+                >
+                  {expanded ? 'Mostra meno' : 'Mostra altro'}
+                </Button>
+              </>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>Messaggio (opzionale) per il docente</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Scrivi una breve nota…"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                disabled={reqLoading || (myReq && ["pending","approved"].includes(myReq.status))}
+              />
+            </Form.Group>
+            {sent && <div className="text-success fw-semibold mt-2">Richiesta creata. Potrai vedere lo stato nella tua area corsi.</div>}
+          </div>
+        )}
+      </SimpleModal>
     </div>
   );
 }

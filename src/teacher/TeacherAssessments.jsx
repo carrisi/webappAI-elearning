@@ -378,7 +378,8 @@ export default function TeacherAssessments() {
       {/* HERO */}
       <section className="glass-hero text-white mb-3">
         <h1 className="hero-title mb-1">Valutazioni</h1>
-        <p className="hero-subtitle mb-2">Gestisci esami, esoneri ed esercitazioni su tutti i tuoi corsi.</p>
+        <p className="hero-subtitle mb-2">Gestisci esami, esoneri ed esercitazioni su tutti i tuoi corsi, mantenendo sempre una panoramica chiara e aggiornata delle attività didattiche.
+</p>
 
         <div className="d-flex flex-wrap gap-2 mt-2 justify-content-center">
           <Button variant="light" className="landing-btn primary" onClick={openNewItem}>+ Nuovo elemento</Button>

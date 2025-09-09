@@ -1,4 +1,6 @@
-/* il container principale della barra */
+/* src/components/component-style/MyNavBarTeacher.css */
+
+/* ===== Contenitore principale ===== */
 .navbar {
   position: fixed;
   top: 2%;
@@ -7,7 +9,7 @@
 
   margin-left: 1%;
   margin-right: 1%;
-  z-index: 1000; /* sopra gli altri contenuti */
+  z-index: 1000;
 
   align-items: center;
   display: flex;
@@ -15,8 +17,8 @@
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
   border-radius: 16px;
+
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -27,42 +29,37 @@
   padding-right: 0 !important;
 }
 
-/* il logo/titolo a sinistra */
+/* brand */
 .navbar-brand {
   padding-left: 2.5%;
 }
 
-/* il pulsante “hamburger” su mobile */
-/* .navbar-toggler { } */
+/* ===== Toggler (hamburger) ===== */
+.navbar-toggler {
+  margin-right: 2.5%;
+  box-shadow: none !important;
+}
+.navbar-toggler:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.35) !important;
+}
 
-/* il contenitore collassabile dei link */
+/* ===== Collapse area ===== */
 .navbar-collapse {
   display: flex;
   align-items: center;
 }
 
-/* il wrapper dei Nav.Link (flex container) */
-/* .navbar-nav { } */
-
-/* ciascun link */
- /* .nav-link { } */
-
-/* stato hover dei link */
- /* .nav-link:hover { } */
-
-/* il menu a tendina contenitore delle voci */
+/* ===== Dropdown ===== */
 .dropdown-menu {
-  margin-top: 20% !important;
+  margin-top: 20% !important;            /* desktop */
   border-radius: 0 0 16px 16px !important;
 
-  /*
-    Annulla tutti gli eventi mouse su tutto il blocco (compreso il padding-top),
-    Annulla anche gli eventi mouse sulle voci che vengono riattivate in .dropdown-menu .dropdown-item
-   */
+  /* disattiva gli eventi solo sul padding esterno;
+     le singole voci riattivano gli eventi con .dropdown-item */
   pointer-events: none !important;
 
-  /* Effetto Glassmorphism */
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.80);
   border-left: 1px solid rgba(255, 255, 255, 0.3);
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -71,28 +68,23 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-
-/* ciascuna voce del dropdown */
 .dropdown-item {
   background: transparent;
   pointer-events: auto !important;
 }
-
-/* stato hover delle voci dropdown */
 .dropdown-item:hover {
   background: rgba(255, 255, 255, 0.20);
 }
 
+/* ===== Ricerca ===== */
 .d-flex {
   align-items: center;
   padding-right: 2.5%;
 }
 
-/* campo di ricerca */
 #navbar-nav .form-control {
   width: 200px;
   height: 35px;
-
   padding-left: 2.5%;
 
   background: rgba(255, 255, 255, 0.15);
@@ -104,7 +96,7 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* il pulsante cerca */
+/* pulsante cerca */
 .btn-cerca {
   color: black;
   border: 2px solid #6C63FF;
@@ -126,14 +118,12 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-
-/* Hover */
 .btn-cerca:hover {
   background-color: #6C63FF;
   color: #fff;
 }
 
-/* === Pulsante glass riutilizzabile, stesso stile di .btn-cerca === */
+/* ===== Pulsanti glass riutilizzabili ===== */
 .btn-glass {
   color: black;
   background: rgba(255, 255, 255, 0.15);
@@ -143,26 +133,95 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
-  /* dimensioni “responsive” (no larghezza fissa) */
   height: 36px;
   padding: 0.25rem 0.9rem;
   font-size: 0.9rem;
   font-weight: 500;
   transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
+.btn-glass:hover { background-color: #6C63FF; color: #fff; }
 
-.btn-glass:hover {
-  background-color: #6C63FF;
-  color: #fff;
-}
-
-/* variante solo-bordo, se ti serve */
 .btn-glass-outline {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
+.btn-glass-outline:hover { background-color: #6C63FF; color: #fff; }
 
-.btn-glass-outline:hover {
-  background-color: #6C63FF;
-  color: #fff;
+/* =========================================================
+   RESPONSIVE (mobile/tablet <= lg)
+   ========================================================= */
+@media (max-width: 992px){
+
+  /* navbar più aderente ai bordi e senza “salto” in alto */
+  .navbar {
+    top: 2%;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    border-radius: 14px;
+  }
+
+  /* collapse in colonna, a tutta larghezza */
+  .navbar-collapse {
+    flex-direction: column;
+    align-items: stretch;
+    padding: .5rem .75rem .75rem;
+    gap: .25rem;
+  }
+
+  /* nav links in colonna e full-width */
+  .nav-bar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: .25rem;
+    padding: .25rem 0;
+  }
+  .nav-bar .nav-link,
+  .nav-bar .dropdown-toggle {
+    width: 100%;
+    text-align: left;
+    padding: .5rem .75rem;
+    border-radius: 12px;
+  }
+
+  /* dropdown più vicino al toggle e touch-friendly */
+  .dropdown-menu {
+    margin-top: .25rem !important;     /* al posto di 20% */
+    border-radius: 12px !important;
+    pointer-events: auto !important;    /* sul mobile consente tap anche sul padding */
+    overflow: hidden;
+  }
+
+  /* search full-width sotto ai link */
+  .d-flex.ms-auto {
+    margin-left: 0 !important;
+    margin-top: .5rem;
+    width: 100%;
+    padding: 0;               /* già abbiamo padding su .navbar-collapse */
+    justify-content: stretch;
+    gap: .5rem;
+  }
+  #navbar-nav .form-control {
+    width: 100%;
+  }
+  .btn-cerca {
+    width: 100%;
+    margin-left: 0;
+    margin-top: .25rem;
+  }
+}
+
+/* telefoni piccoli */
+@media (max-width: 576px){
+  .navbar {
+    top: 2%;
+    margin-left: .5rem;
+    margin-right: .5rem;
+    border-radius: 12px;
+  }
+  .nav-bar .nav-link,
+  .nav-bar .dropdown-toggle {
+    padding: .5rem .65rem;
+    border-radius: 10px;
+  }
 }

@@ -1,40 +1,15 @@
 // src/pages/StudentApp.jsx
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import MyNavbar from '../components/MyNavBar';
 import ChatBox from '../components/ChatBox';
-import './Style/StenteApp.css';
+import '../teacher/Style/TeacherApp.css';
 import heroImgLanding from '../assets/images/hero-illustration-StudentApp.png';
 
 export default function StudentApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const isLanding = location.pathname === '/studente';
-
-  // Manteniamo la logica del ref per coerenza con TeacherApp,
-  // anche se l'altezza chat ora è gestita dal CSS (.chat-container).
-  const imgRef = useRef(null);
-  const [chatHeight, setChatHeight] = useState(420);
-
-  useEffect(() => {
-    const updateFromImg = () => {
-      if (imgRef.current) {
-        const h = Math.round(imgRef.current.getBoundingClientRect().height);
-        if (h > 0) setChatHeight(h);
-      }
-    };
-    let ro = null;
-    if (typeof ResizeObserver !== 'undefined' && imgRef.current) {
-      ro = new ResizeObserver(() => updateFromImg());
-      ro.observe(imgRef.current);
-    }
-    updateFromImg();
-    window.addEventListener('resize', updateFromImg);
-    return () => {
-      window.removeEventListener('resize', updateFromImg);
-      if (ro && imgRef.current) ro.unobserve(imgRef.current);
-    };
-  }, []);
 
   return (
     <>
@@ -177,7 +152,7 @@ export default function StudentApp() {
             {/* Colonna destra: illustrazione sticky */}
             <div className="landing-col-right">
               <div className="landing-imageCard">
-                <img ref={imgRef} src={heroImgLanding} alt="Studente che impara online" />
+                <img src={heroImgLanding} alt="Studente che impara online" />
               </div>
             </div>
           </section>

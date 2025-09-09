@@ -1,0 +1,37 @@
+========================================
+                MODIFICHE
+========================================
+
+================= FILE =================
+[ X ] NavBar                    [ X ] Tendina non ha lo stile corretto rispetto a teacher
+[ X ] StudentApp                [ X ] Allineare con TeacherApp per lo stile.
+[   ] ExploreCourses            [ X ] Implementare Back-end
+                                [ X ] Modali come Teacher
+                                [ X ] Accorciare descrizione
+[ X ] MyCourse                  [ X ] Implementare Back-end
+[ X ] CourseDetail              [ X ] Implementare Back-end
+                                [ X ] Ordine delle lezioni nella varie sezioni: dalla prima inserita all'ultima
+                                [ X ] Verificare se ha lo stesso stile di TeacherCourseDetail
+[ X ] 3 file Lesson...          [ X ] Implementare Back-end
+                                [ X ] Unificare in StudentLessonView
+                                [ X ] Descrizione della lezione giustificata centrale, attualmente solo centrale - Cambiare anche in Teacher
+                                [ X ] Sistemare riassunto Lezione
+[ X ] StudentProfile            [ X ] 1:1 con TeacherProfile
+[ X ] StudentProfileEdit        [ X ]
+[ X ] StudentFAQ                [ X ] 1:1 con TeacherFAQ
+[   ] StudentChatAi             [   ] Creare pagina
+========================================
+
+============== RESPONSIVE ==============
+[   ]
+========================================
+
+============ REVISIONE PER =============
+        RICHIESTA ACCESSO CORSI
+[ X ] ExploreCourses.jsx
+[ X ] accessRequests.js
+[ X ] enrollments.js
+[ X ] TeacherGeneralDashboard.jsx - implementazione corretta delle richieste di accesso ai corsi
+[ X ] Regole firestore - Console online
+[ X ] Indici firestore - Console online
+========================================

@@ -507,8 +507,9 @@ export default function TeacherProfileEdit() {
             <Card.Body>
               <h5 className="mb-3">Sicurezza</h5>
               <Form onSubmit={onChangePassword}>
+                {/* Rigo 1: Password attuale (singola colonna) */}
                 <Row className="g-2">
-                  <Col md={6}>
+                  <Col xs={12}>
                     <Form.Group className="mb-3">
                       <Form.Label>Password attuale</Form.Label>
                       <Form.Control
@@ -520,7 +521,11 @@ export default function TeacherProfileEdit() {
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={3}>
+                </Row>
+
+                {/* Rigo 2: Nuova password + Conferma (due colonne) */}
+                <Row className="g-2">
+                  <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Nuova password</Form.Label>
                       <Form.Control
@@ -531,12 +536,12 @@ export default function TeacherProfileEdit() {
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={3}>
+                  <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Conferma</Form.Label>
                       <Form.Control
                         type="password"
-                        placeholder="Ripeti"
+                        placeholder="Ripeti nuova password"
                         value={pwdForm.confirm}
                         onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
                       />

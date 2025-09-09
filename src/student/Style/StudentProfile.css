@@ -47,6 +47,10 @@
 .student-profile-view .row > [class*="col-"] { display: flex; }
 .student-profile-view .row > [class*="col-"] .card { flex: 1; }
 
+.student-profile-view .courseTitle {
+  padding-top: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px){
   .kpi-grid{ grid-template-columns: 1fr; }

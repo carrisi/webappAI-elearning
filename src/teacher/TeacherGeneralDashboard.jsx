@@ -1,27 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ChatBox from '../components/ChatBox';
 
-// Stili invariati
 import './Style/TeacherGeneralDashboard.css';
 import './Style/TeacherCourses.css';
 
-// Firebase
 import { auth, db } from '../firebase';
-import {
-  onAuthStateChanged
-} from 'firebase/auth';
-import {
-  collection, query, where, orderBy, getDocs
-} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+
+// Services richieste
+import { listOwnerRequests, approveRequest, rejectRequest } from '../services/accessRequests';
 
 export default function TeacherDashboard() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [courses, setCourses] = useState([]);
 
-  // KPI/Insight rimangono mock per ora (solo UI)
+  // Richieste
+  const [reqLoading, setReqLoading] = useState(true);
+  const [reqErr, setReqErr] = useState(null);
+  const [requests, setRequests] = useState([]);
+
+  // Loading per riga (azioni)
+  const [rowBusy, setRowBusy] = useState({}); // key = `${courseId}_${userId}` -> true/false
+
+  // KPI/Insight (mock invariati)
   const kpi = [
     { label: 'Domande AI (30gg)', value: 185 },
     { label: 'Argomenti con lacune', value: 12 },
@@ -46,16 +51,18 @@ export default function TeacherDashboard() {
       if (!user) {
         setErr('Devi effettuare l’accesso.');
         setLoading(false);
+        setReqLoading(false);
         return;
       }
       try {
         setErr(null);
-        const q = query(
+        // Corsi del docente
+        const qCourses = query(
           collection(db, 'courses'),
           where('ownerId', '==', user.uid),
           orderBy('createdAt', 'desc')
         );
-        const snap = await getDocs(q);
+        const snap = await getDocs(qCourses);
         const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setCourses(list);
       } catch (e) {
@@ -64,18 +71,109 @@ export default function TeacherDashboard() {
       } finally {
         setLoading(false);
       }
+
+      // Richieste dell'owner
+      try {
+        setReqErr(null);
+        setReqLoading(true);
+        const list = await listOwnerRequests(); // orderBy createdAt desc nel service
+        setRequests(list || []);
+      } catch (e) {
+        console.error('Load requests', e);
+        setReqErr('Impossibile caricare le richieste di accesso.');
+      } finally {
+        setReqLoading(false);
+      }
     });
+
     return () => { alive = false; unsub && unsub(); };
   }, []);
+
+  // Mappa id -> titolo corso
+  const courseTitleMap = useMemo(() => {
+    const m = new Map();
+    courses.forEach(c => m.set(c.id, c.titolo || 'Corso senza titolo'));
+    return m;
+  }, [courses]);
+
+  // Raggruppa per corso e ordina "dalla più vecchia alla più recente" per corso
+  const groupedByCourse = useMemo(() => {
+    const acc = new Map();
+    (requests || []).forEach(r => {
+      const list = acc.get(r.courseId) || [];
+      list.push(r);
+      acc.set(r.courseId, list);
+    });
+    for (const [cid, list] of acc) {
+      list.sort((a, b) => {
+        const ta = a.createdAt?.seconds ?? 0;
+        const tb = b.createdAt?.seconds ?? 0;
+        return ta - tb; // oldest -> newest
+      });
+    }
+    const ordered = [];
+    courses.forEach(c => { if (acc.has(c.id)) ordered.push([c.id, acc.get(c.id)]); });
+    acc.forEach((list, cid) => { if (!courseTitleMap.has(cid)) ordered.push([cid, list]); });
+    return ordered;
+  }, [requests, courses, courseTitleMap]);
+
+  const fmt = (ts) => {
+    try {
+      if (!ts) return '—';
+      const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+      return d.toLocaleString('it-IT');
+    } catch { return '—'; }
+  };
+
+  const statusBadge = (s) => {
+    const map = {
+      pending: { text: 'In attesa', className: 'bg-warning text-dark' },
+      approved: { text: 'Approvata', className: 'bg-success' },
+      rejected: { text: 'Rifiutata', className: 'bg-danger' },
+    };
+    const v = map[s] || { text: s || '—', className: 'bg-secondary' };
+    return <Badge bg="" className={v.className}>{v.text}</Badge>;
+  };
+
+  const setBusy = (key, v) => setRowBusy(prev => ({ ...prev, [key]: v }));
+
+  const handleApprove = async (courseId, userId) => {
+    const key = `${courseId}_${userId}`;
+    if (rowBusy[key]) return;
+    try {
+      setBusy(key, true);
+      await approveRequest(courseId, userId);
+      // aggiorno lo stato locale
+      setRequests(prev => prev.map(r => (r.courseId === courseId && r.userId === userId ? { ...r, status: 'approved' } : r)));
+    } catch (e) {
+      console.error('approve', e);
+      alert('Errore durante l’approvazione.');
+    } finally {
+      setBusy(key, false);
+    }
+  };
+
+  const handleReject = async (courseId, userId) => {
+    const key = `${courseId}_${userId}`;
+    if (rowBusy[key]) return;
+    try {
+      setBusy(key, true);
+      await rejectRequest(courseId, userId);
+      setRequests(prev => prev.map(r => (r.courseId === courseId && r.userId === userId ? { ...r, status: 'rejected' } : r)));
+    } catch (e) {
+      console.error('reject', e);
+      alert('Errore durante il rifiuto.');
+    } finally {
+      setBusy(key, false);
+    }
+  };
 
   return (
     <Container className="teacher-dashboard py-4">
       {/* HERO */}
       <section className="glass-hero text-white mb-4">
         <h1 className="hero-title mb-1">Dashboard Docente</h1>
-        <p className="hero-subtitle mb-2">
-          Panoramica delle attività, domande AI e insight dagli studenti
-        </p>
+        <p className="hero-subtitle mb-2">Panoramica delle attività, domande AI e insight dagli studenti</p>
         <div className="d-flex gap-2 flex-wrap justify-content-center mt-2">
           <Badge bg="light" text="dark">Docente attivo</Badge>
           <Badge bg="light" text="dark">Anno Accademico 2024/25</Badge>
@@ -118,7 +216,6 @@ export default function TeacherDashboard() {
               </div>
             </div>
           </Col>
-
           <Col xs={12} lg={5}>
             <Card className="glass-card h-100">
               <Card.Body>
@@ -141,7 +238,7 @@ export default function TeacherDashboard() {
         </Row>
       </section>
 
-      {/* I miei corsi (ora da Firestore) */}
+      {/* I miei corsi */}
       <section aria-labelledby="myCoursesTitle" className="mb-4">
         <h2 id="myCoursesTitle" className="dash-heading">I miei corsi</h2>
         <Row className="g-3">
@@ -152,15 +249,8 @@ export default function TeacherDashboard() {
                   <Card.Title className="courseTitle mb-1" id="title">
                     {corso.titolo || 'Corso senza titolo'}
                   </Card.Title>
-
-                  <div className="small text-muted mb-2">
-                    Iscritti: — {/* hook al backend in futuro */}
-                  </div>
-
-                  {corso.descrizione && (
-                    <Card.Text className="courseDescription mb-3">{corso.descrizione}</Card.Text>
-                  )}
-
+                  <div className="small text-muted mb-2">Iscritti: —</div>
+                  {corso.descrizione && <Card.Text className="courseDescription mb-3">{corso.descrizione}</Card.Text>}
                   <div className="course-meta mb-2 d-flex gap-2 flex-wrap">
                     {Number.isFinite(corso?.introduzione?.credits) && (
                       <Badge bg="light" text="dark">{corso.introduzione.credits} CFU</Badge>
@@ -170,31 +260,18 @@ export default function TeacherDashboard() {
                     )}
                   </div>
                 </Card.Body>
-
                 <Card.Footer className="d-flex flex-wrap align-items-center justify-content-between gap-2">
                   <small className="text-muted">
                     {(corso.stato || 'bozza').replace(/^./, c => c.toUpperCase())}
                   </small>
-
                   <div className="d-flex gap-2 ms-auto">
-                    <Link
-                      to={`/docente/corsi/${corso.id}/dashboard`}
-                      className="landing-btn primary"
-                    >
-                      Apri dashboard
-                    </Link>
-                    <Link
-                      to={`/docente/corsi/${corso.id}`}
-                      className="landing-btn outline"
-                    >
-                      Dettagli corso
-                    </Link>
+                    <Link to={`/docente/corsi/${corso.id}/dashboard`} className="landing-btn primary">Apri dashboard</Link>
+                    <Link to={`/docente/corsi/${corso.id}`} className="landing-btn outline">Dettagli corso</Link>
                   </div>
                 </Card.Footer>
               </Card>
             </Col>
           ))}
-
           {!loading && !err && courses.length === 0 && (
             <Col xs={12}>
               <Card className="glass-card">
@@ -207,7 +284,77 @@ export default function TeacherDashboard() {
         </Row>
       </section>
 
-      {/* Insight AI (mock UI) */}
+      {/* Richieste di accesso */}
+      <section aria-labelledby="requestsTitle" className="mb-4">
+        <h2 id="requestsTitle" className="dash-heading">Richieste di accesso</h2>
+
+        {reqErr && <div className="alert alert-danger glass-card">{reqErr}</div>}
+        {reqLoading && <div className="text-white-50 mb-3">Caricamento richieste…</div>}
+
+        {!reqLoading && !reqErr && groupedByCourse.length === 0 && (
+          <Card className="glass-card">
+            <Card.Body className="text-center text-white-50">Nessuna richiesta presente.</Card.Body>
+          </Card>
+        )}
+
+        {groupedByCourse.map(([courseId, list]) => (
+          <Card key={courseId} className="glass-card mb-3">
+            <Card.Header className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div className="fw-bold">{courseTitleMap.get(courseId) || `Corso ${courseId}`}</div>
+              <Badge bg="light" text="dark">{list.length} richieste</Badge>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <ul className="req-list m-0">
+                {list.map((r, idx) => {
+                  const key = `${courseId}_${r.userId}`;
+                  const busy = !!rowBusy[key];
+                  return (
+                    <li key={`${courseId}_${r.id || r.userId}_${idx}`} className="req-item">
+                      <div className="req-main">
+                        <div className="req-top">
+                          <span className="req-student">
+                            Studente: <strong>{r.studentDisplayName || r.userId}</strong>
+                          </span>
+                          <span className="req-date">{fmt(r.createdAt)}</span>
+                        </div>
+                        {r.note && <div className="req-note">{r.note}</div>}
+                      </div>
+                      <div className="req-right d-flex align-items-center gap-2">
+                        {statusBadge(r.status)}
+                        <div className="d-flex gap-2">
+                          <Button
+                            variant="light"
+                            className="landing-btn danger btn-xs"
+                            disabled={busy || r.status === 'rejected'}
+                            onClick={() => handleReject(courseId, r.userId)}
+                            title={r.status === 'rejected' ? 'Già rifiutata' : 'Rifiuta richiesta'}
+                          >
+                            Rifiuta
+                          </Button>
+                          <Button
+                            variant="light"
+                            className="landing-btn primary btn-xs"
+                            disabled={busy || r.status === 'approved'}
+                            onClick={() => handleApprove(courseId, r.userId)}
+                            title={r.status === 'approved' ? 'Già approvata' : 'Approva richiesta'}
+                          >
+                            Approva
+                          </Button>
+                        </div>
+                        <Link to={`/docente/corsi/${courseId}/dashboard`} className="landing-btn outline btn-sm ms-2">
+                          Apri corso
+                        </Link>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card.Body>
+          </Card>
+        ))}
+      </section>
+
+      {/* Insight AI (mock invariati) */}
       <section aria-labelledby="insightTitle" className="mb-5">
         <h2 id="insightTitle" className="dash-heading">Insight AI</h2>
         <Row className="g-3">

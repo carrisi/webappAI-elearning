@@ -30,6 +30,7 @@ export default function MyNavbar() {
           <Nav className="nav-bar">
             <Nav.Link as={Link} to="/studente/scopri">Scopri</Nav.Link>
             <Nav.Link as={Link} to="/studente/corsi">I miei corsi</Nav.Link>
+            <Nav.Link as={Link} to="/studente/chatai">Chat AI</Nav.Link>
 
             {/* Link diretto al profilo */}
             <Nav.Link as={Link} to="/studente/profilo">Profilo</Nav.Link>

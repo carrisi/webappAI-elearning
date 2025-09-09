@@ -7,7 +7,6 @@ import {
 } from "firebase/firestore";
 
 /* ------------------------------ MAPPERS ------------------------------ */
-
 function mapCourse(docSnap) {
   const d = docSnap.data();
   return {
@@ -17,7 +16,8 @@ function mapCourse(docSnap) {
     stato: d.stato || "attivo",
     imageUrl: d.imageUrl ?? null,
     introduzione: d.introduzione || {},
-    createdAt: d.createdAt || null, // utile per ordinare lato client in fallback
+    createdAt: d.createdAt || null,
+    ownerId: d.ownerId || null,
   };
 }
 
@@ -48,12 +48,12 @@ const mapLesson = (snap) => {
 
 /* ------------------------------ CORSO ------------------------------ */
 
-// Crea corso (+ opzionale prima sezione/lezione)
+// Crea corso (+ opzionale sezione/lezione iniziale)
 export async function createCourseWithInitialSectionAndLesson({
   titolo, descrizione, stato = "attivo",
   introd = {},
   initialSectionTitle,
-  initialLesson, // { title, fileTypes?, videoUrl?, duration?, description?, type? }
+  initialLesson,
 }) {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error("not-authenticated");
@@ -78,7 +78,6 @@ export async function createCourseWithInitialSectionAndLesson({
     updatedAt: serverTimestamp(),
   });
 
-  // Sezione iniziale opzionale
   if (initialSectionTitle) {
     const secRef = await addDoc(collection(db, "courses", courseRef.id, "sections"), {
       title: initialSectionTitle,
@@ -88,7 +87,6 @@ export async function createCourseWithInitialSectionAndLesson({
       updatedAt: serverTimestamp(),
     });
 
-    // Lezione iniziale opzionale
     if (initialLesson?.title) {
       await addDoc(collection(db, "courses", courseRef.id, "sections", secRef.id, "lessons"), {
         title: initialLesson.title,
@@ -141,27 +139,87 @@ export async function getCourseById(courseId) {
   return mapCourse(snap);
 }
 
-// Lista corsi del docente corrente (con fallback se manca l'indice)
+// Lista corsi del docente corrente
 export async function listMyCourses() {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error("not-authenticated");
 
   try {
-    const q = query(
+    const qy = query(
       collection(db, "courses"),
       where("ownerId", "==", uid),
       orderBy("createdAt", "desc")
     );
-    const res = await getDocs(q);
+    const res = await getDocs(qy);
     return res.docs.map(mapCourse);
   } catch (err) {
-    // Se manca l'indice per ownerId+createdAt: fallback senza orderBy
     if (err?.code === "failed-precondition") {
       const q2 = query(collection(db, "courses"), where("ownerId", "==", uid));
       const res2 = await getDocs(q2);
       return res2.docs
         .map(mapCourse)
         .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    }
+    throw err;
+  }
+}
+
+/* ------------------------------ NUOVO: corsi iscritti studente ------------------------------ */
+/**
+ * Restituisce i corsi a cui è iscritto lo studente {uid}.
+ * Supporta due schemi:
+ *  A) users/{uid}/enrollments/{enrollId} con campo courseId
+ *  B) courses/{courseId} con array field enrolledIds: string[]
+ */
+export async function listEnrolledCourses(uid) {
+  if (!uid) return [];
+
+  // Schema A: subcollection enrollments
+  const enrollsRef = collection(db, "users", uid, "enrollments");
+  const enrollsSnap = await getDocs(enrollsRef);
+  if (!enrollsSnap.empty) {
+    const ids = [];
+    enrollsSnap.forEach((d) => {
+      const cid = d?.data()?.courseId;
+      if (cid && !ids.includes(cid)) ids.push(cid);
+    });
+
+    if (ids.length) {
+      const results = await Promise.all(
+        ids.map(async (cid) => {
+          const cs = await getDoc(doc(db, "courses", cid));
+          return cs.exists() ? { id: cs.id, ...cs.data() } : null;
+        })
+      );
+      return results.filter(Boolean).map((x) => mapCourse({ id: x.id, data: () => x }));
+    }
+  }
+
+  // Schema B: campo array enrolledIds su courses
+  const q1 = query(collection(db, "courses"), where("enrolledIds", "array-contains", uid));
+  const snap = await getDocs(q1);
+  return snap.docs.map(mapCourse);
+}
+
+/* ------------------------------ catalogo pubblico ------------------------------ */
+export async function listPublicCourses() {
+  // corsi con stato "attivo" o "completato"
+  try {
+    const qy = query(
+      collection(db, "courses"),
+      where("stato", "in", ["attivo", "completato"]),
+      orderBy("createdAt", "desc")
+    );
+    const res = await getDocs(qy);
+    return res.docs.map(mapCourse);
+  } catch (err) {
+    // Fallback senza orderBy (se manca indice composito)
+    if (err?.code === "failed-precondition") {
+      const q1 = query(collection(db, "courses"), where("stato", "==", "attivo"));
+      const q2 = query(collection(db, "courses"), where("stato", "==", "completato"));
+      const [r1, r2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+      const arr = [...r1.docs, ...r2.docs].map(mapCourse);
+      return arr.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     }
     throw err;
   }
@@ -200,7 +258,7 @@ export async function updateSection(courseId, sectionId, { title, description, o
   const payload = { updatedAt: serverTimestamp() };
   if (typeof title === "string") payload.title = title;
   if (typeof description === "string") payload.description = description;
-  if (typeof order === "number") payload.order = order;
+ 	if (typeof order === "number") payload.order = order;
   await updateDoc(ref, payload);
 }
 
@@ -223,8 +281,25 @@ export async function deleteSectionDeep(courseId, sectionId) {
 /* ------------------------------ LEZIONI ------------------------------ */
 
 export async function listLessons(courseId, sectionId) {
-  const res = await getDocs(collection(db, "courses", courseId, "sections", sectionId, "lessons"));
-  return res.docs.map(mapLesson);
+  // Ordine: dalla più vecchia alla più recente (createdAt ASC).
+  try {
+    const qy = query(
+      collection(db, "courses", courseId, "sections", sectionId, "lessons"),
+      orderBy("createdAt", "asc")
+    );
+    const res = await getDocs(qy);
+    return res.docs.map(mapLesson);
+  } catch (err) {
+    // Fallback se manca l'indice o il campo createdAt non è sempre presente
+    const res = await getDocs(collection(db, "courses", courseId, "sections", sectionId, "lessons"));
+    return res.docs
+      .map(mapLesson)
+      .sort((a, b) => {
+        const as = a?.createdAt?.seconds ?? 0;
+        const bs = b?.createdAt?.seconds ?? 0;
+        return as - bs;
+      });
+  }
 }
 
 export async function createLesson(courseId, sectionId, payload) {

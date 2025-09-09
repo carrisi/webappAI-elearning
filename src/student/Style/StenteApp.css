@@ -1,20 +1,38 @@
 /* ===== Reset minimo ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
+
+/* === SFONDO: gradiente su layer fisso, non sul body === */
+:root{
+  --student-app-gradient: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%);
+}
+html, body, #root { min-height: 100%; }
+body{
+  background: transparent;
+  position: relative;
+}
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--student-app-gradient);
+  pointer-events: none;
+}
 
 /* ===== Wrapper landing (namespace) ===== */
 .landing {
   --nav-offset: 100px;
   width: 100vw;
   box-sizing: border-box;
-  padding: 6em 10rem 2em;
+  padding: 6em 10rem 2em;  /* top | right/left | bottom */
+  padding-left: 4rem;      /* più vicino al bordo sinistro */
 }
 
-/* ===== Layout sticky: sinistra + destra (sticky) ===== */
+/* ===== Layout sticky: sinistra + destra ===== */
 .landing .landing-stickyLayout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2rem;               /* compatto (prima 3rem) */
   align-items: stretch;
   overflow: visible;
 }
@@ -24,7 +42,7 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
   min-height: calc(100vh - var(--nav-offset));
   display: flex;
   align-items: center;
-  padding: 1rem 0 4.5rem; /* ridotto più avanti in mobile */
+  padding: 1rem 0 4.5rem;
 }
 .landing .landing-hero-inner { width: 100%; }
 
@@ -62,38 +80,56 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 /* DEMO */
 .landing .landing-demo { padding-top: 1rem; }
 
-/* === Wrapper chat UNIFICATO (come TeacherApp) === */
-.chat-container {
-  height: 520px;
-  padding: 0;
-}
-@media (max-width: 992px) {
-  .chat-container { height: 420px; }
-}
-@media (max-width: 576px) {
-  .chat-container { height: 360px; }
-}
+/* === Wrapper chat (coerente con Teacher) === */
+.chat-container { height: 520px; padding: 0; }
+@media (max-width: 992px) { .chat-container { height: 420px; } }
+@media (max-width: 576px) { .chat-container { height: 360px; } }
 
-/* Colonna destra (sticky) */
+/* ===== Colonna destra: illustrazione sticky + ANIMAZIONE FULL HEIGHT ===== */
 .landing .landing-col-right {
   align-self: stretch;
   display: flex; justify-content: center; align-items: flex-start;
 }
-.landing .landing-imageCard { position: sticky; top: var(--nav-offset); }
-.landing .landing-imageCard img {
-  width: 125%;
-  max-width: 640px;
-  height: auto; object-fit: contain;
-  filter: drop-shadow(0 24px 48px rgba(0,0,0,.25));
-  animation: floatY 6s ease-in-out infinite;
-  margin-top: 0;
+
+/* Contenitore sticky con altezza viewport e clipping */
+.landing .landing-imageCard{
+  position: sticky;
+  top: var(--nav-offset);
+  height: calc(100vh - var(--nav-offset));
+  overflow: hidden;
 }
-@keyframes floatY { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
-@media (min-width: 1200px){ .landing .landing-imageCard img{ max-width: 840px; margin-top: 36px; } }
-@media (min-width: 1400px){ .landing .landing-imageCard img{ max-width: 980px; margin-top: 48px; } }
+
+/* Immagine: altezza in vh (nota: governata da variabile) */
+.landing .landing-imageCard img{
+  /* Altezza dell’immagine vincolata alla viewport:
+     - minima 420px, preferita 70vh, massima 900px */
+  --img-h: clamp(420px, 70vh, 900px);
+  height: var(--img-h);
+  width: auto;
+  max-width: none;
+
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+
+  /* Effetti */
+  will-change: transform;
+
+  /* Corsa verticale = altezza contenitore - altezza immagine */
+  --float-range: calc( (100vh - var(--nav-offset)) - var(--img-h) );
+
+  /* Animazione: percorre tutta la corsa verticale disponibile */
+  animation: floatFull 5s ease-in-out infinite alternate;
+}
+
+/* Keyframes che usano la variabile --float-range */
+@keyframes floatFull {
+  from { transform: translateY(0); }
+  to   { transform: translateY(var(--float-range)); }
+}
 
 /* Sezioni extra */
-.landing .landing-section { margin-top: 4.5rem; } /* compattiamo più avanti in mobile */
+.landing .landing-section { margin-top: 4.5rem; }
 .landing .landing-heading {
   font-size: clamp(1.8rem, 2vw + 1rem, 2.5rem);
   font-weight: 800;
@@ -103,8 +139,13 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
   margin-bottom: 1rem;
 }
 
-/* Benefici (molto largo su desktop, compattiamo in mobile) */
+/* Benefici */
 .landing .landing-benefits { padding-top: 15rem; }
+.landing .landing-benefitList {
+  list-style: none; padding: 0; margin: 0;
+  color: #fff; line-height: 1.6; font-size: 1.05rem;
+}
+.landing .landing-benefitList li { margin-bottom: .5rem; }
 
 /* Caratteristiche */
 .landing .landing-featureGrid {
@@ -121,7 +162,7 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
   box-shadow: 0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.22);
 }
 
-/* Testimonianze */
+/* Testimonianze / FAQ */
 .landing .landing-testimonialsGrid {
   display: grid; gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
@@ -136,7 +177,6 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 }
 .landing .landing-quote figcaption { margin-top: .5rem; font-style: normal; opacity: .9; }
 
-/* FAQ */
 .landing .landing-faqItem {
   background: rgba(255,255,255,.10);
   border: 1px solid rgba(255,255,255,.2);
@@ -147,44 +187,59 @@ body { background: linear-gradient(135deg, #6C63FF 0%, #FF6E7F 100%); }
 }
 .landing .landing-faqItem summary { cursor: pointer; font-weight: 700; }
 .landing .landing-faqItem p { margin-top: .5rem; color: rgba(255,255,255,.92); }
-
-.landing .landing-faqButtonWrapper {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-}
+.landing .landing-faqButtonWrapper { margin-top: 1.5rem; display: flex; justify-content: center; }
 
 /* =========================
-   Responsive: compattiamo
+   Responsive
    ========================= */
 @media (max-width: 1200px){
-  .landing { padding:5em 6rem 2em; }
+  .landing {
+    padding:5em 6rem 2em;
+    padding-left: 3rem; /* se la vuoi ancora più a sinistra → 2rem */
+  }
 }
 
-/* Tablet e mobile */
 @media (max-width: 992px){
-  .landing { padding:5em 3rem 2em; }
-  .landing .landing-stickyLayout { grid-template-columns: 1fr; }
+  html, body { max-width: 100%; overflow-x: hidden; }
+
+  .landing {
+    width: 100% !important;
+    max-width: 100%;
+    padding:5em 3rem 2em;
+    overflow-x: hidden;
+  }
+
+  .landing .landing-stickyLayout { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* Nascondo la colonna destra su tablet/mobile */
+  .landing .landing-col-right { display: none; }
+  .landing .landing-col-left { grid-column: 1 / -1; }
+
   .landing .landing-hero {
     min-height: calc(100vh - var(--nav-offset));
-    padding-bottom: 1.75rem; /* prima 3rem: riduciamo lo spazio dopo l’hero */
-    text-align: center;
+    padding-bottom: 1.25rem; text-align: center;
   }
   .landing .landing-subtitle { margin-left: auto; margin-right: auto; }
   .landing .landing-cta { justify-content: center; }
-  .landing .landing-imageCard { position: relative; top: 0; margin-top: 2rem; }
-  .landing .landing-imageCard img { width: 100%; max-width: 480px; margin: 0 auto; }
 
-  /* Spazio tra sezioni più compatto */
-  .landing .landing-section { margin-top: 2.25rem; }
-  /* “Benefici” senza il buco enorme in mobile/tablet */
-  .landing .landing-benefits { padding-top: 2rem; } /* da 15rem -> 2rem */
+  .landing .landing-section { margin-top: 1.25rem; padding-bottom: 30px; }
+  .landing .landing-demo { padding-top: 0; margin-top: .95rem; padding-bottom: 30px; }
+  .landing .landing-benefits { padding-top: 1rem; }
 }
 
-/* Mobile “stretto” */
 @media (max-width: 576px){
-  .landing { padding:4.5em 1.25rem 1.25em; } /* leggermente più compatto */
+  .landing {
+    padding:5em 1.25rem 1.5em;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
   .landing .landing-title { font-size: clamp(1.9rem, 7vw + .5rem, 3rem); }
-  .landing .landing-section { margin-top: 1.5rem; }
-  .landing .landing-benefits { padding-top: 1.5rem; }
+  .landing .landing-section { margin-top: 1rem; padding-bottom: 30px; }
+  .landing .landing-hero { padding-bottom: 1rem; }
+  .landing .landing-benefits { padding-top: .75rem; }
+}
+
+/* Accessibilità: meno motion */
+@media (prefers-reduced-motion: reduce){
+  .landing .landing-imageCard img{ animation: none !important; transform: none !important; }
 }

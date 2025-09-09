@@ -7,7 +7,7 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 // Registrazione con ruolo
 export async function registerWithRole({ email, password, role, name, surname }) {
@@ -50,14 +50,27 @@ export function logout() {
   return signOut(auth);
 }
 
-// Osserva lo stato auth + profilo
 export function observeAuth(callback) {
-  return onAuthStateChanged(auth, async (user) => {
+  let unsubProfile = null;
+  return onAuthStateChanged(auth, (user) => {
+    // sgancia eventuale listener precedente quando cambia l’utente
+    if (typeof unsubProfile === "function") { unsubProfile(); unsubProfile = null; }
+
     if (!user) {
       callback({ user: null, profile: null });
       return;
     }
-    const snap = await getDoc(doc(db, "users", user.uid));
-    callback({ user, profile: snap.exists() ? snap.data() : null });
+
+    const ref = doc(db, "users", user.uid);
+    unsubProfile = onSnapshot(
+      ref,
+      (snap) => {
+        callback({ user, profile: snap.exists() ? snap.data() : null });
+      },
+      (err) => {
+        console.error("[observeAuth] onSnapshot error:", err);
+        callback({ user, profile: null });
+      }
+    );
   });
 }

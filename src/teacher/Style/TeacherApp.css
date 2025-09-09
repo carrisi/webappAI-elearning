@@ -1,5 +1,3 @@
-/* src/teacher/Style/TeacherApp.css */
-
 /* ===== Reset minimo ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -9,34 +7,43 @@
 }
 html, body, #root { min-height: 100%; }
 body{
-  background: transparent;        /* il gradiente è nel ::before */
-  position: relative;             /* per sicurezza con lo pseudo-elemento */
+  background: transparent;
+  position: relative;
 }
 body::before{
   content: "";
   position: fixed;
-  inset: 0;                       /* top/right/bottom/left: 0 */
-  z-index: -1;                    /* resta dietro a tutto */
+  inset: 0;
+  z-index: -1;
   background: var(--teacher-app-gradient);
-  pointer-events: none;           /* non blocca i click */
-  /* background-attachment: fixed;  opzionale per vecchi browser */
+  pointer-events: none;
 }
 
-/* ===== Wrapper landing (namespace) ===== */
+/* ===== Wrapper landing ===== */
 .landing {
   --nav-offset: 100px;
   width: 100vw;
   box-sizing: border-box;
-  padding: 6em 10rem 2em;
+  padding-top: 6em;
+  padding-bottom: 2em;
+  padding-right: 10rem !important;
+  padding-left: 5rem;
+  padding-left: 4rem; /* allineato allo Student */
 }
 
-/* ===== Layout sticky: sinistra (contenuti) + destra (sticky) ===== */
+/* ===== Layout sticky ===== */
 .landing .landing-stickyLayout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  /* destra più larga */
+  grid-template-columns: minmax(0, 50%) minmax(0, 50%);
+  gap: 2rem;
   align-items: stretch;
   overflow: visible;
+}
+/* evita che il contenuto imponga larghezze minime */
+.landing .landing-col-left,
+.landing .landing-col-right{
+  min-width: 0;
 }
 
 /* HERO */
@@ -48,7 +55,7 @@ body::before{
 }
 .landing .landing-hero-inner { width: 100%; }
 
-/* Tipografia coerente */
+/* Tipografia */
 .landing .landing-title {
   font-size: clamp(2.2rem, 4vw + 1rem, 5rem);
   font-weight: 800;
@@ -83,34 +90,51 @@ body::before{
 .landing .landing-demo { padding-top: 1rem; }
 
 /* CHAT */
-.chat-container {
-  height: 520px;
-  padding: 0;
-}
-@media (max-width: 992px) { 
-  .chat-container { height: 420px; } 
-}
-@media (max-width: 576px) { 
-  .chat-container { height: 360px; } 
-}
+.chat-container { height: 520px; padding: 0; }
+@media (max-width: 992px) { .chat-container { height: 420px; } }
+@media (max-width: 576px) { .chat-container { height: 360px; } }
 
-/* Colonna destra (sticky) */
+/* ===== Colonna destra: illustrazione sticky + ANIMAZIONE FULL HEIGHT ===== */
 .landing .landing-col-right {
   align-self: stretch;
-  display: flex; justify-content: center; align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;  /* spinge al bordo destro */
+  align-items: flex-start;
 }
-.landing .landing-imageCard { position: sticky; top: var(--nav-offset); }
-.landing .landing-imageCard img {
-  width: 125%;
-  max-width: 640px;
-  height: auto; object-fit: contain;
-  filter: drop-shadow(0 24px 48px rgba(0,0,0,.25));
-  animation: floatY 6s ease-in-out infinite;
-  margin-top: 0;
+
+/* Contenitore sticky con altezza viewport e clipping */
+.landing .landing-imageCard{
+  position: sticky;
+  top: var(--nav-offset);
+  height: calc(100vh - var(--nav-offset));
+  overflow: hidden;
+  margin-right: -5rem;
 }
-@keyframes floatY { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
-@media (min-width: 1200px){ .landing .landing-imageCard img{ max-width: 840px; margin-top: 36px; } }
-@media (min-width: 1400px){ .landing .landing-imageCard img{ max-width: 980px; margin-top: 48px; } }
+
+/* Immagine docente: resta grande anche se cala l'altezza della viewport */
+.landing .landing-imageCard img{
+  /* ibrido: lega alla dimensione più favorevole (altezza o larghezza) */
+  --img-h: clamp(420px, max(60vh, 45vw), 900px);
+  height: var(--img-h);
+  width: auto;
+  max-width: none;
+
+  object-fit: contain;
+  display: block;
+  margin: 0 0 0 auto;  /* appoggiata a destra */
+
+  will-change: transform;
+
+  /* corsa verticale = altezza contenitore - altezza immagine */
+  --float-range: calc( (100vh - var(--nav-offset)) - var(--img-h) );
+  animation: floatFull 5s ease-in-out infinite alternate;
+}
+
+/* Keyframes condivisi (usano --float-range) */
+@keyframes floatFull {
+  from { transform: translateY(0); }
+  to   { transform: translateY(var(--float-range)); }
+}
 
 /* Sezioni extra */
 .landing .landing-section { margin-top: 4.5rem; }
@@ -146,6 +170,21 @@ body::before{
   box-shadow: 0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.22);
 }
 
+/* Testimonianze */
+.landing .landing-testimonialsGrid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+  margin-top: 1rem;
+}
+.landing .landing-quote {
+  background: rgba(255,255,255,.12);
+  border-left: 3px solid #fff;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  color: #fff; font-style: italic;
+}
+.landing .landing-quote figcaption { margin-top: .5rem; font-style: normal; opacity: .9; }
+
 /* FAQ */
 .landing .landing-faqItem {
   background: rgba(255,255,255,.10);
@@ -157,27 +196,65 @@ body::before{
 }
 .landing .landing-faqItem summary { cursor: pointer; font-weight: 700; }
 .landing .landing-faqItem p { margin-top: .5rem; color: rgba(255,255,255,.92); }
-.landing .landing-faqButtonWrapper {
-  margin-top: 1.5rem; display: flex; justify-content: center;
+.landing .landing-faqButtonWrapper { margin-top: 1.5rem; display: flex; justify-content: center; }
+
+/* =========================
+   Responsive
+   ========================= */
+@media (max-width: 1200px){
+  .landing {
+    padding: 5em 6rem 2em;
+    padding-left: 3rem;
+  }
+  /* mantieni il 40/60 anche a 1200 per dare respiro all'immagine */
+  .landing .landing-stickyLayout{
+    grid-template-columns: minmax(0, 40%) minmax(0, 60%);
+  }
 }
 
-/* Responsive */
-@media (max-width: 1200px){
-  .landing { padding:5em 6rem 2em; }
-}
 @media (max-width: 992px){
-  .landing { padding:5em 3rem 2em; }
-  .landing .landing-stickyLayout { grid-template-columns: 1fr; }
+  /* fix overflow-x */
+  html, body { max-width: 100%; overflow-x: hidden; }
+
+  .landing {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 5em 3rem 2em;
+    overflow-x: hidden;
+  }
+
+  /* una colonna */
+  .landing .landing-stickyLayout { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* nascondo l'illustrazione su tablet/mobile per priorità al testo/CTA */
+  .landing .landing-col-right { display: none; }
+  .landing .landing-col-left { grid-column: 1 / -1; }
+
   .landing .landing-hero {
     min-height: calc(100vh - var(--nav-offset));
-    padding-bottom: 3rem; text-align: center;
+    padding-bottom: 1.25rem; text-align: center;
   }
   .landing .landing-subtitle { margin-left: auto; margin-right: auto; }
   .landing .landing-cta { justify-content: center; }
-  .landing .landing-imageCard { position: relative; top: 0; margin-top: 2rem; }
-  .landing .landing-imageCard img { width: 100%; max-width: 480px; margin: 0 auto; }
+
+  .landing .landing-section { margin-top: 1.25rem; padding-bottom: 30px; }
+  .landing .landing-demo { padding-top: 0; margin-top: .95rem; padding-bottom: 30px; }
+  .landing .landing-benefits { padding-top: 1rem; }
 }
+
 @media (max-width: 576px){
-  .landing { padding:5em 1.25rem 1.5em; }
+  .landing {
+    padding: 5em 1.25rem 1.5em;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
   .landing .landing-title { font-size: clamp(1.9rem, 7vw + .5rem, 3rem); }
+  .landing .landing-section { margin-top: 1rem; padding-bottom: 30px; }
+  .landing .landing-hero { padding-bottom: 1rem; }
+  .landing .landing-benefits { padding-top: .75rem; }
+}
+
+/* Accessibilità */
+@media (prefers-reduced-motion: reduce){
+  .landing .landing-imageCard img{ animation: none !important; transform: none !important; }
 }

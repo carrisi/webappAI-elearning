@@ -1,102 +1,77 @@
 /* src/pages/Style/StudentProfileEdit.css */
-.student-profile-edit-page {
-  --glass-bg: rgba(255,255,255,0.15);
-  --glass-b1: rgba(255,255,255,0.30);
-  --glass-b2: rgba(255,255,255,0.10);
-  --shadow: 0 8px 32px rgba(0,0,0,0.12);
-  color: #fff;
-  padding-top: 10rem;
-  padding-bottom: 5rem;
+
+/* Sfondo e padding pagina (copiato 1:1 dal teacher, adattato a classe student) */
+.student-profile-page {
+  min-height: 100dvh;
+  background: transparent;
+  padding-bottom: 4rem;
 }
 
-/* Header */
-.edit-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin: 0;
-  color: #fff;
-  text-shadow: 0 8px 32px rgxba(0,0,0,0.4);
-}
-.edit-sub {
-  margin: .25rem 0 0;
-  color: rgba(255,255,255,0.9);
+/* Container Bootstrap interno */
+.student-profile-page .container {
+  background: transparent !important;
 }
 
-/* Alert glass */
-.glass-alert {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: #000;
+/* Card glass */
+.student-profile-page .card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 0.75rem 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Card edit */
-.edit-card {
-  border: 1px solid var(--glass-b1);
+/* Input glass */
+.profile-card .form-control {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
 }
+.profile-card .form-control::placeholder { color: rgba(255,255,255,0.65); }
+.profile-card .form-label { color: #fff; font-weight: 600; }
 
 /* Avatar */
-.avatar-wrap {
-  display: grid; place-items: center;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-b1);
-  border-radius: 12px;
-  padding: .75rem;
+.profile-avatar{ display:flex; align-items:center; justify-content:center; margin-bottom: 1.5rem; }
+.avatar-ring{
+  width: 140px; height: 140px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
 }
-.avatar-img {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  border: 3px solid rgba(255,255,255,0.6);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
-}
-
-/* Pulsanti avatar */
-.btn-upload {
-  display: inline-block;
-  background: rgba(255,255,255,0.9);
-  color: #6C63FF;
-  font-weight: 700;
-  padding: .6rem 1rem;
-  border-radius: 999px;
-  cursor: pointer;
-  text-align: center;
-}
-.btn-reset-file {
-  border-radius: 999px;
+.avatar-ring img{ width:100%; height:100%; object-fit: cover; }
+.avatar-placeholder{
+  font-size: 2.25rem; font-weight: 800; color:#fff;
+  letter-spacing: .05em;
 }
 
-/* Sezioni */
-.section-title {
-  color: #111;
-  font-weight: 800;
-  margin-bottom: .75rem;
+/* Switch notifiche */
+.form-switch .form-check-input{ cursor: pointer; }
+
+/* Pulsanti */
+.landing-btn { padding: .55rem 1rem; }
+@media (max-width: 576px){ .landing-btn { width: 100%; } }
+
+/* Separatore sicurezza */
+.student-profile-page hr{
+  border-color: rgba(255,255,255,0.18);
+  margin: 2rem 0;
 }
 
-/* CTA bottom */
-.edit-actions {
-  display: flex;
-  gap: .75rem;
-  justify-content: flex-end;
-  margin: 1.25rem 0 2rem;
+/* Hero */
+.glass-hero{
+  padding: 2rem;
+  border-radius: 20px;
+  margin-bottom: 2rem !important;
 }
+.glass-hero .hero-title{ margin-bottom: .5rem; color:#fff; }
+.glass-hero .hero-subtitle{ margin-bottom: .75rem; color:#fff; }
 
-/* Bootstrap override leggeri per leggibilità su glass */
-.student-profile-edit-page .form-label { color: #111; font-weight: 600; }
-.student-profile-edit-page .form-control,
-.student-profile-edit-page .form-select {
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.08);
-}
-.student-profile-edit-page .form-control:focus,
-.student-profile-edit-page .form-select:focus {
-  box-shadow: 0 0 0 .2rem rgba(108,99,255,0.15);
-  border-color: #6C63FF;
-}
-
-/* Responsive */
-@media (max-width: 991px) {
-  .edit-actions { justify-content: center; }
-}
+/* Colonne */
+.student-profile-page .row{ margin-left:-0.75rem; margin-right:-0.75rem; }
+.student-profile-page .col,
+.student-profile-page [class*="col-"]{ padding-left:0.75rem; padding-right:0.75rem; }

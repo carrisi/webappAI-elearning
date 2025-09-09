@@ -3,7 +3,7 @@
 ========================================
 
 ================= TO DO ================
-[   ]   Dopo la creazione di un account non vengo reindirizzato immediatamente,
+[ X ]   Dopo la creazione di un account non vengo reindirizzato immediatamente,
         devo fare il refresh della Pagina.
 
 [ X ]   Durante la creazione di un corso mettere dei limiti nel form.
@@ -16,9 +16,9 @@
 ========================================
 
 ================= FILE =================
-[   ]   TeacherApp
+[ X ]   TeacherApp
 [ X ]   TeacherCourse
-[ X ]   TeacherCourseDetail
+[ X ]   TeacherCourseDetail     [ X ] Ordine delle lezioni nella varie sezioni: dalla prima inserita all'ultima
 [ X ]   TeacherCourseNew
 [ X ]   TeacherCourseEdit
 [ X ]   TeacherSectionNew
@@ -29,13 +29,10 @@
 [ X ]   TeacherProfileEdit
 [ X ]   TeacherGeneralDashboard:[ X ] Cancellare bottone Gestisci corsi
 [ X ]   TeacherCourseDashboard
-
 [ X ]   TeacherAssessments:     [ X ]   Controllare se realmente inserisce gli esami/esoneri/esercitazioni
-
 [ X ]   NavBar:                 [ X ]   Aggiungere logout
                                 [ X ]   Controllare se le rotte sono bloccate dopo il logout
-
-[   ]   Aggiungere Pagina FAQ
+[ X ]   Aggiungere Pagina FAQ
 ========================================
 
 ================ DESIGN ================
@@ -43,7 +40,9 @@
 
 [ X ]   TeacherProfileEdit:     [ X ] Cambiare la scritta "carica immagine" con "carica"
 
-[ X ]   TeacherCourseDetail:    [ X ] Accorciare gli obbiettivi del corso e inserire "mostra altro" se è troppo lungo
+[   ]   TeacherGeneralDashboard [   ] Bottoni richiesta corso
+
+[ X ]   TeacherCourseDetail:    [   ] Accorciare gli obbiettivi del corso e inserire "mostra altro" se è troppo lungo
                                 [ X ] Inserire bottone per eliminare corso
 
 [ X ]   TeacherLessonNew:       [ X ] Eliminare bottone "Torna al corso"
@@ -52,10 +51,10 @@
 ========================================
 
 ============== RESPONSIVE ==============
-[   ]   NavBar:                 [   ] Ottimizzare per responsive
+[ X ]   NavBar:                 [ X ] Ottimizzare per responsive
 
-[   ]   TeacherApp:             [   ] Avvicinare gli elementi
-                                [   ] Eliminare immagine
+[ X ]   TeacherApp:             [ X ] Avvicinare gli elementi
+                                [ X ] Eliminare immagine
 
 [ X ]   TeacherGeneralDashboard:[ X ] Sistemare bottone Apri Dashboard (course cards)
 

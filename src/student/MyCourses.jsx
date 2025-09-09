@@ -1,9 +1,12 @@
 // src/pages/MyCourses.jsx
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import mockCourses from '../data/mockCourses';
 import './Style/MyCourses.css';
+
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { listMyEnrollments } from '../services/enrollments'; // legge /enrollments per lo user corrente
 
 function CourseCard({ corso }) {
   return (
@@ -14,13 +17,13 @@ function CourseCard({ corso }) {
           <div className="small text-muted mb-2">Docente: {corso.instructor}</div>
 
           {corso.descrizione && (
-            <Card.Text className="mb-3">{corso.descrizione}</Card.Text>
+            <Card.Text className="course-card-description mb-3">{corso.descrizione}</Card.Text>
           )}
 
           {/* 1) Dettagli */}
           <div className="course-meta mb-2 d-flex gap-2 flex-wrap">
-            {Number.isFinite(corso?.introduzione?.credits) && (
-              <Badge bg="light" text="dark">{corso.introduzione.credits} CFU</Badge>
+            {Number.isFinite(Number(corso?.introduzione?.credits)) && (
+              <Badge bg="light" text="dark">{Number(corso.introduzione.credits)} CFU</Badge>
             )}
             {corso?.introduzione?.semester && (
               <Badge bg="light" text="dark">{corso.introduzione.semester}</Badge>
@@ -37,7 +40,7 @@ function CourseCard({ corso }) {
 
         <Card.Footer>
           <small className="text-muted">
-            {corso.stato === 'attivo' ? 'In corso' : 'Completato'}
+            {corso.stato === 'completato' ? 'Completato' : 'In corso'}
           </small>
         </Card.Footer>
       </Card>
@@ -46,6 +49,69 @@ function CourseCard({ corso }) {
 }
 
 export default function MyCourses() {
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErr(null);
+
+        // 1) prendo le mie iscrizioni
+        const enrolls = await listMyEnrollments(); // restituisce tutte; filtro active
+        const active = (enrolls || []).filter(e => e.status === 'active');
+
+        if (active.length === 0) {
+          if (!alive) return;
+          setCourses([]);
+          return;
+        }
+
+        // 2) carico i corsi relativi
+        const ids = Array.from(new Set(active.map(e => e.courseId)));
+        const snaps = await Promise.all(ids.map(id => getDoc(doc(db, 'courses', id))));
+
+        const loaded = snaps
+          .filter(s => s.exists())
+          .map(s => {
+            const d = s.data() || {};
+            // normalizzo i campi per l'UI esistente
+            const introduzione = d.introduzione || {};
+            const instructor =
+              introduzione.professor || d.professor || '—';
+
+            return {
+              id: s.id,
+              titolo: d.titolo || 'Corso senza titolo',
+              descrizione: d.descrizione || '',
+              stato: d.stato || 'attivo',
+              tags: d.tags || [],
+              introduzione: {
+                ...introduzione,
+                credits: Number(introduzione.credits ?? NaN),
+                semester: introduzione.semester || d.semester || '',
+              },
+              instructor,
+            };
+          });
+
+        if (!alive) return;
+        setCourses(loaded);
+      } catch (e) {
+        console.error('MyCourses load error', e);
+        if (!alive) return;
+        setErr('Impossibile caricare i tuoi corsi.');
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
   return (
     <Container className="py-4">
       {/* HERO con glassmorphism */}
@@ -63,13 +129,20 @@ export default function MyCourses() {
 
       {/* Lista corsi */}
       <Row className="g-3">
-        {mockCourses.map(corso => (
+        {courses.map(corso => (
           <Col key={corso.id} xs={12} md={6} lg={4}>
             <CourseCard corso={corso} />
           </Col>
         ))}
-        {mockCourses.length === 0 && (
+
+        {!loading && !err && courses.length === 0 && (
           <Col><p>Non sei iscritto a nessun corso.</p></Col>
+        )}
+
+        {err && (
+          <Col xs={12}>
+            <div className="alert alert-danger glass-card m-0">{err}</div>
+          </Col>
         )}
       </Row>
     </Container>

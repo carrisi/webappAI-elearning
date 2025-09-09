@@ -135,3 +135,7 @@
 
 /* accessibilità: più contrasto al passaggio */
 .clickable-card:hover .courseTitle { text-decoration: underline; }
+
+.course-card-description {
+  -webkit-line-clamp: 5; /* mostra massimo 3 righe */
+}

@@ -18,7 +18,7 @@
   text-align: center;
 }
 
-/* glass per tutto il nav dei tab */
+/* glass per tutto il nav dei tab (identico allo student) */
 .course-detail-page .glass-nav {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -49,13 +49,15 @@
 /* spaziatura tabs */
 .course-detail-page .cd-tabs { margin-bottom: 2rem; }
 
-/* contenitore introduttivo */
+/* ===== Prima sezione: contenitore glass come nello student ===== */
 .course-detail-page .glass-intro-container {
   background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);   /* allineato a glass-card */
   border-radius: 12px;
   padding: 1.5rem 2rem;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);     /* come le card glass */
   color: #000;
   text-align: center;
 }
@@ -83,7 +85,26 @@
 .course-detail-page .glass-intro-container h5 { margin-top: 1rem; margin-bottom: 0.5rem; }
 .course-detail-page .glass-intro-container p { margin: 0; }
 
-/* accordion */
+/* Testo descrizione + Mostra altro/meno (identico allo student) */
+.course-detail-page .course-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #000;
+}
+.course-detail-page .course-description.collapsed { -webkit-line-clamp: 3; }
+.course-detail-page .course-description.expanded { -webkit-line-clamp: unset; }
+.course-detail-page .toggle-description {
+  background: none;
+  border: none;
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+}
+
+/* Accordion (glass) */
 .course-detail-page .cd-accordion .accordion-button {
   background: rgba(255, 255, 255, 0.15);
   border: none;
@@ -103,7 +124,7 @@
   outline: none !important;
 }
 
-/* lezioni glass */
+/* Lezioni glass */
 .course-detail-page .glass-card {
   background: rgba(255, 255, 255, 0.15) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -119,10 +140,7 @@
 }
 .course-detail-page .clickable-card:hover { transform: translateY(-2px); }
 
-/* non trovato */
-.cd-not-found { padding: 2rem; text-align: center; }
-
-/* Bottoni glass riutilizzo */
+/* Bottoni glass (riuso coerente) */
 .btn-glass {
   color: black;
   background: rgba(255,255,255,0.15);
@@ -145,25 +163,15 @@
   border-color: transparent;
 }
 
-/* Header sezione: titolo + azioni allineate */
-.course-detail-page .cd-section-title {
-  flex: 1 1 auto;
-}
-.course-detail-page .cd-section-actions {
-  display: inline-flex;
-  gap: .5rem;
-  margin-left: .75rem;
-}
-/* dimensione dei bottoni in header (uguale a bottoni delle lezioni) */
+/* Header sezione */
+.course-detail-page .cd-section-title { flex: 1 1 auto; }
+.course-detail-page .cd-section-actions { display: inline-flex; gap: .5rem; margin-left: .75rem; }
 .course-detail-page .cd-accordion .accordion-header .btn.btn-sm.btn-glass {
   padding: .25rem .6rem;
   border-radius: 12px;
   text-align: center;
 }
-#eliminaSezione {
-  margin-right: 1rem;
-}
-/* Evita a capo su "Elimina lezione" */
+#eliminaSezione { margin-right: 1rem; }
 .btn-delete { white-space: nowrap; min-width: 120px; text-align: center; }
 
 /* Modal stile glass */
@@ -176,14 +184,8 @@
   -webkit-backdrop-filter: blur(12px);
   color: #000;
 }
-.glass-modal-header {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-.glass-modal-footer {
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-}
+.glass-modal-header { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.glass-modal-footer { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
 
 /* --- Grid per il form del modal Modifica info corso --- */
 .edit-info-grid {
@@ -191,73 +193,32 @@
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 12px 16px;
 }
-.edit-info-grid .col-span-2 {
-  grid-column: span 2;
-}
+.edit-info-grid .col-span-2 { grid-column: span 2; }
 
-/* testo descrizione corso */
-.course-detail-page .course-description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  color: #000;
-}
-
-.course-detail-page .course-description.collapsed {
-  -webkit-line-clamp: 3; /* mostra massimo 3 righe */
-}
-
-.course-detail-page .course-description.expanded {
-  -webkit-line-clamp: unset;
-}
-
-.course-detail-page .toggle-description {
-  background: none;
-  border: none;
-  color: rgba(0, 0, 0, 0.3);
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  text-decoration: underline;
-}
+/* Non trovato */
+.cd-not-found { padding: 2rem; text-align: center; }
 
 /* ========================== */
 /* ====== RESPONSIVE =========*/
 /* ========================== */
-
-/* >= md: amplia la griglia del modal a due colonne */
 @media (min-width: 768px) {
-  .edit-info-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .edit-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
-/* <= lg: riduci padding laterale della pagina e dimensione titolo */
 @media (max-width: 1200px) {
   .course-detail-page { padding: 6em 4rem 2em; }
   .course-detail-page .cd-title { font-size: 4.5rem; }
 }
-
-/* <= md: ancora meno padding; bottoni in elenco possono andare a capo ordinatamente */
 @media (max-width: 992px) {
   .course-detail-page { padding: 6em 2rem 2em; }
   .course-detail-page .cd-title { font-size: 3.2rem; }
-
-  /* allinea header accordion su due righe quando serve */
-  .course-detail-page .cd-accordion .accordion-header {
-    align-items: flex-start;
-  }
-  .course-detail-page .cd-section-actions {
-    margin-left: .5rem;
-  }
+  .course-detail-page .cd-accordion .accordion-header { align-items: flex-start; }
+  .course-detail-page .cd-section-actions { margin-left: .5rem; }
 }
-
-/* <= sm: layout mobile */
 @media (max-width: 576px) {
   .course-detail-page { padding: 4.5em 1rem 1.5em; }
   .course-detail-page .cd-title { font-size: 2.2rem; margin: 1rem 0; }
 
-  /* tabs scrollabili in orizzontale */
+  /* tabs scrollabili orizzontalmente */
   .course-detail-page .glass-nav {
     padding: .25rem .5rem;
     overflow-x: auto;
@@ -269,7 +230,6 @@
     white-space: nowrap;
   }
 
-  /* intro + cards più compatti */
   .course-detail-page .glass-intro-container { padding: 1rem; }
   .course-detail-page .glass-card { padding: .5rem .75rem; }
 
@@ -278,10 +238,8 @@
     flex-wrap: wrap;
     row-gap: .35rem;
   }
-  /* su mobile togli larghezza fissa del bottone elimina per evitare overflow */
   .btn-delete { min-width: unset; }
 
-  /* modal: footer a colonna, dialog con margini ridotti */
   .modal-dialog { margin: .5rem; }
   .glass-modal-footer {
     flex-direction: column;

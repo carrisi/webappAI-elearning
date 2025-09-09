@@ -1,3 +1,4 @@
+// src/App.jsx
 import React              from "react";
 import { Routes, Route }  from "react-router-dom";
 
@@ -14,11 +15,12 @@ import StudentApp         from "./student/StudentApp";
 import StudentCourses     from "./components/StudentCourses";
 import MyCourses          from "./student/MyCourses";
 import CourseDetail       from "./student/CourseDetail";
-import LessonPage         from "./student/LessonPage";
 import ExploreCourses     from "./student/ExploreCourses";
+import StudentChatAi      from "./student/StudentChatAi";
 import StudentProfile     from "./student/StudentProfile";
 import StudentProfileEdit from "./student/StudentProfileEdit";
 import StudentFAQ         from "./student/StudentFAQ";
+import StudentLessonView  from "./student/StudentLessonView";
 
 /* ===== DOCENTE ===== */
 import TeacherApp             from "./teacher/TeacherApp";
@@ -35,6 +37,7 @@ import TeacherCourseDashboard from "./teacher/TeacherCourseDashboard";
 import TeacherProfile         from "./teacher/TeacherProfile";
 import TeacherProfileEdit     from "./teacher/TeacherProfileEdit";
 import TeacherAssessments     from "./teacher/TeacherAssessments";
+import TeacherFAQ             from "./teacher/TeacherFAQ";
 
 /* ===== AUTH STATE & GUARDIE ===== */
 import AuthProvider   from "./context/AuthContext";
@@ -71,10 +74,8 @@ export default function App() {
               <Route path="impostazioni" element={<StudentProfileEdit />} />
               <Route path="faq" element={<StudentFAQ />} />
               <Route path="corsi/:id" element={<CourseDetail />} />
-              <Route
-                path="corsi/:id/sezioni/:secId/lezioni/:lezId"
-                element={<LessonPage />}
-              />
+              <Route path="corsi/:id/sezioni/:secId/lezioni/:lezId" element={<StudentLessonView />} />
+              <Route path="chatai" element={<StudentChatAi />} />
             </Route>
           </Route>
 
@@ -84,13 +85,11 @@ export default function App() {
               <Route path="corsi" element={<TeacherCourses />} />
               <Route path="corsi/:courseId" element={<TeacherCourseDetail />} />
               <Route path="dashboard" element={<TeacherDashboard />} />
-              <Route
-                path="corsi/:courseId/dashboard"
-                element={<TeacherCourseDashboard />}
-              />
+              <Route path="corsi/:courseId/dashboard" element={<TeacherCourseDashboard />} />
               <Route path="profilo" element={<TeacherProfile />} />
               <Route path="profilo/modifica" element={<TeacherProfileEdit />} />
               <Route path="valutazioni" element={<TeacherAssessments />} />
+              <Route path="FAQ" element={<TeacherFAQ />} />
               {/* Lezioni */}
               <Route
                 path="corsi/:courseId/sezioni/:secId/lezioni/nuova"

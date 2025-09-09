@@ -83,8 +83,8 @@
 .send-button {
   border: none;
   border-radius: 10px;
-  background: linear-gradient(90deg, #ff416c, #8e2de2);
-  color: #fff;
+  background: #ffffff;
+  color: #6552f9;
   padding: 0 16px;
   cursor: pointer;
 }

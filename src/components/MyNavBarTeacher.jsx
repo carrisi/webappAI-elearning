@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button      from 'react-bootstrap/Button';
 import { Link, useNavigate } from 'react-router-dom';
 
-import './component-style/MyNavBarTeacher.css';
+import './component-style/MyNavBar.css';
 
 export default function MyNavBarTeacher() {
   const [q, setQ] = useState('');
@@ -34,7 +34,7 @@ export default function MyNavBarTeacher() {
             <Nav.Link as={Link} to="/docente/profilo">Profilo</Nav.Link>
 
             <NavDropdown title="Altro" id="basic-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/docente/faq">FAQ Docente</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/docente/FAQ">FAQ Docente</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/docente/impostazioni">Impostazioni</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item as={Link} to="/logout">Logout</NavDropdown.Item>

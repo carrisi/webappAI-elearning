@@ -12,6 +12,26 @@ import {
   deleteCourseDeep
 } from '../services/courses';
 
+// Comparator: vecchie → nuove; fallback per assenza createdAt
+function lessonAscComparator(a, b) {
+  const toMs = (ts) =>
+    ts?.toMillis ? ts.toMillis() :
+    (typeof ts?.seconds === 'number' ? ts.seconds * 1000 : null);
+
+  const am = toMs(a?.createdAt);
+  const bm = toMs(b?.createdAt);
+
+  if (am != null || bm != null) {
+    return (am ?? 0) - (bm ?? 0); // più vecchio prima
+  }
+
+  const ao = Number.isFinite(a?.order) ? Number(a.order) : Number.POSITIVE_INFINITY;
+  const bo = Number.isFinite(b?.order) ? Number(b.order) : Number.POSITIVE_INFINITY;
+  if (ao !== bo) return ao - bo;
+
+  return (a?.title || '').localeCompare(b?.title || '', 'it', { sensitivity: 'base' });
+}
+
 export default function TeacherCourseDetail() {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -28,7 +48,7 @@ export default function TeacherCourseDetail() {
   const [showDeleteCourse, setShowDeleteCourse] = useState(false);
   const [deletingCourse, setDeletingCourse] = useState(false);
 
-  // NEW STATE per mostra altro/meno
+  // Mostra altro/meno
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -47,7 +67,8 @@ export default function TeacherCourseDetail() {
         const withLessons = [];
         for (const s of secs) {
           const lez = await listLessons(courseId, s.id);
-          withLessons.push({ ...s, lessons: lez });
+          const sorted = [...(lez || [])].sort(lessonAscComparator);
+          withLessons.push({ ...s, lessons: sorted });
         }
         setSections(withLessons);
       } catch (e) {
@@ -89,7 +110,12 @@ export default function TeacherCourseDetail() {
       setSections(prev =>
         prev.map(s =>
           s.id === selectedSection
-            ? { ...s, lessons: (s.lessons || []).filter(l => l.id !== selectedLesson) }
+            ? {
+                ...s,
+                lessons: (s.lessons || [])
+                  .filter(l => l.id !== selectedLesson)
+                  .sort(lessonAscComparator), // mantieni ordinamento
+              }
             : s
         )
       );
@@ -103,7 +129,7 @@ export default function TeacherCourseDetail() {
     }
   };
 
-  // handler elimina corso
+  // Elimina corso
   const handleConfirmDeleteCourse = async () => {
     try {
       setDeletingCourse(true);
@@ -141,7 +167,7 @@ export default function TeacherCourseDetail() {
               <div className="intro-office">{corso.introduzione?.officeHours}</div>
               <hr />
               <h5>Obiettivi del corso</h5>
-              
+
               <p className={`course-description ${expanded ? 'expanded' : 'collapsed'}`}>
                 {corso.descrizione}
               </p>
@@ -162,21 +188,18 @@ export default function TeacherCourseDetail() {
               </div>
             </div>
 
-            {/* sezioni e lezioni */}
+            {/* Sezioni + lezioni */}
             {sections.length === 0 ? (
               <p className="text-white-50">Nessuna sezione presente. Aggiungine una qui sotto.</p>
             ) : (
               <Accordion alwaysOpen defaultActiveKey={sections.map(s => s.id)} className="cd-accordion">
                 {sections.map(sec => (
                   <Accordion.Item eventKey={sec.id} key={sec.id}>
-                    {/* HEADER: solo titolo, niente bottoni */}
                     <Accordion.Header>
                       <span className="cd-section-title">{sec.title}</span>
                     </Accordion.Header>
 
-                    {/* BODY: toolbar azioni + elenco lezioni */}
                     <Accordion.Body>
-                      {/* Toolbar azioni sezione */}
                       <div className="d-flex justify-content-end mb-2">
                         <Button
                           size="sm"
@@ -194,15 +217,23 @@ export default function TeacherCourseDetail() {
                             className="glass-card clickable-card mb-2 d-flex justify-content-between align-items-center"
                           >
                             <div>
-                              <span>{lez.title}</span>{" "}
-                              <small className="text-muted ms-3">[{(lez.fileTypes || []).join(", ")}]</small>
+                              <span>{lez.title}</span>{' '}
+                              <small className="text-muted ms-3">[{(lez.fileTypes || []).join(', ')}]</small>
                             </div>
-                        
+
                             <div className="d-flex gap-2">
-                              <Link className="btn btn-sm btn-glass"
-                                   to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}`}>Anteprima</Link>
-                              <Link className="btn btn-sm btn-glass"
-                                   to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}/modifica`}>Modifica</Link>
+                              <Link
+                                className="btn btn-sm btn-glass"
+                                to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}`}
+                              >
+                                Anteprima
+                              </Link>
+                              <Link
+                                className="btn btn-sm btn-glass"
+                                to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/${lez.id}/modifica`}
+                              >
+                                Modifica
+                              </Link>
                               <Button
                                 size="sm"
                                 className="btn btn-sm btn-glass btn-delete"
@@ -214,7 +245,7 @@ export default function TeacherCourseDetail() {
                           </ListGroup.Item>
                         ))}
                       </ListGroup>
-                      
+
                       <Button
                         as={Link}
                         to={`/docente/corsi/${courseId}/sezioni/${sec.id}/lezioni/nuova`}
@@ -224,7 +255,6 @@ export default function TeacherCourseDetail() {
                       </Button>
                     </Accordion.Body>
                   </Accordion.Item>
-
                 ))}
               </Accordion>
             )}
@@ -261,7 +291,9 @@ export default function TeacherCourseDetail() {
       {/* Modali elimina */}
       <Modal show={showDeleteSection} onHide={() => setShowDeleteSection(false)} centered>
         <Modal.Header closeButton className="glass-modal-header"><Modal.Title>Conferma eliminazione</Modal.Title></Modal.Header>
-        <Modal.Body className="glass-modal-body">Sei sicuro di voler eliminare questa sezione? Verranno eliminate anche le lezioni contenute.</Modal.Body>
+        <Modal.Body className="glass-modal-body">
+          Sei sicuro di voler eliminare questa sezione? Verranno eliminate anche le lezioni contenute.
+        </Modal.Body>
         <Modal.Footer className="glass-modal-footer">
           <Button className="btn-glass-outline" onClick={() => setShowDeleteSection(false)}>Annulla</Button>
           <Button className="btn-glass" onClick={handleConfirmDeleteSection}>Elimina</Button>

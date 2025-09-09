@@ -38,3 +38,28 @@
 .courseDescription {
   -webkit-line-clamp: 5; /* mostra massimo 5 righe */
 }
+
+/* ===== Richieste di accesso (dashboard) ===== */
+.req-list { list-style: none; padding: 0; }
+.req-item {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: .75rem; padding: .75rem 1rem; border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.req-item:last-child { border-bottom: 0; }
+
+.req-main { flex: 1 1 auto; min-width: 0; }
+.req-top { display: flex; gap: .75rem; flex-wrap: wrap; align-items: baseline; }
+.req-student code { background: rgba(255,255,255,.12); padding: .1rem .35rem; border-radius: 6px; }
+
+.req-date { color: rgba(255,255,255,.8); font-size: .9rem; }
+.req-note {
+  margin-top: .25rem; color: rgba(255,255,255,.95);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.req-right { display: flex; align-items: center; flex-shrink: 0; }
+.req-right .btn-sm { padding: .35rem .6rem; font-size: .9rem; }
+
+/* Bottoni piccoli nelle richieste */
+.btn-xs { padding: .25rem .55rem; font-size: .9rem; border-width: 2px; }
+.landing-btn.danger { border-color: #ff4d4f; color: #fff; background: rgba(255,77,79,.15); }
+.landing-btn.danger:hover { background: rgba(255,77,79,.25); }
