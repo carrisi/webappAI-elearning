@@ -22,11 +22,11 @@ body::before{
 /* ===== Wrapper landing ===== */
 .landing {
   --nav-offset: 100px;
-  width: 100vw;
+  width: 100%;
   box-sizing: border-box;
   padding-top: 6em;
   padding-bottom: 2em;
-  padding-right: 10rem !important;
+  padding-right: 5rem !important;
   padding-left: 5rem;
   padding-left: 4rem; /* allineato allo Student */
 }
@@ -34,8 +34,7 @@ body::before{
 /* ===== Layout sticky ===== */
 .landing .landing-stickyLayout {
   display: grid;
-  /* destra più larga */
-  grid-template-columns: minmax(0, 50%) minmax(0, 50%);
+  grid-template-columns: minmax(50%, 50%) minmax(0, 50%);
   gap: 2rem;
   align-items: stretch;
   overflow: visible;
@@ -107,8 +106,8 @@ body::before{
   position: sticky;
   top: var(--nav-offset);
   height: calc(100vh - var(--nav-offset));
-  overflow: hidden;
-  margin-right: -5rem;
+  overflow: visible;
+  margin-right: 0rem;
 }
 
 /* Immagine docente: resta grande anche se cala l'altezza della viewport */

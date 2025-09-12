@@ -40,7 +40,7 @@
 
 [ X ]   TeacherProfileEdit:     [ X ] Cambiare la scritta "carica immagine" con "carica"
 
-[   ]   TeacherGeneralDashboard [   ] Bottoni richiesta corso
+[ X ]   TeacherGeneralDashboard [ X ] Bottoni richiesta corso
 
 [ X ]   TeacherCourseDetail:    [   ] Accorciare gli obbiettivi del corso e inserire "mostra altro" se è troppo lungo
                                 [ X ] Inserire bottone per eliminare corso

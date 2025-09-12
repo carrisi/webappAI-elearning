@@ -1,12 +1,46 @@
-# React + Vite
+# Webapp AI E-Learning
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Piattaforma e-learning con interfacce Studente/Docente, integrazione Firebase (Auth + Firestore) e visualizzazione contenuti (video/PDF) con chat AI.  
+Questo repository è **già configurato** per puntare al progetto Firebase associato (tramite variabili `VITE_`).
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Requisiti
 
-## Expanding the ESLint configuration
+- **Node.js**: versione **20 LTS** (consigliato)
+- **npm**: versione **9+**
+- **Browser** moderno (Chrome/Edge/Firefox/Safari)
+- **Accesso rete**: necessario per Firebase
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Verifica versioni
+
+Scrivere nel terminare:
+```
+node -v
+npm -v
+```
+
+
+## Configurazione ambiente
+Il progetto è pronto per l’uso con il Firebase già impostato.
+
+
+## Avvio sviluppo
+```
+npm install
+//avvio locale in modalità sviluppo (Vite)  
+npm run dev
+
+Apri l’URL indicato in console
+(es. http://localhost:5173).
+```
+
+
+## Build produzione e anteprima
+```
+// genera la build in dist/
+npm run build
+
+// in locale
+npm run preview
+```

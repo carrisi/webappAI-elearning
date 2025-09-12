@@ -19,11 +19,7 @@
 [ X ] StudentProfile            [ X ] 1:1 con TeacherProfile
 [ X ] StudentProfileEdit        [ X ]
 [ X ] StudentFAQ                [ X ] 1:1 con TeacherFAQ
-[   ] StudentChatAi             [   ] Creare pagina
-========================================
-
-============== RESPONSIVE ==============
-[   ]
+[ X ] StudentChatAi             [ X ] Creare pagina
 ========================================
 
 ============ REVISIONE PER =============
@@ -35,3 +31,15 @@
 [ X ] Regole firestore - Console online
 [ X ] Indici firestore - Console online
 ========================================
+
+========================================
+            REVISIONE FINALE
+========================================
+[   ] StudentApp
+[   ] ExploreCourses
+[   ] MyCourses
+[   ] CourseDetail
+[   ] StudentLessonView
+[   ] StudentChatAi
+[   ] StudentProfile
+[   ] StudentProfileEdit
